@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harness Enterprise Training — 10-Day Course</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080C10;--surface:#0D1117;--surface2:#161B22;--surface3:#1C2128;
+  --border:#30363D;--border2:#21262D;
+  --white:#E6EDF3;--muted:#7D8590;--muted2:#484F58;
+  --green:#3FB950;--green-dim:#1A3A1F;--green-glow:rgba(63,185,80,.15);
+  --blue:#58A6FF;--blue-dim:#0D2040;
+  --purple:#BC8CFF;--purple-dim:#1A0D3A;
+  --orange:#FFA657;--orange-dim:#3A1A00;
+  --red:#F85149;--red-dim:#3A0D0D;
+  --yellow:#E3B341;--yellow-dim:#3A2A00;
+  --cyan:#39D353;
+  --mono:'IBM Plex Mono',monospace;--sans:'Inter',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:var(--sans);font-size:14px;line-height:1.6;overflow-x:hidden}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{background:var(--surface);border-right:1px solid var(--border2);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.sidebar-header{padding:1.2rem 1rem;border-bottom:1px solid var(--border2)}
+.sidebar-logo{font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:.5rem}
+.sidebar-logo-dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 var(--green-glow)}50%{box-shadow:0 0 0 6px transparent}}
+.sidebar-title{font-size:13px;font-weight:600;color:var(--white);margin-top:.4rem}
+.sidebar-nav{padding:.5rem 0;flex:1}
+.nav-section{padding:.4rem 1rem .2rem;font-family:var(--mono);font-size:10px;color:var(--muted2);letter-spacing:.1em;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:.6rem;padding:.5rem 1rem;cursor:pointer;transition:all .15s;border-left:2px solid transparent;font-size:13px;color:var(--muted)}
+.nav-item:hover{background:var(--surface2);color:var(--white)}
+.nav-item.active{background:var(--surface2);color:var(--white);border-left-color:var(--green)}
+.nav-item-day{font-family:var(--mono);font-size:10px;color:var(--muted2);margin-left:auto}
+.nav-item-dot{width:6px;height:6px;border-radius:50%;background:var(--border);flex-shrink:0}
+.nav-item.active .nav-item-dot,.nav-item.done .nav-item-dot{background:var(--green)}
+.nav-item.done{color:var(--muted)}
+.sidebar-footer{padding:1rem;border-top:1px solid var(--border2);font-size:12px;color:var(--muted)}
+.sidebar-footer a{color:var(--blue);text-decoration:none}
+
+/* MAIN */
+.main{overflow-y:auto;height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border2);padding:.8rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(8px)}
+.topbar-breadcrumb{font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:.5rem}
+.topbar-breadcrumb span{color:var(--white)}
+.topbar-actions{display:flex;gap:.5rem}
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .9rem;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .15s;text-decoration:none}
+.btn-green{background:var(--green);color:#000}
+.btn-green:hover{background:#52D65F}
+.btn-outline{background:transparent;color:var(--white);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--muted);background:var(--surface2)}
+
+/* CONTENT */
+.content{padding:1.5rem;max-width:900px}
+.page{display:none}
+.page.active{display:block}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--surface2) 0%,var(--bg) 100%);border:1px solid var(--border2);border-radius:12px;padding:2.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;right:-10%;width:400px;height:400px;background:radial-gradient(circle,var(--green-glow) 0%,transparent 70%);pointer-events:none}
+.hero-tag{font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:1rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--green-dim);border:1px solid var(--green);padding:.3rem .8rem;border-radius:999px}
+.hero h1{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-bottom:.8rem}
+.hero-sub{color:var(--muted);font-size:14px;max-width:560px;line-height:1.7;margin-bottom:1.5rem}
+.hero-stats{display:flex;gap:2rem;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-n{font-family:var(--mono);font-size:1.4rem;font-weight:600;color:var(--white)}
+.hero-stat-n em{color:var(--green);font-style:normal;font-size:1rem}
+.hero-stat-l{font-size:11px;color:var(--muted);margin-top:.2rem}
+
+/* PROGRESS */
+.progress-track{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:1.2rem 1.5rem;margin-bottom:1.5rem}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+.progress-label{font-size:13px;font-weight:500}
+.progress-pct{font-family:var(--mono);font-size:12px;color:var(--green)}
+.progress-bar{height:4px;background:var(--border2);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--green),#52D65F);border-radius:2px;transition:width .5s ease;width:10%}
+.progress-days{display:flex;gap:4px;margin-top:.8rem}
+.progress-day{flex:1;height:24px;border-radius:4px;background:var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--muted);cursor:pointer;transition:all .15s}
+.progress-day.done{background:var(--green-dim);color:var(--green);border:1px solid var(--green)}
+.progress-day.current{background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue)}
+.progress-day:hover{transform:translateY(-2px)}
+
+/* APP EVOLUTION */
+.app-evolution{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:1.2rem 1.5rem;margin-bottom:1.5rem}
+.evolution-title{font-size:13px;font-weight:500;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.evolution-title::before{content:'🏗️'}
+.evolution-track{display:flex;gap:.5rem;flex-wrap:wrap}
+.svc-chip{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .7rem;border-radius:6px;font-family:var(--mono);font-size:11px;border:1px solid;transition:all .2s}
+.svc-chip.accounts{color:#58A6FF;border-color:#1E3A5F;background:#0D2040}
+.svc-chip.payments{color:#FFA657;border-color:#6B4A00;background:#3A1A00}
+.svc-chip.fraud{color:#F85149;border-color:#7F1D1D;background:#3A0D0D}
+.svc-chip.notifications{color:#BC8CFF;border-color:#3B1F6B;background:#1A0D3A}
+.svc-chip.dim{opacity:.25;filter:grayscale(1)}
+.svc-chip-day{font-size:9px;opacity:.7}
+
+/* DAY TABS */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border2);margin-bottom:1.5rem;overflow-x:auto}
+.tab{padding:.6rem 1rem;font-size:13px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:.4rem}
+.tab:hover{color:var(--white)}
+.tab.active{color:var(--white);border-bottom-color:var(--blue)}
+.tab-icon{font-size:14px}
+
+/* SECTIONS */
+.section{margin-bottom:2rem}
+.section-title{font-size:16px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.section-title .icon{font-size:18px}
+
+/* CARDS */
+.card{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;margin-bottom:.8rem}
+.card-title{font-size:13px;font-weight:600;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.card-body{font-size:13px;color:var(--muted);line-height:1.7}
+.card-body strong{color:var(--white)}
+
+/* CODE BLOCKS */
+.code-block{background:#010409;border:1px solid var(--border2);border-radius:8px;overflow:hidden;margin:.8rem 0}
+.code-header{background:var(--surface2);padding:.5rem 1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border2)}
+.code-lang{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.code-copy{font-family:var(--mono);font-size:10px;color:var(--muted);cursor:pointer;padding:.2rem .5rem;border-radius:3px;border:1px solid var(--border2);background:none;transition:all .15s}
+.code-copy:hover{color:var(--white);border-color:var(--muted)}
+.code-body{padding:1rem;overflow-x:auto}
+.code-body pre{font-family:var(--mono);font-size:12px;line-height:1.7;color:#E6EDF3}
+.code-body .kw{color:#FF7B72}
+.code-body .str{color:#A5D6FF}
+.code-body .cm{color:#8B949E}
+.code-body .fn{color:#D2A8FF}
+.code-body .num{color:#79C0FF}
+.code-body .dec{color:#FFA657}
+
+/* CONCEPT CARDS */
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.8rem;margin-bottom:1.5rem}
+.concept-card{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;cursor:pointer;transition:all .2s;position:relative}
+.concept-card:hover{border-color:var(--blue);transform:translateY(-2px)}
+.concept-card-icon{font-size:1.5rem;margin-bottom:.6rem;display:block}
+.concept-card-title{font-size:13px;font-weight:600;margin-bottom:.4rem}
+.concept-card-body{font-size:12px;color:var(--muted);line-height:1.5}
+.concept-card-tag{position:absolute;top:.7rem;right:.7rem;font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid var(--green)}
+
+/* COMPARISON TABLE */
+.compare-table{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:12px}
+.compare-table th{background:var(--surface3);padding:.6rem 1rem;text-align:left;font-weight:600;font-size:11px;border:1px solid var(--border2);color:var(--muted)}
+.compare-table td{padding:.6rem 1rem;border:1px solid var(--border2);color:var(--muted);vertical-align:top}
+.compare-table tr:hover td{background:var(--surface2);color:var(--white)}
+.compare-table .winner{color:var(--green)}
+.compare-table .loser{color:var(--red)}
+.compare-table .neutral{color:var(--yellow)}
+
+/* STEP LIST */
+.steps{display:flex;flex-direction:column;gap:.5rem}
+.step{display:flex;gap:1rem;align-items:flex-start}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--blue-dim);border:1px solid var(--blue);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--blue);flex-shrink:0;margin-top:.1rem}
+.step-content{flex:1}
+.step-title{font-size:13px;font-weight:500;margin-bottom:.2rem}
+.step-desc{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* Q&A */
+.qa-list{display:flex;flex-direction:column;gap:.5rem}
+.qa-item{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden}
+.qa-question{padding:.8rem 1rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:500;transition:background .15s}
+.qa-question:hover{background:var(--surface3)}
+.qa-question .q-icon{color:var(--yellow);font-size:14px;margin-right:.5rem}
+.qa-arrow{font-size:12px;color:var(--muted);transition:transform .2s}
+.qa-item.open .qa-arrow{transform:rotate(180deg)}
+.qa-answer{display:none;padding:.8rem 1rem;font-size:13px;color:var(--muted);line-height:1.7;border-top:1px solid var(--border2);background:var(--surface)}
+.qa-answer strong{color:var(--white)}
+.qa-answer code{font-family:var(--mono);font-size:11px;background:var(--surface3);padding:1px 5px;border-radius:3px;color:var(--green)}
+.qa-item.open .qa-answer{display:block}
+
+/* MIGRATION */
+.migration-flow{display:grid;grid-template-columns:1fr 60px 1fr;gap:0;align-items:center;margin:.8rem 0}
+.migration-before,.migration-after{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1rem}
+.migration-label{font-family:var(--mono);font-size:10px;margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.08em}
+.migration-before .migration-label{color:var(--red)}
+.migration-after .migration-label{color:var(--green)}
+.migration-arrow{text-align:center;font-size:1.2rem;color:var(--muted)}
+.migration-item{font-size:12px;color:var(--muted);padding:.2rem 0;display:flex;align-items:center;gap:.4rem}
+.migration-item::before{content:'→';color:var(--muted2);font-size:10px}
+.migration-after .migration-item::before{content:'✓';color:var(--green)}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:2rem}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:1px;background:var(--border2)}
+.timeline-item{position:relative;margin-bottom:1.5rem}
+.timeline-dot{position:absolute;left:-1.75rem;top:.2rem;width:16px;height:16px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:8px}
+.timeline-item.done .timeline-dot{background:var(--green-dim);border-color:var(--green)}
+.timeline-item.current .timeline-dot{background:var(--blue-dim);border-color:var(--blue);animation:pulse 2s infinite}
+.timeline-title{font-size:13px;font-weight:600;margin-bottom:.3rem}
+.timeline-desc{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* ALERT */
+.alert{padding:.8rem 1rem;border-radius:6px;font-size:12px;margin:.8rem 0;display:flex;gap:.6rem;align-items:flex-start;line-height:1.5}
+.alert-info{background:var(--blue-dim);border:1px solid #1E3A5F;color:#A5D6FF}
+.alert-success{background:var(--green-dim);border:1px solid #1A3A1F;color:#56D364}
+.alert-warn{background:var(--yellow-dim);border:1px solid #3A2A00;color:#E3B341}
+.alert-icon{font-size:14px;flex-shrink:0}
+
+/* BADGE */
+.badge{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:3px;border:1px solid;display:inline-flex;align-items:center;gap:3px}
+.badge-green{color:var(--green);border-color:var(--green);background:var(--green-dim)}
+.badge-blue{color:var(--blue);border-color:#1E3A5F;background:var(--blue-dim)}
+.badge-orange{color:var(--orange);border-color:#6B4A00;background:var(--orange-dim)}
+.badge-red{color:var(--red);border-color:#7F1D1D;background:var(--red-dim)}
+.badge-purple{color:var(--purple);border-color:#3B1F6B;background:var(--purple-dim)}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;max-width:600px;width:90%;padding:1.5rem;max-height:80vh;overflow-y:auto;animation:modal-in .2s ease}
+@keyframes modal-in{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-close{float:right;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{color:var(--white)}
+.modal h3{font-size:1.1rem;font-weight:600;margin-bottom:1rem}
+.modal-body{font-size:13px;color:var(--muted);line-height:1.7}
+.modal-body strong{color:var(--white)}
+.modal-body code{font-family:var(--mono);font-size:11px;background:var(--surface2);padding:1px 5px;border-radius:3px;color:var(--green)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .concept-grid{grid-template-columns:1fr}
+  .migration-flow{grid-template-columns:1fr;gap:.5rem}
+  .migration-arrow{transform:rotate(90deg)}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo"><div class="sidebar-logo-dot"></div>harness-enterprise-training</div>
+    <div class="sidebar-title">10-Day Course</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Overview</div>
+    <div class="nav-item active" onclick="showPage('home')"><div class="nav-item-dot"></div>Course Home<span class="nav-item-day"></span></div>
+    <div class="nav-item" onclick="showPage('architecture')"><div class="nav-item-dot"></div>Architecture<span class="nav-item-day"></span></div>
+    <div class="nav-item" onclick="showPage('migration')"><div class="nav-item-dot"></div>Migration Guide<span class="nav-item-day"></span></div>
+
+    <div class="nav-section">The Course</div>
+    <div class="nav-item done" onclick="showPage('day1')"><div class="nav-item-dot"></div>Foundations + Delegate<span class="nav-item-day">D1</span></div>
+    <div class="nav-item done" onclick="showPage('day2')"><div class="nav-item-dot"></div>CI Migration (GitHub Actions)<span class="nav-item-day">D2</span></div>
+    <div class="nav-item done" onclick="showPage('day3')"><div class="nav-item-dot"></div>Jenkins Migration<span class="nav-item-day">D3</span></div>
+    <div class="nav-item" onclick="showPage('day4')"><div class="nav-item-dot"></div>CD + Kubernetes<span class="nav-item-day">D4</span></div>
+    <div class="nav-item" onclick="showPage('day5')"><div class="nav-item-dot"></div>Deployment Strategies<span class="nav-item-day">D5</span></div>
+    <div class="nav-item" onclick="showPage('day6')"><div class="nav-item-dot"></div>Governance + OPA<span class="nav-item-day">D6</span></div>
+    <div class="nav-item" onclick="showPage('day7')"><div class="nav-item-dot"></div>GitOps<span class="nav-item-day">D7</span></div>
+    <div class="nav-item" onclick="showPage('day8')"><div class="nav-item-dot"></div>AIOps + AIDA + SRM<span class="nav-item-day">D8</span></div>
+    <div class="nav-item" onclick="showPage('day9')"><div class="nav-item-dot"></div>FinOps + CCM<span class="nav-item-day">D9</span></div>
+    <div class="nav-item" onclick="showPage('day10')"><div class="nav-item-dot"></div>Capstone<span class="nav-item-day">D10</span></div>
+
+    <div class="nav-section">Reference</div>
+    <div class="nav-item" onclick="showPage('interview')"><div class="nav-item-dot"></div>Interview Q&A<span class="nav-item-day"></span></div>
+    <div class="nav-item" onclick="showPage('concepts')"><div class="nav-item-dot"></div>All Concepts<span class="nav-item-day"></span></div>
+    <div class="nav-item" onclick="showPage('commands')"><div class="nav-item-dot"></div>Commands Reference<span class="nav-item-day"></span></div>
+  </nav>
+  <div class="sidebar-footer">
+    <div>By <a href="https://linkedin.com/in/pavan-goli">Pavan Goli</a></div>
+    <div style="margin-top:.3rem;color:var(--muted2)">github.com/pavantechy09-hub</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-breadcrumb">harness-enterprise-training / <span id="breadcrumb-text">Course Home</span></div>
+    <div class="topbar-actions">
+      <a href="https://github.com/pavantechy09-hub/harness-enterprise-training" target="_blank" class="btn btn-outline">GitHub ↗</a>
+      <a href="https://app.harness.io" target="_blank" class="btn btn-green">Open Harness ↗</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- HOME PAGE -->
+    <div class="page active" id="page-home">
+      <div class="hero">
+        <div class="hero-tag">Enterprise CI/CD · Real Migration · Hands-On</div>
+        <h1>Harness Enterprise<br>Training Course</h1>
+        <p class="hero-sub">Migrate Jenkins + GitHub Actions → Harness. Build a real banking microservices platform. Learn canary deployments, OPA governance, GitOps, AIOps, and FinOps. All free. All hands-on.</p>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="hero-stat-n">10<em>d</em></div><div class="hero-stat-l">Days</div></div>
+          <div class="hero-stat"><div class="hero-stat-n">4</div><div class="hero-stat-l">Microservices</div></div>
+          <div class="hero-stat"><div class="hero-stat-n">3</div><div class="hero-stat-l">Migrations</div></div>
+          <div class="hero-stat"><div class="hero-stat-n">$0</div><div class="hero-stat-l">Cost</div></div>
+        </div>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-header"><span class="progress-label">Course Progress</span><span class="progress-pct" id="progress-pct">10%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-days">
+          <div class="progress-day done" onclick="showPage('day1')">D1</div>
+          <div class="progress-day done" onclick="showPage('day2')">D2</div>
+          <div class="progress-day done" onclick="showPage('day3')">D3</div>
+          <div class="progress-day current" onclick="showPage('day4')">D4</div>
+          <div class="progress-day" onclick="showPage('day5')">D5</div>
+          <div class="progress-day" onclick="showPage('day6')">D6</div>
+          <div class="progress-day" onclick="showPage('day7')">D7</div>
+          <div class="progress-day" onclick="showPage('day8')">D8</div>
+          <div class="progress-day" onclick="showPage('day9')">D9</div>
+          <div class="progress-day" onclick="showPage('day10')">D10</div>
+        </div>
+      </div>
+
+      <div class="app-evolution">
+        <div class="evolution-title">BankOps Application — Grows Each Day</div>
+        <div class="evolution-track">
+          <div class="svc-chip accounts">🏦 accounts-service <span class="svc-chip-day">D1</span></div>
+          <div class="svc-chip payments">💳 payments-service <span class="svc-chip-day">D3</span></div>
+          <div class="svc-chip fraud dim">🔍 fraud-service <span class="svc-chip-day">D5</span></div>
+          <div class="svc-chip notifications dim">🔔 notification-service <span class="svc-chip-day">D7</span></div>
+        </div>
+      </div>
+
+      <div class="concept-grid">
+        <div class="concept-card" onclick="showModal('delegate')"><span class="concept-card-icon">🤖</span><div class="concept-card-title">Harness Delegate</div><div class="concept-card-body">The agent that runs inside your cluster and executes pipeline steps locally. No inbound firewall rules needed.</div><div class="concept-card-tag">Day 1</div></div>
+        <div class="concept-card" onclick="showModal('canary')"><span class="concept-card-icon">🐤</span><div class="concept-card-title">Canary Deployments</div><div class="concept-card-body">Gradually shift traffic 10%→25%→50%→100%. Auto-rollback if error rate spikes. Zero risky big-bang releases.</div><div class="concept-card-tag">Day 5</div></div>
+        <div class="concept-card" onclick="showModal('opa')"><span class="concept-card-icon">🛡️</span><div class="concept-card-title">OPA Governance</div><div class="concept-card-body">Policy-as-code that blocks deployments automatically. No single person can deploy to prod alone.</div><div class="concept-card-tag">Day 6</div></div>
+        <div class="concept-card" onclick="showModal('gitops')"><span class="concept-card-icon">📦</span><div class="concept-card-title">GitOps</div><div class="concept-card-body">Git commit = deployment. Agent pulls from Git and reconciles cluster state. Drift detected automatically.</div><div class="concept-card-tag">Day 7</div></div>
+        <div class="concept-card" onclick="showModal('aida')"><span class="concept-card-icon">🧠</span><div class="concept-card-title">Harness AIDA</div><div class="concept-card-body">AI that explains pipeline failures in plain English and suggests the exact fix. MTTR from 45min to 3min.</div><div class="concept-card-tag">Day 8</div></div>
+        <div class="concept-card" onclick="showModal('finops')"><span class="concept-card-icon">💰</span><div class="concept-card-title">FinOps + CCM</div><div class="concept-card-body">Cost per service, cost per deployment, anomaly detection. Know what each microservice costs to run.</div><div class="concept-card-tag">Day 9</div></div>
+      </div>
+
+      <div class="alert alert-info"><span class="alert-icon">ℹ️</span>Prerequisites: Complete <a href="https://pavantechy09-hub.github.io/cloud-iac-learning" style="color:var(--blue)">cloud-iac-learning</a> first. You need a running kind cluster (dd-stg), Floci, and basic Terraform + Kubernetes knowledge.</div>
+    </div>
+
+    <!-- ARCHITECTURE PAGE -->
+    <div class="page" id="page-architecture">
+      <div class="section"><div class="section-title"><span class="icon">🏛️</span>Before vs After Architecture</div>
+        <div class="migration-flow">
+          <div class="migration-before">
+            <div class="migration-label">Before — Legacy Stack</div>
+            <div class="migration-item">Jenkins (2004-era Groovy DSL)</div>
+            <div class="migration-item">GitHub Actions (CI only)</div>
+            <div class="migration-item">Manual kubectl apply</div>
+            <div class="migration-item">Email approval chains</div>
+            <div class="migration-item">No rollback automation</div>
+            <div class="migration-item">No cost visibility</div>
+            <div class="migration-item">No governance</div>
+            <div class="migration-item">3am manual hotfixes</div>
+          </div>
+          <div class="migration-arrow">→</div>
+          <div class="migration-after">
+            <div class="migration-label">After — Harness Platform</div>
+            <div class="migration-item">Harness CI (test intelligence)</div>
+            <div class="migration-item">Harness CD (native K8s)</div>
+            <div class="migration-item">Canary / Blue-Green / Rolling</div>
+            <div class="migration-item">Harness Approvals (RBAC)</div>
+            <div class="migration-item">Automatic rollback</div>
+            <div class="migration-item">Cost per service visible</div>
+            <div class="migration-item">OPA policies enforced</div>
+            <div class="migration-item">AI explains failures (AIDA)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section"><div class="section-title"><span class="icon">⚡</span>DORA Metrics — Measuring the Impact</div>
+        <table class="compare-table">
+          <tr><th>Metric</th><th>Before (Jenkins)</th><th>After (Harness)</th><th>Improvement</th></tr>
+          <tr><td>Deployment Frequency</td><td class="loser">2x/week</td><td class="winner">Multiple/day</td><td class="winner">10x faster</td></tr>
+          <tr><td>Lead Time for Changes</td><td class="loser">3 days</td><td class="winner">4 hours</td><td class="winner">75% faster</td></tr>
+          <tr><td>MTTR</td><td class="loser">45 minutes</td><td class="winner">Under 10 min</td><td class="winner">80% reduction</td></tr>
+          <tr><td>Change Failure Rate</td><td class="loser">15%</td><td class="winner">Under 5%</td><td class="winner">67% reduction</td></tr>
+        </table>
+      </div>
+
+      <div class="section"><div class="section-title"><span class="icon">🔗</span>Harness Entity Hierarchy</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">hierarchy</span></div><div class="code-body"><pre>Account: pavantechy09
+  └── Organisation: default
+        └── Project: bank-platform
+              ├── Pipelines      ← what to run
+              ├── Services       ← what to deploy
+              ├── Environments   ← where to deploy (dev/staging/prod)
+              ├── Connectors     ← how to connect (GitHub, K8s, AWS)
+              ├── Secrets        ← credentials (never in YAML)
+              └── Templates      ← reusable pipeline blocks</pre></div></div>
+      </div>
+    </div>
+
+    <!-- MIGRATION PAGE -->
+    <div class="page" id="page-migration">
+      <div class="section"><div class="section-title"><span class="icon">🚀</span>90-Day Enterprise Migration Plan</div>
+        <div class="timeline">
+          <div class="timeline-item done"><div class="timeline-dot">✓</div><div class="timeline-title">Phase 1: Foundation (Days 1-30)</div><div class="timeline-desc">Install Delegates in non-prod. Migrate 1 service as POC. Run Jenkins + Harness in parallel. Train all teams. Get stakeholder sign-off.</div></div>
+          <div class="timeline-item current"><div class="timeline-dot">→</div><div class="timeline-title">Phase 2: Migration (Days 31-60)</div><div class="timeline-desc">New services go Harness-only. Migrate existing services in batches (low risk first). Keep Jenkins as fallback for 2 weeks per service.</div></div>
+          <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-title">Phase 3: Completion (Days 61-90)</div><div class="timeline-desc">Migrate critical services (payments). Extended parallel running + validated rollback testing. Decommission Jenkins. Full governance live.</div></div>
+        </div>
+      </div>
+
+      <div class="section"><div class="section-title"><span class="icon">📊</span>Jenkins vs GitHub Actions vs Harness</div>
+        <table class="compare-table">
+          <tr><th>Feature</th><th>Jenkins</th><th>GitHub Actions</th><th>Harness</th></tr>
+          <tr><td>Deployment strategies</td><td class="loser">Manual scripts</td><td class="loser">Manual scripts</td><td class="winner">Built-in canary/blue-green</td></tr>
+          <tr><td>Auto rollback</td><td class="loser">Manual</td><td class="loser">Manual</td><td class="winner">Automatic on health check</td></tr>
+          <tr><td>Governance / OPA</td><td class="loser">None built-in</td><td class="loser">None built-in</td><td class="winner">Native OPA policies</td></tr>
+          <tr><td>AI assistance</td><td class="loser">None</td><td class="loser">None</td><td class="winner">Harness AIDA</td></tr>
+          <tr><td>Cost tracking</td><td class="loser">None</td><td class="loser">None</td><td class="winner">CCM built-in</td></tr>
+          <tr><td>SLO tracking</td><td class="loser">None</td><td class="loser">None</td><td class="winner">SRM built-in</td></tr>
+          <tr><td>Pipeline language</td><td class="neutral">Groovy DSL</td><td class="winner">YAML</td><td class="winner">YAML (simpler)</td></tr>
+          <tr><td>Maintenance burden</td><td class="loser">High (self-hosted)</td><td class="winner">Low (SaaS)</td><td class="winner">Low (SaaS)</td></tr>
+          <tr><td>Free tier</td><td class="winner">Yes (self-hosted)</td><td class="winner">Yes</td><td class="winner">Yes (limited)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- DAY 1 -->
+    <div class="page" id="page-day1">
+      <div class="alert alert-success"><span class="alert-icon">✅</span>Day 1 complete — Harness account, Delegate installed on dd-stg, GitHub connected, first pipeline running.</div>
+      <div class="tabs">
+        <div class="tab active tab-icon" onclick="switchTab(this,'d1-concepts')">🧠 Concepts</div>
+        <div class="tab" onclick="switchTab(this,'d1-handson')">🛠️ Hands-On</div>
+        <div class="tab" onclick="switchTab(this,'d1-code')">💻 Pipeline YAML</div>
+        <div class="tab" onclick="switchTab(this,'d1-qa')">❓ Interview Q&A</div>
+      </div>
+
+      <div id="d1-concepts">
+        <div class="section"><div class="section-title"><span class="icon">🤖</span>What is the Harness Delegate?</div>
+          <div class="card"><div class="card-title">The Problem It Solves</div><div class="card-body">Harness SaaS lives at <strong>app.harness.io</strong>. Your cluster lives at <strong>localhost</strong>. The internet cannot reach localhost. The Delegate solves this by running <strong>inside your cluster</strong> and polling Harness outbound. All traffic is outbound — no inbound firewall rules needed.</div></div>
+          <div class="code-block"><div class="code-header"><span class="code-lang">polling loop (every 10s)</span></div><div class="code-body"><pre>Delegate → GET https://app.harness.io/tasks?delegateId=dd-stg
+Harness  → "Run: terraform apply in day7-security/"
+Delegate → executes locally (has access to localhost:4566)
+Delegate → POST results back to Harness
+Harness  → shows step passed/failed in UI</pre></div></div>
+          <div class="card"><div class="card-title">Enterprise Pattern — Multiple Delegates</div><div class="card-body"><strong>Production:</strong> 2 Delegates minimum (HA), tagged <code>env=prod</code>, has prod credentials only.<br><strong>Staging:</strong> 1 Delegate, tagged <code>env=staging</code>.<br><strong>Dev/local:</strong> dd-stg-delegate on your laptop, tagged <code>env=dev</code>.<br><br>Pipeline steps use selector: <code>env=prod</code> → only prod Delegates run prod steps. <strong>Security enforced at infrastructure level.</strong></div></div>
+        </div>
+      </div>
+
+      <div id="d1-handson" style="display:none">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Verify cluster is running</div><div class="step-desc"><code>kubectl config use-context kind-dd-stg && kubectl get nodes</code></div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">In Harness UI: Project Settings → Delegates → New Delegate</div><div class="step-desc">Select Kubernetes, name: dd-stg-delegate, size: Small</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Copy the Helm install command from Harness</div><div class="step-desc">Harness generates it with your account token pre-filled</div></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Run the Helm command in your PowerShell</div><div class="step-desc"><code>helm install harness-delegate harness/harness-delegate --namespace harness-delegate-ng --create-namespace ...</code></div></div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Verify Delegate connected</div><div class="step-desc"><code>kubectl get pods -n harness-delegate-ng</code> → should show Running. In Harness UI: green connected status.</div></div></div>
+          <div class="step"><div class="step-num">6</div><div class="step-content"><div class="step-title">Connect GitHub repository</div><div class="step-desc">Project Settings → Connectors → New → GitHub → HTTP → enter repo URL + Personal Access Token</div></div></div>
+        </div>
+      </div>
+
+      <div id="d1-code" style="display:none">
+        <div class="code-block"><div class="code-header"><span class="code-lang">.harness/pipelines/day1-first-pipeline.yaml</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre>pipeline:
+  name: Day 1 - First Pipeline
+  identifier: day1_first_pipeline
+  projectIdentifier: bankplatform
+  orgIdentifier: default
+  stages:
+    - stage:
+        name: Hello Harness
+        identifier: hello_harness
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: dd_stg_k8s
+              namespace: harness-builds
+          execution:
+            steps:
+              - step:
+                  name: Print Hello
+                  identifier: print_hello
+                  type: Run
+                  spec:
+                    image: alpine:3.18
+                    command: |
+                      echo "Hello from Harness!"
+                      echo "Running on delegate: $DELEGATE_NAME"
+                      kubectl get nodes
+              - step:
+                  name: Verify Floci
+                  identifier: verify_floci
+                  type: Run
+                  spec:
+                    image: amazon/aws-cli:latest
+                    command: |
+                      aws --endpoint-url http://host.docker.internal:4566 s3 ls
+                      echo "Floci connected successfully"</pre></div></div>
+      </div>
+
+      <div id="d1-qa" style="display:none">
+        <div class="qa-list">
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is a Harness Delegate and why is it needed?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">A Delegate is an agent pod running inside your Kubernetes cluster that polls Harness SaaS for tasks and executes them locally. It is needed because Harness SaaS lives on the internet but your infrastructure — clusters, Floci, internal APIs — lives behind firewalls. The Delegate makes all traffic outbound only, so <strong>no inbound firewall rules are needed</strong>, your credentials stay inside your network, and it works in air-gapped environments. Enterprise teams run 2+ Delegates per cluster for high availability.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is the Harness entity hierarchy?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Account is the top level. Under it you create <strong>Organisations</strong> (e.g. firstnational-bank) representing business units. Under each Org you create <strong>Projects</strong> (e.g. bank-platform) which are collections of related pipelines and resources. Inside a Project you define <strong>Services</strong> (what to deploy), <strong>Environments</strong> (where to deploy), <strong>Infrastructure Definitions</strong> (how to connect), and <strong>Pipelines</strong> (orchestration). This hierarchy enables fine-grained RBAC — a developer might access one Project but not another.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How do Delegate selectors work in enterprise?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Delegates are tagged with key-value pairs like <code>environment=prod</code> or <code>cluster=eks-us-east-1</code>. Pipeline steps specify which Delegates they should run on using these selectors. A prod deployment step with selector <code>environment=prod</code> will only execute on Delegates tagged with that value. This means <strong>prod credentials never touch dev Delegates</strong>, providing security isolation at the infrastructure level without any application-level code changes.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 2 -->
+    <div class="page" id="page-day2">
+      <div class="alert alert-success"><span class="alert-icon">✅</span>Day 2 — CI Migration from GitHub Actions. accounts-service CI pipeline fully migrated.</div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'d2-migration')">🔄 Migration Map</div>
+        <div class="tab" onclick="switchTab(this,'d2-code')">💻 Before vs After</div>
+        <div class="tab" onclick="switchTab(this,'d2-qa')">❓ Interview Q&A</div>
+      </div>
+
+      <div id="d2-migration">
+        <div class="section"><div class="section-title"><span class="icon">🔄</span>GitHub Actions → Harness CI Mapping</div>
+          <table class="compare-table">
+            <tr><th>GitHub Actions</th><th>Harness CI</th><th>Key Difference</th></tr>
+            <tr><td><code>workflow.yml</code></td><td><code>pipeline.yaml</code></td><td>Same concept, YAML structure differs</td></tr>
+            <tr><td><code>on: push</code></td><td>Trigger (Git/Webhook)</td><td>Harness has more trigger types</td></tr>
+            <tr><td><code>jobs:</code></td><td>Stages:</td><td>Stages can be parallel or sequential</td></tr>
+            <tr><td><code>steps:</code></td><td>Steps:</td><td>Harness has native step types vs shell only</td></tr>
+            <tr><td><code>secrets.AWS_KEY</code></td><td><code>&lt;+secrets.getValue("aws-key")&gt;</code></td><td>Harness expressions vs GitHub context</td></tr>
+            <tr><td>Self-hosted runner</td><td>Delegate</td><td>Delegate is smarter: auto-selects, auto-upgrades</td></tr>
+            <tr><td>No test intelligence</td><td>Test Intelligence built-in</td><td>Harness skips unchanged tests (60% faster)</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div id="d2-code" style="display:none">
+        <div class="migration-flow">
+          <div class="migration-before">
+            <div class="migration-label">GitHub Actions (Before)</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8">name: CI<br>on: [push]<br>jobs:<br>&nbsp;&nbsp;scan:<br>&nbsp;&nbsp;&nbsp;&nbsp;runs-on: ubuntu<br>&nbsp;&nbsp;&nbsp;&nbsp;steps:<br>&nbsp;&nbsp;&nbsp;&nbsp;- uses: checkout@v4<br>&nbsp;&nbsp;&nbsp;&nbsp;- uses: checkov-action<br>&nbsp;&nbsp;plan:<br>&nbsp;&nbsp;&nbsp;&nbsp;needs: scan<br>&nbsp;&nbsp;&nbsp;&nbsp;steps:<br>&nbsp;&nbsp;&nbsp;&nbsp;- run: terraform plan</div>
+          </div>
+          <div class="migration-arrow">→</div>
+          <div class="migration-after">
+            <div class="migration-label">Harness CI (After)</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8">pipeline:<br>&nbsp;&nbsp;stages:<br>&nbsp;&nbsp;- stage:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: Security Scan<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: SecurityTests<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spec:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;steps:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- step:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: Security<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spec:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;product: checkov</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="d2-qa" style="display:none">
+        <div class="qa-list">
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is Harness Test Intelligence?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Test Intelligence is an AI feature that analyzes your code changes and identifies which tests are actually relevant to those changes. Instead of running all 10,000 tests on every commit, it might run only the 300 tests affected by your change. This typically reduces CI time by 60-80%. It uses code graph analysis to understand which classes and functions your change touches, then maps those to test files that import or call those components.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How does Harness STO differ from just running Checkov in a shell step?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Harness STO (Security Testing Orchestration) provides a structured, normalized view of security findings across multiple scanners. When you run Checkov as a raw shell step, the output is just text in logs. STO parses the results, categorizes them by severity, de-duplicates findings across scans, tracks them over time, and shows them in a dedicated security dashboard. It can block pipelines on HIGH severity findings with a single <code>fail_on_severity: HIGH</code> config rather than parsing exit codes manually.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 3 -->
+    <div class="page" id="page-day3">
+      <div class="alert alert-success"><span class="alert-icon">✅</span>Day 3 — Jenkins migration complete. payments-service added. Side-by-side comparison documented.</div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'d3-jenkinsfile')">📄 Jenkinsfile</div>
+        <div class="tab" onclick="switchTab(this,'d3-harness')">⚡ Harness Equivalent</div>
+        <div class="tab" onclick="switchTab(this,'d3-compare')">📊 Comparison</div>
+        <div class="tab" onclick="switchTab(this,'d3-qa')">❓ Interview Q&A</div>
+      </div>
+
+      <div id="d3-jenkinsfile">
+        <div class="alert alert-warn"><span class="alert-icon">⚠️</span>This is the legacy Jenkins pipeline we are migrating FROM. Notice: Groovy DSL, manual approval via input{}, no rollback, no deployment strategy.</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">Jenkinsfile (legacy)</span></div><div class="code-body"><pre>pipeline {
+  agent any
+  environment {
+    AWS_REGION = 'us-east-1'
+    TF_VERSION = '1.15.5'
+  }
+  stages {
+    stage('Checkout') {
+      steps { checkout scm }
+    }
+    stage('Security Scan') {
+      steps {
+        sh 'pip install checkov'
+        sh 'checkov -d . --framework terraform --quiet'
+      }
+    }
+    stage('Terraform Plan') {
+      steps {
+        sh 'terraform init'
+        sh 'terraform plan -no-color -out=tfplan'
+        archiveArtifacts artifacts: 'tfplan'
+      }
+    }
+    stage('Manual Approval') {
+      when { branch 'main' }
+      steps {
+        input message: 'Deploy to production?', ok: 'Deploy'
+      }
+    }
+    stage('Terraform Apply') {
+      when { branch 'main' }
+      steps { sh 'terraform apply tfplan' }
+    }
+  }
+  post {
+    failure { slackSend channel: '#alerts', message: "FAILED: ${env.JOB_NAME}" }
+    success { slackSend channel: '#deploys', message: "DEPLOYED: ${env.JOB_NAME}" }
+  }
+}</pre></div></div>
+      </div>
+
+      <div id="d3-harness" style="display:none">
+        <div class="alert alert-success"><span class="alert-icon">✅</span>This is the Harness replacement. Same stages, but with built-in security scanning, proper approval gates, automatic rollback, and Slack notification via Action step — not post{} blocks.</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">.harness/pipelines/day3-jenkins-migration.yaml</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre>pipeline:
+  name: Day 3 - Jenkins Migration (payments-service)
+  identifier: day3_jenkins_migration
+  stages:
+    - stage:
+        name: Security Scan
+        type: SecurityTests
+        spec:
+          steps:
+            - step:
+                name: Checkov
+                type: Security
+                spec:
+                  privileged: true
+                  settings:
+                    product_name: checkov
+                    fail_on_severity: HIGH
+        failureStrategies:
+          - onFailure:
+              errors: [AllErrors]
+              action:
+                type: Abort
+
+    - stage:
+        name: Terraform Plan
+        type: CI
+        spec:
+          steps:
+            - step:
+                name: TF Init and Plan
+                type: Run
+                spec:
+                  image: hashicorp/terraform:1.15.5
+                  command: |
+                    cd infra/envs/dev
+                    terraform init
+                    terraform plan -no-color -out=tfplan
+                  envVariables:
+                    AWS_ACCESS_KEY_ID: test
+                    AWS_SECRET_ACCESS_KEY: test
+                    AWS_ENDPOINT_URL: http://host.docker.internal:4566
+
+    - stage:
+        name: Approval Gate
+        type: Approval
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: HarnessApproval
+                  spec:
+                    approvers:
+                      userGroups: [sre_team]
+                    minimumCount: 1
+                    includePipelineExecutionHistory: true
+
+    - stage:
+        name: Terraform Apply
+        type: CI
+        spec:
+          steps:
+            - step:
+                name: TF Apply
+                type: Run
+                spec:
+                  image: hashicorp/terraform:1.15.5
+                  command: terraform apply -auto-approve tfplan
+
+  notificationRules:
+    - name: Slack Notification
+      pipelineEvents: [PipelineSuccess, PipelineFailed]
+      notificationMethod:
+        type: Slack
+        spec:
+          webhookUrl: <+secrets.getValue("slack_webhook")></pre></div></div>
+      </div>
+
+      <div id="d3-compare" style="display:none">
+        <table class="compare-table">
+          <tr><th>Feature</th><th>Jenkins</th><th>Harness</th></tr>
+          <tr><td>Language</td><td class="loser">Groovy DSL (hard to read)</td><td class="winner">YAML (clean, standard)</td></tr>
+          <tr><td>Approval gate</td><td class="neutral">input{} — basic prompt</td><td class="winner">Rich approval + RBAC + timeout</td></tr>
+          <tr><td>Security scan</td><td class="loser">pip install + shell (fragile)</td><td class="winner">Native STO step (structured results)</td></tr>
+          <tr><td>Notifications</td><td class="neutral">post{} blocks</td><td class="winner">Notification Rules (reusable)</td></tr>
+          <tr><td>Audit trail</td><td class="loser">Build logs only</td><td class="winner">Full deployment audit trail</td></tr>
+          <tr><td>Rollback</td><td class="loser">None — manual hotfix</td><td class="winner">Automatic on health check fail</td></tr>
+          <tr><td>Maintenance</td><td class="loser">Plugin updates, master downtime</td><td class="winner">SaaS — Harness manages it</td></tr>
+        </table>
+      </div>
+
+      <div id="d3-qa" style="display:none">
+        <div class="qa-list">
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What are the main risks when migrating from Jenkins to Harness?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">The highest technical risk is leaving teams without a deployment path during migration. Mitigate by running Jenkins and Harness in parallel for at least 2 weeks per service. The highest organisational risk is developer resistance — teams comfortable with Jenkinsfiles may resist change. Mitigate with early involvement, training, and concrete demonstrations of benefits like automatic rollback and faster deployments. A genuine technical constraint is that <strong>Harness Delegates are Linux-based</strong>, so Windows build agents require containers or staying on Jenkins during initial migration phases.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How do you handle Jenkins shared libraries when migrating?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Jenkins shared libraries are reusable Groovy code that teams import into Jenkinsfiles. The Harness equivalent is <strong>Pipeline Templates</strong>. You define a template once — for example a standard CI template for all microservices — and each pipeline references it with a version tag. When you update the template, all pipelines using it pick up the change on next run. This is actually better than Jenkins shared libraries because templates are versioned, have their own approval process, and are visible in the UI rather than hidden in a separate repository.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAYS 4-10 (placeholders with coming soon) -->
+    <div class="page" id="page-day4">
+      <div class="alert alert-info"><span class="alert-icon">🔄</span>Day 4 — CD + Kubernetes Deployments. Currently in progress. accounts-service and payments-service deploying to dd-stg cluster.</div>
+      <div class="concept-grid">
+        <div class="concept-card"><span class="concept-card-icon">🚢</span><div class="concept-card-title">Harness CD Service</div><div class="concept-card-body">Defines WHAT to deploy — Docker image, K8s manifests, Helm chart. Version controlled. Parameterized.</div><div class="concept-card-tag">Coming</div></div>
+        <div class="concept-card"><span class="concept-card-icon">🌍</span><div class="concept-card-title">Environments + Infra</div><div class="concept-card-body">Dev, Staging, Prod environments each pointing to different K8s namespaces and credentials.</div><div class="concept-card-tag">Coming</div></div>
+        <div class="concept-card"><span class="concept-card-icon">⏪</span><div class="concept-card-title">Automatic Rollback</div><div class="concept-card-body">If pods fail health checks post-deploy, Harness automatically redeploys previous version. No human needed.</div><div class="concept-card-tag">Coming</div></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-day5">
+      <div class="alert alert-info"><span class="alert-icon">🔄</span>Day 5 — Deployment Strategies. Canary, Blue-Green, Rolling, Feature Flags. fraud-service added.</div>
+      <div class="concept-grid">
+        <div class="concept-card" onclick="showModal('canary')"><span class="concept-card-icon">🐤</span><div class="concept-card-title">Canary Deployment</div><div class="concept-card-body">10%→25%→50%→100% traffic shift. Auto-rollback if error rate exceeds threshold. Best for payment flows.</div><div class="concept-card-tag">Coming</div></div>
+        <div class="concept-card" onclick="showModal('bluegreen')"><span class="concept-card-icon">🔵🟢</span><div class="concept-card-title">Blue-Green</div><div class="concept-card-body">Two identical environments. Instant traffic switch. Old version kept 30min for instant rollback.</div><div class="concept-card-tag">Coming</div></div>
+        <div class="concept-card"><span class="concept-card-icon">🏁</span><div class="concept-card-title">Feature Flags</div><div class="concept-card-body">Deploy code without activating it. Enable for 5% of users. Kill switch if something goes wrong.</div><div class="concept-card-tag">Coming</div></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-day6">
+      <div class="alert alert-info"><span class="alert-icon">🔄</span>Day 6 — OPA Governance. Policies blocking bad deployments. Four-eyes principle enforced.</div>
+      <div class="code-block"><div class="code-header"><span class="code-lang">.harness/policies/opa-prod-approval.rego</span></div><div class="code-body"><pre>package pipeline
+
+# Block prod deployment without 2 approvals
+deny[msg] {
+  input.pipeline.stages[_].stage.spec.environment == "prod"
+  count(input.approvals) < 2
+  msg := "Production requires minimum 2 approvals"
+}
+
+# Block self-approval
+deny[msg] {
+  input.pipeline.triggeredBy == input.approvals[_].approvedBy
+  msg := "Cannot approve your own deployment"
+}</pre></div></div>
+    </div>
+
+    <div class="page" id="page-day7">
+      <div class="alert alert-info"><span class="alert-icon">🔄</span>Day 7 — GitOps. Git commit = deployment. notification-service added. Drift auto-reconciled.</div>
+      <div class="concept-grid">
+        <div class="concept-card"><span class="concept-card-icon">📦</span><div class="concept-card-title">Push CD vs Pull GitOps</div><div class="concept-card-body">Push: pipeline deploys to cluster. Pull: agent watches Git, pulls changes, applies automatically. Both have valid enterprise uses.</div></div>
+        <div class="concept-card"><span class="concept-card-icon">🔄</span><div class="concept-card-title">Drift Detection</div><div class="concept-card-body">Someone runs kubectl apply manually. GitOps agent detects mismatch between Git and cluster. Auto-reconciles. Same concept as Terraform drift detection.</div></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-day8">
+      <div class="alert alert-info"><span class="alert-icon">🔄</span>Day 8 — AIOps + AIDA + SRM. AI explains failures. SLOs and error budgets configured.</div>
+      <div class="concept-grid">
+        <div class="concept-card" onclick="showModal('aida')"><span class="concept-card-icon">🧠</span><div class="concept-card-title">Harness AIDA</div><div class="concept-card-body">AI analyzes pipeline failures and explains root cause in plain English. Suggests exact fix with code snippet.</div></div>
+        <div class="concept-card"><span class="concept-card-icon">📉</span><div class="concept-card-title">Error Budgets</div><div class="concept-card-body">99.9% SLO = 43.8 min/month downtime budget. Over 90% consumed = deployments blocked automatically.</div></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-day9">
+      <div class="alert alert-info"><span class="alert-icon">🔄</span>Day 9 — FinOps + CCM. Cost per service. Anomaly detection. Right-sizing recommendations.</div>
+      <div class="concept-grid">
+        <div class="concept-card" onclick="showModal('finops')"><span class="concept-card-icon">💰</span><div class="concept-card-title">Cost Per Service</div><div class="concept-card-body">payments-service costs $234/day. fraud-service costs $89/day. anomaly: fraud cost increased 340% today.</div></div>
+        <div class="concept-card"><span class="concept-card-icon">📐</span><div class="concept-card-title">Right-Sizing</div><div class="concept-card-body">accounts-service requests 2 CPU but uses 0.3 average. Reduce to 0.5. Save $180/month automatically.</div></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-day10">
+      <div class="alert alert-success"><span class="alert-icon">🏆</span>Day 10 — Capstone. All 4 services. Complete enterprise pipeline. 90-day migration plan delivered.</div>
+      <div class="app-evolution"><div class="evolution-title">Final State — All Services Deployed</div><div class="evolution-track"><div class="svc-chip accounts">🏦 accounts-service</div><div class="svc-chip payments">💳 payments-service</div><div class="svc-chip fraud">🔍 fraud-service</div><div class="svc-chip notifications">🔔 notification-service</div></div></div>
+    </div>
+
+    <!-- INTERVIEW Q&A -->
+    <div class="page" id="page-interview">
+      <div class="section"><div class="section-title"><span class="icon">❓</span>Complete Interview Q&A — All 10 Days</div>
+        <div class="qa-list">
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is Harness and how does it differ from GitHub Actions?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Harness is an enterprise CD platform built specifically for production-grade delivery. GitHub Actions is excellent for CI but hits limits for enterprise CD. Harness adds <strong>built-in canary and blue-green strategies with automatic rollback</strong>, OPA governance on every pipeline, SLO tracking with error budgets, cloud cost management, and AI assistance (AIDA). The key difference: Harness treats the deployment itself as a first-class concern — it knows what healthy looks like, monitors it, and rolls back automatically if health checks fail.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>When would you use canary vs blue-green vs rolling?</span><span class="qa-arrow">▼</span></div><div class="qa-answer"><strong>Canary</strong> is best for high-risk changes to critical services like payments — gradually expose a small percentage of real users, monitor closely, commit when confident. <strong>Blue-green</strong> is best when you need instant rollback capability — deploy a complete new environment and switch traffic instantly, keep old environment alive for quick reversion. <strong>Rolling</strong> is the default for stateless services where brief mixed-version periods are tolerable. In our bank platform: canary for payments-service (financial risk), blue-green for accounts-service (compliance requires instant rollback), rolling for fraud and notification services.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is an OPA policy in Harness and how does it work?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">OPA (Open Policy Agent) is a policy-as-code engine using the Rego language. Harness evaluates every pipeline step against configured OPA policies before execution. We used it to enforce: production requiring two approvers from different teams, no self-approval of your own code, Checkov HIGH findings blocking any deployment, no production deployments outside business hours, and mandatory resource limits on all K8s manifests. All policies are stored in Git giving a complete audit trail of every governance decision — which is exactly what compliance teams require for SOX, PCI-DSS, and other regulations.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is the difference between SLI, SLO, and SLA?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">An <strong>SLI</strong> (Service Level Indicator) is the actual metric measured — for example the fraction of HTTP requests returning 200 status. An <strong>SLO</strong> (Service Level Objective) is the internal target — 99.9% of requests must succeed. An <strong>SLA</strong> (Service Level Agreement) is the external contract with customers carrying financial penalties if breached. In Harness SRM we configure SLIs and SLOs, which track error budgets (the amount of failure you can afford). When 90% of the budget is consumed, deployments are automatically blocked before any SLA violation can occur.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How would you approach migrating from Jenkins to Harness in 90 days?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Three phases. <strong>Phase 1 (Days 1-30):</strong> Install Delegates in non-prod, migrate one non-critical service as POC, run Jenkins and Harness in parallel, train all teams. <strong>Phase 2 (Days 31-60):</strong> New services go Harness-only from day one, migrate existing services in batches starting with lowest risk, keep each Jenkins pipeline as fallback for 2 weeks before removing. <strong>Phase 3 (Days 61-90):</strong> Migrate critical services like payments with extended parallel running and validated rollback testing, then decommission Jenkins. Key principle: <strong>never leave teams without a rollback option</strong> during the transition window.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What are DORA metrics and how does Harness improve them?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">DORA metrics are the four industry-standard measures of DevOps performance. <strong>Deployment Frequency</strong> — how often you deploy. <strong>Lead Time for Changes</strong> — code commit to production. <strong>MTTR</strong> — time to recover from incidents. <strong>Change Failure Rate</strong> — percentage of deployments causing incidents. Harness improves all four: automated pipelines increase deployment frequency, removing manual steps cuts lead time, automatic rollback drastically reduces MTTR, and canary deployments catch issues before full rollout reducing change failure rate. Measuring these before and after migration provides concrete ROI justification for leadership.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONCEPTS -->
+    <div class="page" id="page-concepts">
+      <div class="section"><div class="section-title"><span class="icon">🧠</span>All Core Concepts</div>
+        <div class="concept-grid">
+          <div class="concept-card" onclick="showModal('delegate')"><span class="concept-card-icon">🤖</span><div class="concept-card-title">Delegate</div><div class="concept-card-body">Agent inside your cluster. Polls Harness. Executes steps locally. All traffic outbound only.</div><div class="concept-card-tag">Day 1</div></div>
+          <div class="concept-card" onclick="showModal('canary')"><span class="concept-card-icon">🐤</span><div class="concept-card-title">Canary</div><div class="concept-card-body">Gradual traffic shift with auto-rollback on error spike.</div><div class="concept-card-tag">Day 5</div></div>
+          <div class="concept-card" onclick="showModal('bluegreen')"><span class="concept-card-icon">🔵🟢</span><div class="concept-card-title">Blue-Green</div><div class="concept-card-body">Two environments, instant traffic switch, instant rollback.</div><div class="concept-card-tag">Day 5</div></div>
+          <div class="concept-card" onclick="showModal('opa')"><span class="concept-card-icon">🛡️</span><div class="concept-card-title">OPA Governance</div><div class="concept-card-body">Policy-as-code blocking deployments that violate rules.</div><div class="concept-card-tag">Day 6</div></div>
+          <div class="concept-card" onclick="showModal('gitops')"><span class="concept-card-icon">📦</span><div class="concept-card-title">GitOps</div><div class="concept-card-body">Git as single source of truth. Commit = deploy. Drift auto-reconciled.</div><div class="concept-card-tag">Day 7</div></div>
+          <div class="concept-card" onclick="showModal('aida')"><span class="concept-card-icon">🧠</span><div class="concept-card-title">AIDA</div><div class="concept-card-body">AI explains pipeline failures. Suggests exact fix. MTTR 45min → 3min.</div><div class="concept-card-tag">Day 8</div></div>
+          <div class="concept-card" onclick="showModal('finops')"><span class="concept-card-icon">💰</span><div class="concept-card-title">FinOps/CCM</div><div class="concept-card-body">Cost per service, per deployment. Anomaly detection. Right-sizing.</div><div class="concept-card-tag">Day 9</div></div>
+          <div class="concept-card" onclick="showModal('dora')"><span class="concept-card-icon">📊</span><div class="concept-card-title">DORA Metrics</div><div class="concept-card-body">4 metrics measuring DevOps performance. Deployment freq, lead time, MTTR, change failure rate.</div><div class="concept-card-tag">All</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMANDS -->
+    <div class="page" id="page-commands">
+      <div class="section"><div class="section-title"><span class="icon">💻</span>Commands Reference</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">delegate — verify installation</span></div><div class="code-body"><pre>kubectl get pods -n harness-delegate-ng
+kubectl logs -f deployment/harness-delegate -n harness-delegate-ng</pre></div></div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">accounts-service — local development</span></div><div class="code-body"><pre>cd src/accounts-service
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+pytest app/tests/ -v --cov=app --cov-report=term</pre></div></div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">docker — build and run locally</span></div><div class="code-body"><pre>docker build -t accounts-service:local src/accounts-service/
+docker run -p 8000:8000 accounts-service:local
+curl http://localhost:8000/health</pre></div></div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">kubernetes — deploy manually</span></div><div class="code-body"><pre>kubectl apply -f src/accounts-service/helm/templates/
+kubectl get pods -n accounts
+kubectl port-forward svc/accounts-service 8000:80 -n accounts
+curl http://localhost:8000/health</pre></div></div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">harness cli (optional)</span></div><div class="code-body"><pre>harness pipeline execute --pipeline day1-first-pipeline
+harness pipeline list
+harness delegate list</pre></div></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+</div><!-- /layout -->
+
+<!-- MODALS -->
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
+  <div class="modal"><button class="modal-close" onclick="closeModalBtn()">✕</button><h3 id="modal-title"></h3><div class="modal-body" id="modal-body"></div></div>
+</div>
+
+<script>
+const modals = {
+  delegate: {title:'🤖 Harness Delegate — Deep Dive',body:`<strong>What it is:</strong> A pod running inside your Kubernetes cluster that polls Harness SaaS every 10 seconds for tasks and executes them locally.<br><br><strong>Why it exists:</strong> Harness lives at app.harness.io. Your cluster lives at localhost. The internet cannot reach localhost. The Delegate bridges this gap with outbound-only traffic — no inbound firewall rules needed.<br><br><strong>Enterprise pattern:</strong> 2+ Delegates per cluster with pod anti-affinity (never both on same node). Tagged with environment selectors so prod Delegates only run prod pipelines. Credentials never cross environment boundaries.<br><br><strong>Compare to:</strong> GitHub Actions self-hosted runner — same concept but Delegate auto-upgrades itself, auto-selects based on tags, and understands native Harness step types.`},
+  canary: {title:'🐤 Canary Deployment',body:`<strong>What:</strong> Gradually shift traffic from old version to new version.<br><br><strong>Flow:</strong> Deploy new version alongside old → 10% traffic to new, 90% to old → monitor for 5 minutes → if healthy: 25% → 50% → 100% → if errors: instant rollback, only 10% of users were affected.<br><br><strong>When to use:</strong> High-risk changes, payment services, anything touching money movement.<br><br><strong>Auto-rollback trigger:</strong> Error rate > 1%, p99 latency > 5s, health check failing.<br><br><strong>Bank use case:</strong> New fraud detection algorithm, new payment processing logic. Even if it's broken, only 10% of customers see it before automatic rollback.`},
+  bluegreen: {title:'🔵🟢 Blue-Green Deployment',body:`<strong>What:</strong> Two complete, identical environments running simultaneously. Instant traffic switch between them.<br><br><strong>Flow:</strong> Blue = current production (100% traffic) → Deploy new version to Green (0% traffic) → Run smoke tests on Green → Switch: 100% traffic to Green instantly → Keep Blue alive 30 minutes → If issues: switch back to Blue in seconds.<br><br><strong>When to use:</strong> When you need instant rollback capability, zero-downtime requirement, or compliance requires keeping the previous version available.<br><br><strong>Cost:</strong> Requires double infrastructure during deployment window. Worth it for critical payment services where any downtime = regulatory issue.`},
+  opa: {title:'🛡️ OPA Governance',body:`<strong>What:</strong> Open Policy Agent — policy-as-code engine using Rego language. Every pipeline step evaluated against policies before execution.<br><br><strong>Bank policies we wrote:</strong><br>• Production requires 2 approvers from different teams<br>• No self-approval of your own deployment<br>• Checkov HIGH findings block any deployment<br>• No production deployments outside 9am-5pm Mon-Fri<br>• All K8s manifests must have resource limits<br><br><strong>Why it matters:</strong> Four-eyes principle enforced at code level, not just process. Compliance team can audit every decision. Audit trail is automatic — policies are code in Git.`},
+  gitops: {title:'📦 GitOps',body:`<strong>What:</strong> Git as the single source of truth for cluster state. Any commit to the manifests folder triggers automatic deployment.<br><br><strong>Push CD vs Pull GitOps:</strong><br>Push: pipeline pushes changes to cluster (what Harness CD does by default)<br>Pull: GitOps agent watches Git, pulls changes, applies them (what Harness GitOps does)<br><br><strong>Benefits of GitOps:</strong> Immutable audit trail (Git history), drift detection and auto-reconciliation, rollback = git revert, compliance-friendly.<br><br><strong>When to use:</strong> Pure K8s manifest deployments, config changes, when compliance requires immutable audit trail. Use Pipeline CD for complex deployments with database migrations or multi-step approvals.`},
+  aida: {title:'🧠 Harness AIDA',body:`<strong>What:</strong> AI Development Assistant — analyzes pipeline failures and explains root cause in plain English.<br><br><strong>Example output:</strong><br>"Your pipeline failed because: RDS DB Subnet Group operation not supported by Floci v1.5.23. Fix: remove db_subnet_group_name from aws_db_instance. Similar issue in day6-databases/main.tf:33"<br><br><strong>vs K8sGPT:</strong> K8sGPT analyzes Kubernetes cluster health. AIDA analyzes pipeline failures. Use both together for complete coverage.<br><br><strong>SRM integration:</strong> AIDA connects to your SLOs — if a deployment is burning through error budget, AIDA explains why and blocks further deployments automatically.`},
+  finops: {title:'💰 FinOps + Cloud Cost Management',body:`<strong>What:</strong> Harness CCM shows cost per service, per team, per deployment. Connects to AWS/Azure cost APIs and reads your resource tags.<br><br><strong>Why tags matter:</strong> Your Terraform from cloud-iac-learning tags everything with Environment, Service, Team, CostCenter. CCM reads these to build cost breakdowns.<br><br><strong>What you see:</strong><br>• payments-service costs $234/day<br>• This deployment cost $0.47<br>• Anomaly: fraud-service cost +340% today (SQS backlog causing Lambda overrun)<br>• Right-sizing: accounts-service pods request 2 CPU, use 0.3 average → save $180/month<br><br><strong>FinOps phases:</strong> Inform → Optimize → Operate.`},
+  dora: {title:'📊 DORA Metrics',body:`<strong>Four metrics from the DevOps Research and Assessment team:</strong><br><br><strong>1. Deployment Frequency</strong> — how often you successfully deploy to production. Elite: multiple times/day. High: weekly. Medium: monthly. Low: 6+ months.<br><br><strong>2. Lead Time for Changes</strong> — time from code commit to production. Elite: under 1 hour.<br><br><strong>3. MTTR (Mean Time to Recovery)</strong> — how quickly you recover from incidents. Elite: under 1 hour.<br><br><strong>4. Change Failure Rate</strong> — percentage of deployments causing incidents. Elite: 0-15%.<br><br><strong>With Harness:</strong> Deployment freq ↑ (automation), Lead time ↓ (no manual gates), MTTR ↓ (auto-rollback), Change failure rate ↓ (canary catches issues).`}
+};
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const titles={'home':'Course Home','architecture':'Architecture','migration':'Migration Guide','day1':'Day 1 — Foundations','day2':'Day 2 — CI Migration','day3':'Day 3 — Jenkins Migration','day4':'Day 4 — CD + K8s','day5':'Day 5 — Deployment Strategies','day6':'Day 6 — Governance + OPA','day7':'Day 7 — GitOps','day8':'Day 8 — AIOps + AIDA','day9':'Day 9 — FinOps','day10':'Day 10 — Capstone','interview':'Interview Q&A','concepts':'All Concepts','commands':'Commands Reference'};
+  document.getElementById('breadcrumb-text').textContent=titles[id]||id;
+}
+
+function switchTab(el,targetId){
+  const tabs=el.parentElement.querySelectorAll('.tab');
+  tabs.forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const page=el.closest('.page');
+  page.querySelectorAll('[id]').forEach(s=>{
+    if(s.id.startsWith('d')){s.style.display='none'}
+  });
+  const target=document.getElementById(targetId);
+  if(target)target.style.display='block';
+}
+
+function toggleQA(el){
+  el.classList.toggle('open');
+}
+
+function showModal(id){
+  const m=modals[id];
+  if(!m)return;
+  document.getElementById('modal-title').textContent=m.title;
+  document.getElementById('modal-body').innerHTML=m.body;
+  document.getElementById('modal-bg').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(e){if(e.target===document.getElementById('modal-bg'))closeModalBtn()}
+function closeModalBtn(){document.getElementById('modal-bg').classList.remove('open');document.body.style.overflow=''}
+
+function copyCode(btn){
+  const code=btn.closest('.code-block').querySelector('pre').textContent;
+  navigator.clipboard.writeText(code);
+  btn.textContent='copied!';
+  setTimeout(()=>btn.textContent='copy',2000);
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalBtn()});
+</script>
+</body>
+</html>
