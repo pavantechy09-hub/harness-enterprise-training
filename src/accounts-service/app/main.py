@@ -22,7 +22,7 @@ class Account(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"status": "healthy", "service": "accounts-service", "version": "1.0.0"}
+    return {"status": "healthy", "service": "accounts-service", "version": "2.0.0"}
 
 @app.post("/accounts", response_model=Account, status_code=201)
 def create_account(req: CreateAccountRequest):
