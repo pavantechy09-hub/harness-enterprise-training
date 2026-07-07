@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  accounts-service:
+    build: ./src/accounts-service
+    ports: ["8000:8000"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+
+  payments-service:
+    build: ./src/payments-service
+    ports: ["8001:8001"]
+
+  fraud-service:
+    build: ./src/fraud-service
+    ports: ["8002:8002"]
+
+  notification-service:
+    build: ./src/notification-service
+    ports: ["8003:8003"]
