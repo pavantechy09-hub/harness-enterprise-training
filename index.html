@@ -64,8 +64,8 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);font-size:1
 
 /* CONTENT */
 .content{padding:1.5rem;max-width:900px}
-.page{display:none}
-.page.active{display:block}
+.page{display:none;}
+.page.active{display:block;}
 
 /* HERO */
 .hero{background:linear-gradient(135deg,var(--surface2) 0%,var(--bg) 100%);border:1px solid var(--border2);border-radius:12px;padding:2.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
@@ -284,7 +284,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);font-size:1
 
 </style>
 </head>
-<body>
+<body onload="showPage('home')">
 <div class="layout">
 
 <!-- SIDEBAR -->
@@ -1944,6 +1944,8 @@ spec:
         <div class="card" style="margin-top:1rem"><div class="card-title">🏦 Decision Framework</div><div class="card-body"><strong>Canary:</strong> payment logic, fraud algorithms — real user validation with controlled blast radius.<br><strong>Blue-Green:</strong> compliance-critical, instant rollback required, regulatory audit trail needed.<br><strong>Rolling:</strong> stateless services, low risk, zero extra cost justified.<br><strong>Feature Flags:</strong> A/B testing, kill switch needed, new integrations, per-user targeting.</div></div>
       </div>
 
+    </div>
+
     <div class="page" id="page-day6">
       <div style="background:linear-gradient(135deg,#1A0A0A 0%,var(--bg) 100%);border:1px solid #7F1D1D;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
         <div style="font-family:var(--mono);font-size:11px;color:var(--red);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--red-dim);border:1px solid #7F1D1D;padding:.3rem .8rem;border-radius:999px">Day 6 · Governance</div>
@@ -2096,6 +2098,7 @@ User Groups (create in Harness):
         <div class="tab active" onclick="switchTab(this,'d7-concepts')">🧠 GitOps Concepts</div>
         <div class="tab" onclick="switchTab(this,'d7-compare')">📊 Push vs Pull</div>
         <div class="tab" onclick="switchTab(this,'d7-setup')">🛠️ Setup Steps</div>
+        <div class="tab" onclick="switchTab(this,'d7-yaml')">💻 Pipeline YAML</div>
         <div class="tab" onclick="switchTab(this,'d7-qa')">❓ Interview Q&A</div>
       </div>
 
@@ -2154,6 +2157,94 @@ User Groups (create in Harness):
         </div>
       </div>
 
+      <div id="d7-yaml" style="display:none">
+        <div class="code-block"><div class="code-header"><span class="code-lang">.harness/pipelines/day7-gitops.yaml</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre>pipeline:
+  name: day7-gitops-all-services
+  identifier: day7_gitops_all_services
+  projectIdentifier: bankplatform
+  orgIdentifier: default
+  tags:
+    day: "7"
+    type: gitops
+  stages:
+    - stage:
+        name: Sync All Services via GitOps
+        identifier: sync_all
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          gitOpsEnabled: true
+          execution:
+            steps:
+              - step:
+                  name: GitOps Sync
+                  identifier: gitops_sync
+                  type: GitOpsSync
+                  timeout: 10m
+                  spec:
+                    prune: false
+                    dryRun: false
+                    applyOnly: false
+                    applicationsList:
+                      - applicationName: accounts-service
+                        agentId: dd-stg-gitops-agent
+                      - applicationName: payments-service
+                        agentId: dd-stg-gitops-agent
+                      - applicationName: fraud-service
+                        agentId: dd-stg-gitops-agent
+                      - applicationName: notification-service
+                        agentId: dd-stg-gitops-agent
+
+# How drift detection works:
+# 1. Someone runs: kubectl scale deployment accounts-service --replicas=1 -n accounts
+# 2. GitOps agent detects: Git says 3 replicas, cluster has 1
+# 3. Agent auto-reconciles: kubectl apply restores to 3 replicas
+# 4. Harness UI shows: "Sync status: OutOfSync → Synced"
+# 5. No human needed — drift fixed automatically within 3 minutes</pre></div></div>
+
+        <div class="code-block" style="margin-top:1rem"><div class="code-header"><span class="code-lang">notification-service K8s manifest (added Day 7)</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># k8s/notification-service/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: notifications
+  labels:
+    app: notification-service
+    team: platform
+    cost-center: CC-1234
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: pavantechy09hub/notification-service:latest
+          ports:
+            - containerPort: 8003
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8003
+            initialDelaySeconds: 5
+            periodSeconds: 3
+          env:
+            - name: FEATURE_FLAG_NEW_SMS
+              value: "false"  # Day 5 feature flag - disabled by default</pre></div></div>
+      </div>
+
       <div id="d7-qa" style="display:none">
         <div class="qa-list">
           <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is GitOps and how does it differ from traditional CD pipelines?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">GitOps is a deployment approach where Git is the single source of truth for cluster state. A GitOps agent running in the cluster continuously compares desired state in Git with actual state in the cluster and reconciles any differences. Traditional CD pipelines push changes to the cluster when a pipeline runs. GitOps agents pull changes from Git continuously. The key differences: GitOps provides an immutable audit trail because every cluster change requires a Git commit, drift detection is automatic and continuous rather than scheduled, rollback is as simple as git revert, and teams can deploy by merging PRs without needing kubectl access. In enterprise, both are used together — GitOps for Kubernetes application deployments, pipeline CD for Terraform infrastructure changes.</div></div>
@@ -2177,6 +2268,7 @@ User Groups (create in Harness):
         <div class="tab active" onclick="switchTab(this,'d8-aida')">🧠 AIDA</div>
         <div class="tab" onclick="switchTab(this,'d8-slo')">📊 SLOs + Error Budgets</div>
         <div class="tab" onclick="switchTab(this,'d8-k8sgpt')">🔬 K8sGPT + Ollama</div>
+        <div class="tab" onclick="switchTab(this,'d8-steps')">🛠️ Setup Steps</div>
         <div class="tab" onclick="switchTab(this,'d8-qa')">❓ Interview Q&A</div>
       </div>
 
@@ -2263,6 +2355,38 @@ k8sgpt analyze --explain --backend ollama
 
 # Cleanup
 kubectl delete pod broken-pod -n accounts</pre></div></div>
+      </div>
+
+      <div id="d8-steps" style="display:none">
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Enable SRM in Harness</div><div class="step-d">Account Settings → Service Reliability Management → Enable<br>Free tier available for basic SLO tracking</div></div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Create Monitored Service for accounts-service</div><div class="step-d">SRM → Monitored Services → + New<br>Name: accounts-service<br>Type: Application<br>Health Source: Kubernetes metrics (via delegate)</div></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Configure SLO</div><div class="step-d">SRM → SLOs → + New SLO<br>Service: accounts-service<br>SLI: HTTP success rate<br>Target: 99.95%<br>Window: Rolling 30 days<br>Error budget: 21 minutes/month</div></div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Add SLO gate to pipeline</div><div class="step-d">In day8-aiops-srm.yaml — SLO Budget Check stage<br>Checks error budget remaining before allowing deployment<br>If budget &lt; 10% — pipeline fails with clear message</div></div></div>
+          <div class="step"><div class="step-n">5</div><div class="step-content"><div class="step-t">Test AIDA on a failed pipeline</div><div class="step-d">Intentionally break a test (add a failing assertion)<br>Run the pipeline — it will fail<br>Click the AIDA icon on the failed step<br>Read the AI-generated root cause explanation</div></div></div>
+          <div class="step"><div class="step-n">6</div><div class="step-content"><div class="step-t">Verify K8sGPT alongside AIDA</div><div class="step-d">kubectl config use-context kind-dd-stg<br>k8sgpt analyze --explain --backend ollama<br>Compare: AIDA explains pipeline failures, K8sGPT explains cluster issues<br>Both together = complete AIOps coverage</div></div></div>
+        </div>
+        <div class="code-block" style="margin-top:1rem"><div class="code-header"><span class="code-lang">day 8 practice commands</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Start environment
+. D:\cloud-iac\start-env.ps1
+kubectl config use-context kind-dd-stg
+
+# Verify K8sGPT working
+$env:OLLAMA_MODELS = "E:\ollama-models\models"
+k8sgpt version
+ollama list
+k8sgpt analyze --explain --backend ollama
+
+# Simulate a failing pipeline to test AIDA
+# In Harness: edit day1 pipeline, add a bad command
+# command: exit 1
+# Run pipeline, watch it fail
+# Click AIDA button on failed step
+
+# Simulate SLO breach
+kubectl run bad-pod --image=nginx:bad -n accounts
+Start-Sleep -Seconds 30
+k8sgpt analyze --explain --backend ollama
+kubectl delete pod bad-pod -n accounts</pre></div></div>
       </div>
 
       <div id="d8-qa" style="display:none">
@@ -2381,6 +2505,7 @@ Total monthly optimization opportunity: $1,640</pre></div></div>
       <div class="tabs">
         <div class="tab active" onclick="switchTab(this,'d10-overview')">🏆 Capstone Overview</div>
         <div class="tab" onclick="switchTab(this,'d10-pipeline')">⚡ Full Pipeline</div>
+        <div class="tab" onclick="switchTab(this,'d10-steps')">🛠️ Practice Steps</div>
         <div class="tab" onclick="switchTab(this,'d10-migration')">📋 Migration Plan</div>
         <div class="tab" onclick="switchTab(this,'d10-portfolio')">💼 Portfolio Value</div>
         <div class="tab" onclick="switchTab(this,'d10-qa')">❓ Final Q&A</div>
@@ -2441,6 +2566,43 @@ Notifications:
   Slack: every stage result
   PagerDuty: if production deployment fails
   Audit trail: complete record for compliance</pre></div></div>
+      </div>
+
+      <div id="d10-steps" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🛠️</span>Day 10 Practice — Run the Full Capstone Pipeline</div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Verify all previous days are working</div><div class="step-d">kubectl get pods -n accounts payments fraud notifications<br>All services should show Running<br>kubectl get pods -n harness-delegate-ng (delegate running)<br>All 4 tests passing: pytest app/tests/ -v in each service</div></div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Create the capstone pipeline in Harness</div><div class="step-d">Pipelines → + New → Name: day10-capstone-full-pipeline<br>Use YAML tab, paste from .harness/pipelines/day10-capstone-full-pipeline.yaml<br>Save as Remote in GitHub</div></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Run the pipeline</div><div class="step-d">Click Run<br>Watch Stage 1: all 4 services test in parallel<br>Watch Stage 2: rolling deploy to dev namespace<br>Wait for approval notification (you approve it yourself)</div></div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Approve staging deployment</div><div class="step-d">Harness shows approval gate with pipeline history<br>Click Approve and add comment: "all tests green, approving staging"<br>Watch canary deploy: 25% then 100%</div></div></div>
+          <div class="step"><div class="step-n">5</div><div class="step-content"><div class="step-t">Complete two-person production approval</div><div class="step-d">Production gate requires 2 approvals<br>Approve as SRE (first approval)<br>Approve again as Platform team (second approval)<br>In real enterprise: these would be different people</div></div></div>
+          <div class="step"><div class="step-n">6</div><div class="step-content"><div class="step-t">Verify blue-green production deploy</div><div class="step-d">kubectl get pods -n accounts<br>Should see both blue and green pods running briefly<br>Then green becomes stable, blue removed after 30s (in our fast demo)<br>curl the health endpoint to confirm new version serving</div></div></div>
+          <div class="step"><div class="step-n">7</div><div class="step-content"><div class="step-t">Test automatic rollback</div><div class="step-d">Edit accounts-service main.py: add return {"error": "broken"} to /health<br>Commit and push, run pipeline<br>Health check will fail after deploy<br>Watch Harness automatically rollback to previous version</div></div></div>
+          <div class="step"><div class="step-n">8</div><div class="step-content"><div class="step-t">Check Audit Trail</div><div class="step-d">Project Settings → Audit Trail<br>See complete record: who triggered, who approved, what deployed, when<br>This is what compliance teams check during audits</div></div></div>
+        </div>
+        <div class="code-block" style="margin-top:1rem"><div class="code-header"><span class="code-lang">day 10 verification commands</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Verify all services running
+kubectl get pods -n accounts
+kubectl get pods -n payments
+kubectl get pods -n fraud
+kubectl get pods -n notifications
+
+# Test all health endpoints
+kubectl port-forward svc/accounts-service 8000:80 -n accounts &
+kubectl port-forward svc/payments-service 8001:80 -n payments &
+kubectl port-forward svc/fraud-service 8002:80 -n fraud &
+kubectl port-forward svc/notification-service 8003:80 -n notifications &
+
+curl http://localhost:8000/health
+curl http://localhost:8001/health
+curl http://localhost:8002/health
+curl http://localhost:8003/health
+
+# Test fraud detection
+curl -X POST http://localhost:8002/fraud/check   -H "Content-Type: application/json"   -d "{"account_id": "acc-1", "amount": 15000, "merchant": "Online Casino"}"
+# Expected: decision: BLOCK, risk_score: 0.9
+
+# Test full flow: create account -> make payment -> check fraud
+curl -X POST http://localhost:8000/accounts   -H "Content-Type: application/json"   -d "{"name": "Pavan Goli", "email": "pavan@bank.com", "initial_balance": 10000}"</pre></div></div>
       </div>
 
       <div id="d10-migration" style="display:none">
@@ -2520,8 +2682,6 @@ Interview answer:
       </div>
     </div>
 
-    </div>
-
     <!-- INTERVIEW Q&A -->
     <div class="page" id="page-interview">
       <div class="section"><div class="section-title"><span class="icon">❓</span>Complete Interview Q&A — All 10 Days</div>
@@ -2596,11 +2756,31 @@ const modals = {
 };
 
 function showPage(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  const titles={'home':'Course Home','architecture':'Architecture','migration':'Migration Guide','day1':'Day 1 — Foundations','day2':'Day 2 — CI Migration','day3':'Day 3 — Jenkins Migration','day4':'Day 4 — CD + K8s','day5':'Day 5 — Deployment Strategies','day6':'Day 6 — Governance + OPA','day7':'Day 7 — GitOps','day8':'Day 8 — AIOps + AIDA','day9':'Day 9 — FinOps','day10':'Day 10 — Capstone','interview':'Interview Q&A','concepts':'All Concepts','commands':'Commands Reference'};
-  document.getElementById('breadcrumb-text').textContent=titles[id]||id;
+  document.querySelectorAll('.page').forEach(p=>{
+    p.classList.remove('active');
+    p.style.display='none';
+  });
+  const page = document.getElementById('page-'+id);
+  if(page){
+    page.classList.add('active');
+    page.style.display='block';
+  }
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    n.classList.remove('active');
+    const oc = n.getAttribute('onclick')||'';
+    if(oc.includes("'"+id+"'")||oc.includes('"'+id+'"')) n.classList.add('active');
+  });
+  const titles={
+    'home':'Course Home','architecture':'Architecture','migration':'Migration Guide',
+    'day1':'Day 1 — Foundations','day2':'Day 2 — CI Migration',
+    'day3':'Day 3 — Jenkins Migration','day4':'Day 4 — CD + K8s',
+    'day5':'Day 5 — Deployment Strategies','day6':'Day 6 — Governance + OPA',
+    'day7':'Day 7 — GitOps','day8':'Day 8 — AIOps + AIDA',
+    'day9':'Day 9 — FinOps','day10':'Day 10 — Capstone',
+    'interview':'Interview Q&A','concepts':'All Concepts','commands':'Commands Reference'
+  };
+  const bc=document.getElementById('breadcrumb-text');
+  if(bc) bc.textContent=titles[id]||id;
 }
 
 function switchTab(el,targetId){
@@ -2608,11 +2788,15 @@ function switchTab(el,targetId){
   tabs.forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   const page=el.closest('.page');
-  page.querySelectorAll('[id]').forEach(s=>{
-    if(s.id.startsWith('d')){s.style.display='none'}
+  if(!page) return;
+  // Hide ALL direct tab content children in this page
+  // They all have ids like d1-xxx, d2-xxx etc
+  const prefix = targetId.split('-')[0];
+  page.querySelectorAll('[id^="'+prefix+'-"]').forEach(s=>{
+    s.style.display='none';
   });
   const target=document.getElementById(targetId);
-  if(target)target.style.display='block';
+  if(target) target.style.display='block';
 }
 
 function toggleQA(el){
