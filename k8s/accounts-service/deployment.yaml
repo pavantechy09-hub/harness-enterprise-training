@@ -5,7 +5,7 @@ metadata:
   namespace: accounts
   labels:
     app: accounts-service
-    version: "{{.Values.image.tag}}"
+    version: "latest"
 spec:
   replicas: 3
   selector:
@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: accounts-service
-          image: pavantechy09hub/accounts-service:latest
+          image: vguardai/accounts-service:latest
           ports:
             - containerPort: 8000
           resources:

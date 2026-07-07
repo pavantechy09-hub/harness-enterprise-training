@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: notification-service
-          image: pavantechy09hub/notification-service:latest
+          image: vguardai/notification-service:latest
           ports:
             - containerPort: 8003
           resources:

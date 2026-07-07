@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: payments-service
-          image: pavantechy09hub/payments-service:latest
+          image: vguardai/payments-service:latest
           ports:
             - containerPort: 8001
           resources:
