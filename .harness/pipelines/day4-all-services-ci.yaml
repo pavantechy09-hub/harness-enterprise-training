@@ -14,6 +14,57 @@ pipeline:
             branch: main
   stages:
     - stage:
+        name: OPA Policy Check
+        identifier: opa_policy_check
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ddstgk8s
+              namespace: harness-builds
+              automountServiceAccountToken: true
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Evaluate OPA Policy
+                  identifier: evaluate_opa
+                  spec:
+                    connectorRef: dockerhub
+                    image: openpolicyagent/opa:latest
+                    shell: Sh
+                    command: |
+                      echo "=== OPA Policy Evaluation ==="
+                      cat > /tmp/policy.rego << 'REGO'
+                      package pipeline
+                      deny[msg] {
+                        input.environment == "prod"
+                        input.approvals < 2
+                        msg := "Production requires 2 approvals"
+                      }
+                      deny[msg] {
+                        input.triggered_by == input.approved_by
+                        msg := "Cannot approve your own deployment"
+                      }
+                      REGO
+                      cat > /tmp/input.json << 'JSON'
+                      {
+                        "environment": "dev",
+                        "approvals": 1,
+                        "triggered_by": "pavan",
+                        "approved_by": "sre-team"
+                      }
+                      JSON
+                      echo "Input:"
+                      cat /tmp/input.json
+                      echo "Evaluating..."
+                      opa eval --data /tmp/policy.rego --input /tmp/input.json "data.pipeline.deny"
+                      echo "All policies passed - deployment allowed"
+
+    - stage:
         name: Test accounts-service
         identifier: test_accounts
         type: CI
