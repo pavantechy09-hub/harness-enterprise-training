@@ -335,7 +335,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);font-size:1
   <div class="content">
 
     <!-- HOME PAGE -->
-    <div class="page active" id="page-home">
+    <div class="page" id="page-home">
       <div class="hero">
         <div class="hero-tag">Enterprise CI/CD · Real Migration · Hands-On</div>
         <h1>Harness Enterprise<br>Training Course</h1>
@@ -2756,48 +2756,45 @@ const modals = {
 };
 
 function showPage(id){
-  document.querySelectorAll('.page').forEach(p=>{
-    p.classList.remove('active');
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(function(p){
     p.style.display='none';
+    p.classList.remove('active');
   });
-  const page = document.getElementById('page-'+id);
-  if(page){
-    page.classList.add('active');
-    page.style.display='block';
-  }
-  document.querySelectorAll('.nav-item').forEach(n=>{
+  // Show target page
+  var page=document.getElementById('page-'+id);
+  if(page){page.style.display='block';page.classList.add('active');}
+  // Update nav
+  document.querySelectorAll('.nav-item').forEach(function(n){
     n.classList.remove('active');
-    const oc = n.getAttribute('onclick')||'';
-    if(oc.includes("'"+id+"'")||oc.includes('"'+id+'"')) n.classList.add('active');
+    var oc=n.getAttribute('onclick')||'';
+    if(oc.indexOf("'"+id+"'")>-1||oc.indexOf('"'+id+'"')>-1){n.classList.add('active');}
   });
-  const titles={
-    'home':'Course Home','architecture':'Architecture','migration':'Migration Guide',
-    'day1':'Day 1 — Foundations','day2':'Day 2 — CI Migration',
-    'day3':'Day 3 — Jenkins Migration','day4':'Day 4 — CD + K8s',
-    'day5':'Day 5 — Deployment Strategies','day6':'Day 6 — Governance + OPA',
-    'day7':'Day 7 — GitOps','day8':'Day 8 — AIOps + AIDA',
-    'day9':'Day 9 — FinOps','day10':'Day 10 — Capstone',
-    'interview':'Interview Q&A','concepts':'All Concepts','commands':'Commands Reference'
-  };
-  const bc=document.getElementById('breadcrumb-text');
-  if(bc) bc.textContent=titles[id]||id;
+  // Update breadcrumb
+  var titles={'home':'Course Home','architecture':'Architecture','migration':'Migration Guide','day1':'Day 1','day2':'Day 2','day3':'Day 3','day4':'Day 4','day5':'Day 5','day6':'Day 6','day7':'Day 7','day8':'Day 8','day9':'Day 9','day10':'Day 10','interview':'Interview Q&A','concepts':'Concepts','commands':'Commands'};
+  var bc=document.getElementById('breadcrumb-text');
+  if(bc)bc.textContent=titles[id]||id;
 }
 
 function switchTab(el,targetId){
-  const tabs=el.parentElement.querySelectorAll('.tab');
-  tabs.forEach(t=>t.classList.remove('active'));
+  // Update tab active state
+  var tabs=el.parentElement.querySelectorAll('.tab');
+  tabs.forEach(function(t){t.classList.remove('active');});
   el.classList.add('active');
-  const page=el.closest('.page');
-  if(!page) return;
-  // Hide ALL direct tab content children in this page
-  // They all have ids like d1-xxx, d2-xxx etc
-  const prefix = targetId.split('-')[0];
-  page.querySelectorAll('[id^="'+prefix+'-"]').forEach(s=>{
-    s.style.display='none';
+  // Find parent page
+  var page=el.closest('.page');
+  if(!page)return;
+  // Hide all tab sections in this page (any div with an id inside the page)
+  var prefix=targetId.split('-')[0];
+  page.querySelectorAll('div[id]').forEach(function(s){
+    if(s.id.indexOf(prefix+'-')===0){s.style.display='none';}
   });
-  const target=document.getElementById(targetId);
-  if(target) target.style.display='block';
+  // Show target
+  var target=document.getElementById(targetId);
+  if(target)target.style.display='block';
 }
+
+
 
 function toggleQA(el){
   el.classList.toggle('open');
