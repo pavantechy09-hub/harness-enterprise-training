@@ -1,0 +1,194 @@
+pipeline:
+  name: day4-all-services-ci
+  identifier: day4_all_services_ci
+  projectIdentifier: bankplatform
+  orgIdentifier: default
+  properties:
+    ci:
+      codebase:
+        connectorRef: bankopsgithub
+        repoName: harness-enterprise-training
+        build:
+          type: branch
+          spec:
+            branch: main
+  stages:
+    - stage:
+        name: Test accounts-service
+        identifier: test_accounts
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ddstgk8s
+              namespace: harness-builds
+              automountServiceAccountToken: true
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run Tests
+                  identifier: Run_Tests
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    shell: Sh
+                    command: |
+                      cd src/accounts-service
+                      pip install -r requirements.txt -q
+                      pytest app/tests/ -v
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: Build and Push
+                  identifier: Build_Push
+                  spec:
+                    connectorRef: dockerhubpush
+                    repo: vguardai/accounts-service
+                    tags:
+                      - <+pipeline.sequenceId>
+                      - latest
+                    dockerfile: src/accounts-service/Dockerfile
+                    context: src/accounts-service
+    - stage:
+        name: Test payments-service
+        identifier: test_payments
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ddstgk8s
+              namespace: harness-builds
+              automountServiceAccountToken: true
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run Tests
+                  identifier: Run_Tests
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    shell: Sh
+                    command: |
+                      cd src/payments-service
+                      pip install -r requirements.txt -q
+                      pytest app/tests/ -v
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: Build and Push
+                  identifier: Build_Push
+                  spec:
+                    connectorRef: dockerhubpush
+                    repo: vguardai/payments-service
+                    tags:
+                      - <+pipeline.sequenceId>
+                      - latest
+                    dockerfile: src/payments-service/Dockerfile
+                    context: src/payments-service
+    - stage:
+        name: Test fraud-service
+        identifier: test_fraud
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ddstgk8s
+              namespace: harness-builds
+              automountServiceAccountToken: true
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run Tests
+                  identifier: Run_Tests
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    shell: Sh
+                    command: |
+                      cd src/fraud-service
+                      pip install -r requirements.txt -q
+                      pytest app/tests/ -v
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: Build and Push
+                  identifier: Build_Push
+                  spec:
+                    connectorRef: dockerhubpush
+                    repo: vguardai/fraud-service
+                    tags:
+                      - <+pipeline.sequenceId>
+                      - latest
+                    dockerfile: src/fraud-service/Dockerfile
+                    context: src/fraud-service
+    - stage:
+        name: Test notification-service
+        identifier: test_notification
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ddstgk8s
+              namespace: harness-builds
+              automountServiceAccountToken: true
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run Tests
+                  identifier: Run_Tests
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    shell: Sh
+                    command: |
+                      cd src/notification-service
+                      pip install -r requirements.txt -q
+                      pytest app/tests/ -v
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: Build and Push
+                  identifier: Build_Push
+                  spec:
+                    connectorRef: dockerhubpush
+                    repo: vguardai/notification-service
+                    tags:
+                      - <+pipeline.sequenceId>
+                      - latest
+                    dockerfile: src/notification-service/Dockerfile
+                    context: src/notification-service
+    - stage:
+        name: Approval Gate
+        identifier: approval_gate
+        type: Approval
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: SRE Approval
+                  identifier: sre_approval
+                  type: HarnessApproval
+                  timeout: 1d
+                  spec:
+                    approvalMessage: |
+                      All 4 services passed tests and images pushed.
+                      Approve to confirm all builds ready.
+                    includePipelineExecutionHistory: true
+                    approvers:
+                      userGroups:
+                        - _project_all_users
+                      minimumCount: 1
+                      disallowPipelineExecutor: false
+                    approverInputs: []
