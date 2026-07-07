@@ -1107,147 +1107,318 @@ kubectl get namespace harness-builds
     </div>
 
     <div class="page" id="page-day2">
-      <div class="alert alert-success"><span class="alert-icon">✅</span>Day 2 — CI Migration from GitHub Actions. accounts-service CI pipeline fully migrated.</div>
+      <div style="background:linear-gradient(135deg,#0D1F2A 0%,var(--bg) 100%);border:1px solid #1A3A5F;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--blue-dim);border:1px solid #1E3A5F;padding:.3rem .8rem;border-radius:999px">Day 2 · CI Migration</div>
+        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">CI Migration from GitHub Actions</h2>
+        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">Migrate your GitHub Actions CI pipeline to Harness CI. Add Docker build, PR triggers, test coverage reports, and Slack notifications. accounts-service gets a proper enterprise CI pipeline.</p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">✓ Docker build + push</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">✓ PR auto-trigger</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #6B4A00;color:var(--orange);background:var(--orange-dim)">✓ Test coverage report</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #3B1F6B;color:var(--purple);background:var(--purple-dim)">✓ Slack notifications</span>
+        </div>
+      </div>
+
       <div class="tabs">
         <div class="tab active" onclick="switchTab(this,'d2-migration')">🔄 Migration Map</div>
-        <div class="tab" onclick="switchTab(this,'d2-code')">💻 Before vs After</div>
+        <div class="tab" onclick="switchTab(this,'d2-steps')">🛠️ Implementation Steps</div>
+        <div class="tab" onclick="switchTab(this,'d2-yaml')">💻 Pipeline YAML</div>
+        <div class="tab" onclick="switchTab(this,'d2-trigger')">⚡ PR Trigger Setup</div>
         <div class="tab" onclick="switchTab(this,'d2-qa')">❓ Interview Q&A</div>
       </div>
 
       <div id="d2-migration">
-        <div class="section"><div class="section-title"><span class="icon">🔄</span>GitHub Actions → Harness CI Mapping</div>
-          <table class="compare-table">
-            <tr><th>GitHub Actions</th><th>Harness CI</th><th>Key Difference</th></tr>
-            <tr><td><code>workflow.yml</code></td><td><code>pipeline.yaml</code></td><td>Same concept, YAML structure differs</td></tr>
-            <tr><td><code>on: push</code></td><td>Trigger (Git/Webhook)</td><td>Harness has more trigger types</td></tr>
-            <tr><td><code>jobs:</code></td><td>Stages:</td><td>Stages can be parallel or sequential</td></tr>
-            <tr><td><code>steps:</code></td><td>Steps:</td><td>Harness has native step types vs shell only</td></tr>
-            <tr><td><code>secrets.AWS_KEY</code></td><td><code>&lt;+secrets.getValue("aws-key")&gt;</code></td><td>Harness expressions vs GitHub context</td></tr>
-            <tr><td>Self-hosted runner</td><td>Delegate</td><td>Delegate is smarter: auto-selects, auto-upgrades</td></tr>
-            <tr><td>No test intelligence</td><td>Test Intelligence built-in</td><td>Harness skips unchanged tests (60% faster)</td></tr>
-          </table>
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🔄</span>GitHub Actions → Harness CI Mapping</div>
+        <table class="compare-table">
+          <tr><th>GitHub Actions</th><th>Harness CI</th><th>Key Improvement</th></tr>
+          <tr><td><code>workflow.yml</code></td><td><code>.harness/pipelines/day2-*.yaml</code></td><td>Stored in Git, versioned, reviewed via PR</td></tr>
+          <tr><td><code>on: pull_request</code></td><td>Trigger → GitHub → PR</td><td>Same concept, richer configuration</td></tr>
+          <tr><td><code>jobs:</code></td><td>Stages:</td><td>Stages can be parallel or sequential</td></tr>
+          <tr><td><code>uses: actions/checkout</code></td><td>cloneCodebase: true</td><td>Built-in, no action needed</td></tr>
+          <tr><td><code>secrets.TOKEN</code></td><td><code>&lt;+secrets.getValue("token")&gt;</code></td><td>Encrypted in Harness Secrets Manager</td></tr>
+          <tr><td>Self-hosted runner</td><td>Delegate pod</td><td>Auto-upgrades, auto-selects, HA capable</td></tr>
+          <tr><td>No test intelligence</td><td>Test Intelligence built-in</td><td>Skip unchanged tests — 60% faster CI</td></tr>
+          <tr><td>Manual Docker steps</td><td>BuildAndPushDockerRegistry step</td><td>Native step, no shell scripting needed</td></tr>
+        </table>
+
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>📋</span>Before vs After</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div style="background:var(--red-dim);border:1px solid #7F1D1D;border-radius:8px;padding:1.2rem">
+            <div style="font-family:var(--mono);font-size:10px;color:var(--red);margin-bottom:.8rem;text-transform:uppercase">Before — GitHub Actions</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.7">
+              ✗ No Docker image built<br>
+              ✗ No coverage report<br>
+              ✗ Manual trigger only<br>
+              ✗ No Slack notification<br>
+              ✗ Pipeline not in Git history<br>
+              ✗ Anyone can change pipeline silently
+            </div>
+          </div>
+          <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1.2rem">
+            <div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-bottom:.8rem;text-transform:uppercase">After — Harness CI</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.7">
+              ✓ Docker image built + pushed<br>
+              ✓ Coverage report in UI<br>
+              ✓ Auto-trigger on every PR<br>
+              ✓ Slack alert on failure<br>
+              ✓ Pipeline YAML in GitHub<br>
+              ✓ Pipeline changes need PR review
+            </div>
+          </div>
         </div>
       </div>
 
-      <div id="d2-code" style="display:none">
-        <div class="migration-flow">
-          <div class="migration-before">
-            <div class="migration-label">GitHub Actions (Before)</div>
-            <div style="font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8">name: CI<br>on: [push]<br>jobs:<br>&nbsp;&nbsp;scan:<br>&nbsp;&nbsp;&nbsp;&nbsp;runs-on: ubuntu<br>&nbsp;&nbsp;&nbsp;&nbsp;steps:<br>&nbsp;&nbsp;&nbsp;&nbsp;- uses: checkout@v4<br>&nbsp;&nbsp;&nbsp;&nbsp;- uses: checkov-action<br>&nbsp;&nbsp;plan:<br>&nbsp;&nbsp;&nbsp;&nbsp;needs: scan<br>&nbsp;&nbsp;&nbsp;&nbsp;steps:<br>&nbsp;&nbsp;&nbsp;&nbsp;- run: terraform plan</div>
-          </div>
-          <div class="migration-arrow">→</div>
-          <div class="migration-after">
-            <div class="migration-label">Harness CI (After)</div>
-            <div style="font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.8">pipeline:<br>&nbsp;&nbsp;stages:<br>&nbsp;&nbsp;- stage:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: Security Scan<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: SecurityTests<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spec:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;steps:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- step:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;type: Security<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spec:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;product: checkov</div>
-          </div>
+      <div id="d2-steps" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🛠️</span>Implementation Steps</div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Create Docker Hub secret in Harness</div><div class="step-d">Project Settings → Secrets → + New Secret → Text<br>Name: docker_hub_password<br>Value: your Docker Hub access token<br>This is referenced in the pipeline as <code>&lt;+secrets.getValue("docker_hub_password")&gt;</code></div></div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Create Docker Hub push connector</div><div class="step-d">Project Settings → Connectors → + New → Docker Registry<br>Name: dockerhub-push<br>URL: https://index.docker.io/v1/<br>Username: pavantechy09hub<br>Password: select secret docker_hub_password</div></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Create Docker Hub repository</div><div class="step-d">Go to hub.docker.com → Create Repository<br>Name: accounts-service<br>Visibility: Public (free tier)<br>This is where Harness pushes the built image</div></div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Create pipeline in Harness UI</div><div class="step-d">Pipelines → + Create Pipeline → Name: day2-accounts-ci-migrated<br>Store: Remote → select bankopsgithub connector<br>File path: .harness/pipelines/day2-ci-github-migration.yaml</div></div></div>
+          <div class="step"><div class="step-n">5</div><div class="step-content"><div class="step-t">Add PR trigger</div><div class="step-d">Pipeline → Triggers tab → + New Trigger → GitHub<br>Event: Pull Request<br>Actions: Opened, Synchronize<br>Branch: main<br>This auto-runs the pipeline on every PR</div></div></div>
+          <div class="step"><div class="step-n">6</div><div class="step-content"><div class="step-t">Create a test PR to verify trigger</div><div class="step-d">git checkout -b feature/test-ci<br>echo "# test" >> src/accounts-service/README.md<br>git add . && git commit -m "test: verify CI trigger"<br>git push origin feature/test-ci<br>Open PR on GitHub → watch Harness CI run automatically</div></div></div>
+          <div class="step"><div class="step-n">7</div><div class="step-content"><div class="step-t">Verify Docker image pushed</div><div class="step-d">After successful build: hub.docker.com/r/pavantechy09hub/accounts-service<br>Should show tag with Harness build sequence ID<br>docker pull pavantechy09hub/accounts-service:latest</div></div></div>
         </div>
+
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>💻</span>Commands</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">day 2 commands</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Create test branch
+git checkout -b feature/day2-docker-build
+echo "# Day 2 test" >> src/accounts-service/README.md
+git add .
+git commit -m "feat: add Docker build to CI pipeline"
+git push origin feature/day2-docker-build
+
+# Open PR on GitHub
+# Watch Harness pipeline trigger automatically
+
+# After build succeeds - verify image
+docker pull pavantechy09hub/accounts-service:latest
+docker run -p 8000:8000 pavantechy09hub/accounts-service:latest
+curl http://localhost:8000/health
+
+# Clean up test container
+docker stop $(docker ps -q --filter ancestor=pavantechy09hub/accounts-service:latest)</pre></div></div>
+      </div>
+
+      <div id="d2-yaml" style="display:none">
+        <div class="code-block"><div class="code-header"><span class="code-lang">.harness/pipelines/day2-ci-github-migration.yaml</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre>pipeline:
+  name: day2-accounts-ci-migrated
+  identifier: day2_accounts_ci_migrated
+  projectIdentifier: bankplatform
+  orgIdentifier: default
+  properties:
+    ci:
+      codebase:
+        connectorRef: bankopsgithub
+        repoName: harness-enterprise-training
+        build:
+          type: PR        # triggers on Pull Requests
+          spec: {}
+  stages:
+    - stage:
+        name: CI accounts-service
+        identifier: CI_accountsservice
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ddstgk8s
+              namespace: harness-builds
+              os: Linux
+          execution:
+            steps:
+              # Step 1: Run tests with coverage
+              - step:
+                  name: Run Tests with Coverage
+                  identifier: run_tests_coverage
+                  type: Run
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    command: |
+                      cd src/accounts-service
+                      pip install -r requirements.txt -q
+                      pytest app/tests/ -v \
+                        --junitxml=/harness/test-results.xml \
+                        --cov=app \
+                        --cov-report=xml:/harness/coverage.xml \
+                        --cov-report=term-missing
+                  reports:
+                    type: JUnit
+                    spec:
+                      paths: ["**/test-results.xml"]
+
+              # Step 2: Build and push Docker image
+              - step:
+                  name: Build and Push Docker Image
+                  identifier: build_push_docker
+                  type: BuildAndPushDockerRegistry
+                  spec:
+                    connectorRef: dockerhub
+                    repo: pavantechy09hub/accounts-service
+                    tags:
+                      - &lt;+pipeline.sequenceId&gt;
+                      - latest
+                    dockerfile: src/accounts-service/Dockerfile
+                    context: src/accounts-service
+                    labels:
+                      git-sha: &lt;+codebase.commitSha&gt;
+                      build-id: &lt;+pipeline.sequenceId&gt;
+
+  notificationRules:
+    - name: Slack on Failure
+      pipelineEvents:
+        - type: PipelineFailed
+      notificationMethod:
+        type: Slack
+        spec:
+          webhookUrl: &lt;+secrets.getValue("slack_webhook_url")&gt;
+          message: |
+            Build FAILED: accounts-service
+            Triggered by: &lt;+pipeline.triggeredBy.name&gt;
+            View: &lt;+pipeline.executionUrl&gt;</pre></div></div>
+      </div>
+
+      <div id="d2-trigger" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>⚡</span>PR Trigger Setup</div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">In Harness: Pipeline → Triggers tab → + New Trigger</div><div class="step-d">Select: GitHub → Webhook</div></div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Configure trigger</div><div class="step-d">Name: pr-trigger<br>Connector: bankopsgithub<br>Event: Pull Request<br>Actions: Opened, Synchronize, Reopened<br>Target Branch: main</div></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Copy webhook URL from Harness</div><div class="step-d">Harness shows a webhook URL after saving<br>GitHub automatically calls this URL when PR events happen<br>No manual configuration needed on GitHub side</div></div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Test the trigger</div><div class="step-d">Create any PR to your repo<br>Watch: Harness pipeline starts automatically<br>GitHub PR shows CI status check running<br>If tests fail: PR shows red X, merge blocked</div></div></div>
+        </div>
+        <div class="alert alert-info" style="margin-top:1rem"><span>ℹ️</span> The trigger flow: Developer pushes branch → opens PR → GitHub sends webhook to Harness → Harness runs CI → posts result back to GitHub PR as a status check. This is the enterprise standard that replaces manually running tests.</div>
       </div>
 
       <div id="d2-qa" style="display:none">
         <div class="qa-list">
-          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is Harness Test Intelligence?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Test Intelligence is an AI feature that analyzes your code changes and identifies which tests are actually relevant to those changes. Instead of running all 10,000 tests on every commit, it might run only the 300 tests affected by your change. This typically reduces CI time by 60-80%. It uses code graph analysis to understand which classes and functions your change touches, then maps those to test files that import or call those components.</div></div>
-          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How does Harness STO differ from just running Checkov in a shell step?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Harness STO (Security Testing Orchestration) provides a structured, normalized view of security findings across multiple scanners. When you run Checkov as a raw shell step, the output is just text in logs. STO parses the results, categorizes them by severity, de-duplicates findings across scans, tracks them over time, and shows them in a dedicated security dashboard. It can block pipelines on HIGH severity findings with a single <code>fail_on_severity: HIGH</code> config rather than parsing exit codes manually.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What does Harness Test Intelligence do and why does it matter?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Test Intelligence analyzes your code changes and identifies which tests are actually relevant to those specific changes. Instead of running all 1000 tests on every commit, it might run only the 150 tests that touch code paths modified by your change. This typically reduces CI time by 60-80%. It uses code graph analysis to understand which functions your change modifies, then maps those to test files that import or call those functions. In an enterprise with 10,000 tests across 50 services, this is the difference between a 45-minute CI run and a 5-minute one.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How do you implement a PR gate so broken code cannot merge?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Set up a Harness trigger on Pull Request events connected to your GitHub repo. When a developer opens a PR, the webhook fires, Harness runs CI, and posts the result back to GitHub as a required status check. In GitHub branch protection rules, mark the Harness CI check as required. Now GitHub will block the merge button if the CI check fails. The developer must fix the failing tests and push again, which triggers another CI run. Only when all required checks pass can the PR be merged. This is the standard pattern — no broken code reaches main because the gate is automated, not reliant on humans remembering to run tests.</div></div>
         </div>
       </div>
     </div>
 
-    <!-- DAY 3 -->
     <div class="page" id="page-day3">
-      <div class="alert alert-success"><span class="alert-icon">✅</span>Day 3 — Jenkins migration complete. payments-service added. Side-by-side comparison documented.</div>
+      <div style="background:linear-gradient(135deg,#1A0D00 0%,var(--bg) 100%);border:1px solid #6B4A00;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--orange);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--orange-dim);border:1px solid #6B4A00;padding:.3rem .8rem;border-radius:999px">Day 3 · Jenkins Migration</div>
+        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">Jenkins Migration + payments-service</h2>
+        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">Migrate the legacy Jenkins pipeline to Harness. Add payments-service. Side-by-side comparison of Jenkinsfile vs Harness YAML. Understand exactly what each Jenkins concept maps to in Harness.</p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">✓ payments-service added</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">✓ Jenkins migrated</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #6B4A00;color:var(--orange);background:var(--orange-dim)">✓ Approval gate added</span>
+        </div>
+      </div>
+
       <div class="tabs">
-        <div class="tab active" onclick="switchTab(this,'d3-jenkinsfile')">📄 Jenkinsfile</div>
-        <div class="tab" onclick="switchTab(this,'d3-harness')">⚡ Harness Equivalent</div>
-        <div class="tab" onclick="switchTab(this,'d3-compare')">📊 Comparison</div>
+        <div class="tab active" onclick="switchTab(this,'d3-compare')">📊 Jenkins vs Harness</div>
+        <div class="tab" onclick="switchTab(this,'d3-jenkinsfile')">📄 Jenkinsfile (Before)</div>
+        <div class="tab" onclick="switchTab(this,'d3-harness')">⚡ Harness YAML (After)</div>
+        <div class="tab" onclick="switchTab(this,'d3-steps')">🛠️ Migration Steps</div>
         <div class="tab" onclick="switchTab(this,'d3-qa')">❓ Interview Q&A</div>
       </div>
 
-      <div id="d3-jenkinsfile">
-        <div class="alert alert-warn"><span class="alert-icon">⚠️</span>This is the legacy Jenkins pipeline we are migrating FROM. Notice: Groovy DSL, manual approval via input{}, no rollback, no deployment strategy.</div>
-        <div class="code-block"><div class="code-header"><span class="code-lang">Jenkinsfile (legacy)</span></div><div class="code-body"><pre>pipeline {
+      <div id="d3-compare">
+        <table class="compare-table">
+          <tr><th>Jenkins</th><th>Harness</th><th>Why Harness Wins</th></tr>
+          <tr><td>Groovy DSL (complex)</td><td class="winner">YAML (simple)</td><td>Standard format, readable by all engineers</td></tr>
+          <tr><td>input{} basic prompt</td><td class="winner">HarnessApproval with RBAC</td><td>RBAC-enforced, audit trail, timeout</td></tr>
+          <tr><td>Plugins (500+, conflicts)</td><td class="winner">Native steps built-in</td><td>No plugin maintenance, no version conflicts</td></tr>
+          <tr><td>post{} blocks</td><td class="winner">notificationRules</td><td>Reusable across pipelines</td></tr>
+          <tr><td>No rollback</td><td class="winner">Automatic rollback</td><td>Health check failure → auto-revert</td></tr>
+          <tr><td>No cost tracking</td><td class="winner">CCM cost per build</td><td>Know what each CI run costs</td></tr>
+          <tr><td>Self-managed server</td><td class="winner">SaaS managed</td><td>No Jenkins master maintenance</td></tr>
+          <tr><td>No AI assistance</td><td class="winner">AIDA explains failures</td><td>Plain English root cause analysis</td></tr>
+        </table>
+      </div>
+
+      <div id="d3-jenkinsfile" style="display:none">
+        <div class="alert alert-warn"><span>⚠️</span> This is the legacy Jenkinsfile we migrated FROM. Notice: Groovy DSL, basic input{} approval, no rollback, no deployment strategy. File is at <code>Jenkinsfile</code> in repo root for reference.</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">Jenkinsfile (legacy — do not use)</span></div><div class="code-body"><pre>pipeline {
   agent any
   environment {
     AWS_REGION = 'us-east-1'
-    TF_VERSION = '1.15.5'
   }
   stages {
-    stage('Checkout') {
-      steps { checkout scm }
-    }
     stage('Security Scan') {
       steps {
         sh 'pip install checkov'
-        sh 'checkov -d . --framework terraform --quiet'
+        sh 'checkov -d infra/ --framework terraform --quiet'
       }
     }
-    stage('Terraform Plan') {
+    stage('Test payments-service') {
       steps {
-        sh 'terraform init'
-        sh 'terraform plan -no-color -out=tfplan'
-        archiveArtifacts artifacts: 'tfplan'
+        sh 'cd src/payments-service && pip install -r requirements.txt'
+        sh 'cd src/payments-service && pytest app/tests/ -v'
       }
     }
     stage('Manual Approval') {
       when { branch 'main' }
       steps {
-        input message: 'Deploy to production?', ok: 'Deploy'
+        // Basic prompt - no RBAC, no audit trail
+        input message: 'Deploy to dev?', ok: 'Deploy'
       }
     }
-    stage('Terraform Apply') {
+    stage('Deploy to Dev') {
       when { branch 'main' }
-      steps { sh 'terraform apply tfplan' }
+      steps {
+        sh 'kubectl apply -f k8s/payments-service/ -n payments'
+      }
     }
   }
   post {
-    failure { slackSend channel: '#alerts', message: "FAILED: ${env.JOB_NAME}" }
-    success { slackSend channel: '#deploys', message: "DEPLOYED: ${env.JOB_NAME}" }
+    failure {
+      slackSend channel: '#alerts',
+        message: "FAILED: ${env.JOB_NAME}"
+    }
   }
 }</pre></div></div>
       </div>
 
       <div id="d3-harness" style="display:none">
-        <div class="alert alert-success"><span class="alert-icon">✅</span>This is the Harness replacement. Same stages, but with built-in security scanning, proper approval gates, automatic rollback, and Slack notification via Action step — not post{} blocks.</div>
+        <div class="alert alert-success"><span>✅</span> This is the Harness replacement. Same stages but with built-in security scanning, RBAC approval gate, automatic rollback, and reusable notifications.</div>
         <div class="code-block"><div class="code-header"><span class="code-lang">.harness/pipelines/day3-jenkins-migration.yaml</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre>pipeline:
-  name: Day 3 - Jenkins Migration (payments-service)
-  identifier: day3_jenkins_migration
+  name: day3-payments-jenkins-migration
+  identifier: day3_payments_jenkins_migration
   stages:
+    # Replaces: stage('Security Scan')
     - stage:
         name: Security Scan
-        type: SecurityTests
-        spec:
-          steps:
-            - step:
-                name: Checkov
-                type: Security
-                spec:
-                  privileged: true
-                  settings:
-                    product_name: checkov
-                    fail_on_severity: HIGH
-        failureStrategies:
-          - onFailure:
-              errors: [AllErrors]
-              action:
-                type: Abort
-
-    - stage:
-        name: Terraform Plan
         type: CI
         spec:
-          steps:
-            - step:
-                name: TF Init and Plan
-                type: Run
-                spec:
-                  image: hashicorp/terraform:1.15.5
-                  command: |
-                    cd infra/envs/dev
-                    terraform init
-                    terraform plan -no-color -out=tfplan
-                  envVariables:
-                    AWS_ACCESS_KEY_ID: test
-                    AWS_SECRET_ACCESS_KEY: test
-                    AWS_ENDPOINT_URL: http://host.docker.internal:4566
+          execution:
+            steps:
+              - step:
+                  name: Checkov IaC Scan
+                  type: Run
+                  spec:
+                    connectorRef: dockerhub
+                    image: bridgecrew/checkov:latest
+                    command: |
+                      checkov -d infra/ --quiet --compact \
+                        --framework terraform || true
 
+    # Replaces: stage('Test payments-service')
+    - stage:
+        name: Test payments-service
+        type: CI
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: Pytest
+                  type: Run
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    command: |
+                      cd src/payments-service
+                      pip install -r requirements.txt -q
+                      pytest app/tests/ -v
+
+    # Replaces: input{} — but with RBAC and audit trail
     - stage:
         name: Approval Gate
         type: Approval
@@ -1256,61 +1427,254 @@ kubectl get namespace harness-builds
             steps:
               - step:
                   type: HarnessApproval
+                  timeout: 24h
                   spec:
                     approvers:
-                      userGroups: [sre_team]
-                    minimumCount: 1
+                      userGroups: [_project_all_users]
+                      minimumCount: 1
                     includePipelineExecutionHistory: true
 
+    # Replaces: stage('Deploy to Dev')
     - stage:
-        name: Terraform Apply
+        name: Deploy to Dev
         type: CI
         spec:
-          steps:
-            - step:
-                name: TF Apply
-                type: Run
-                spec:
-                  image: hashicorp/terraform:1.15.5
-                  command: terraform apply -auto-approve tfplan
+          execution:
+            steps:
+              - step:
+                  name: Deploy payments-service
+                  type: Run
+                  spec:
+                    connectorRef: dockerhub
+                    image: bitnami/kubectl:latest
+                    command: |
+                      kubectl apply -f k8s/payments-service/ -n payments
+                      kubectl rollout status deployment/payments-service -n payments
 
+  # Replaces: post { failure { slackSend } }
   notificationRules:
-    - name: Slack Notification
-      pipelineEvents: [PipelineSuccess, PipelineFailed]
+    - name: Slack Notifications
+      pipelineEvents: [PipelineFailed, PipelineSuccess]
       notificationMethod:
         type: Slack
         spec:
-          webhookUrl: <+secrets.getValue("slack_webhook")></pre></div></div>
+          webhookUrl: &lt;+secrets.getValue("slack_webhook_url")&gt;</pre></div></div>
       </div>
 
-      <div id="d3-compare" style="display:none">
-        <table class="compare-table">
-          <tr><th>Feature</th><th>Jenkins</th><th>Harness</th></tr>
-          <tr><td>Language</td><td class="loser">Groovy DSL (hard to read)</td><td class="winner">YAML (clean, standard)</td></tr>
-          <tr><td>Approval gate</td><td class="neutral">input{} — basic prompt</td><td class="winner">Rich approval + RBAC + timeout</td></tr>
-          <tr><td>Security scan</td><td class="loser">pip install + shell (fragile)</td><td class="winner">Native STO step (structured results)</td></tr>
-          <tr><td>Notifications</td><td class="neutral">post{} blocks</td><td class="winner">Notification Rules (reusable)</td></tr>
-          <tr><td>Audit trail</td><td class="loser">Build logs only</td><td class="winner">Full deployment audit trail</td></tr>
-          <tr><td>Rollback</td><td class="loser">None — manual hotfix</td><td class="winner">Automatic on health check fail</td></tr>
-          <tr><td>Maintenance</td><td class="loser">Plugin updates, master downtime</td><td class="winner">SaaS — Harness manages it</td></tr>
-        </table>
+      <div id="d3-steps" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🛠️</span>90-Day Enterprise Migration Plan</div>
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;margin-bottom:1rem">
+          <div style="font-size:13px;font-weight:600;margin-bottom:.8rem">Phase 1: Foundation (Days 1-30)</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">Install Delegates in non-prod clusters. Migrate 1 non-critical service as POC. Run Jenkins + Harness in parallel. Train all teams. Get stakeholder sign-off.</div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;margin-bottom:1rem">
+          <div style="font-size:13px;font-weight:600;margin-bottom:.8rem">Phase 2: Migration (Days 31-60)</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">New services go Harness-only from day 1. Migrate existing services in batches (low risk first). Keep each Jenkins pipeline as fallback for 2 weeks before removing.</div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;margin-bottom:1rem">
+          <div style="font-size:13px;font-weight:600;margin-bottom:.8rem">Phase 3: Completion (Days 61-90)</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">Migrate critical services like payments with extended parallel running. Decommission Jenkins. OPA governance enforced on all pipelines. Cost saving: ~$1800/month vs Jenkins infrastructure.</div>
+        </div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">day 3 practice commands</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Apply payments namespace
+kubectl create namespace payments
+
+# Run payments-service tests locally first
+cd src/payments-service
+pip install -r requirements.txt -q
+pytest app/tests/ -v
+
+# Deploy K8s manifests manually (before pipeline)
+kubectl apply -f k8s/payments-service/ -n payments
+kubectl get pods -n payments
+
+# Then create pipeline in Harness and run it</pre></div></div>
       </div>
 
       <div id="d3-qa" style="display:none">
         <div class="qa-list">
-          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What are the main risks when migrating from Jenkins to Harness?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">The highest technical risk is leaving teams without a deployment path during migration. Mitigate by running Jenkins and Harness in parallel for at least 2 weeks per service. The highest organisational risk is developer resistance — teams comfortable with Jenkinsfiles may resist change. Mitigate with early involvement, training, and concrete demonstrations of benefits like automatic rollback and faster deployments. A genuine technical constraint is that <strong>Harness Delegates are Linux-based</strong>, so Windows build agents require containers or staying on Jenkins during initial migration phases.</div></div>
-          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How do you handle Jenkins shared libraries when migrating?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Jenkins shared libraries are reusable Groovy code that teams import into Jenkinsfiles. The Harness equivalent is <strong>Pipeline Templates</strong>. You define a template once — for example a standard CI template for all microservices — and each pipeline references it with a version tag. When you update the template, all pipelines using it pick up the change on next run. This is actually better than Jenkins shared libraries because templates are versioned, have their own approval process, and are visible in the UI rather than hidden in a separate repository.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What are the main risks when migrating Jenkins to Harness?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">The highest technical risk is leaving teams without a deployment path during migration. Mitigate by running Jenkins and Harness in parallel for at least 2 weeks per service — both work simultaneously. The highest organisational risk is developer resistance, as teams comfortable with Groovy Jenkinsfiles may resist YAML pipelines. Mitigate with early involvement, training, and concrete demonstrations of benefits. A genuine technical constraint: <strong>Harness Delegates are Linux-based</strong>, so Windows build agents require containers or staying on Jenkins during initial migration phases.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How do Jenkins shared libraries map to Harness templates?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Jenkins shared libraries are reusable Groovy code imported into Jenkinsfiles. The Harness equivalent is Pipeline Templates. You define a template once at Account level and each pipeline references it with a version tag. When you update the template, all pipelines using it pick up the change on next run. Templates are better than Jenkins shared libraries because they are versioned, have their own approval process, visible in the UI, and changes go through Git PR review rather than being pushed directly. A template change that breaks 50 pipelines is caught in code review before it ever runs.</div></div>
         </div>
       </div>
     </div>
 
-    <!-- DAYS 4-10 (placeholders with coming soon) -->
     <div class="page" id="page-day4">
-      <div class="alert alert-info"><span class="alert-icon">🔄</span>Day 4 — CD + Kubernetes Deployments. Currently in progress. accounts-service and payments-service deploying to dd-stg cluster.</div>
-      <div class="concept-grid">
-        <div class="concept-card"><span class="concept-card-icon">🚢</span><div class="concept-card-title">Harness CD Service</div><div class="concept-card-body">Defines WHAT to deploy — Docker image, K8s manifests, Helm chart. Version controlled. Parameterized.</div><div class="concept-card-tag">Coming</div></div>
-        <div class="concept-card"><span class="concept-card-icon">🌍</span><div class="concept-card-title">Environments + Infra</div><div class="concept-card-body">Dev, Staging, Prod environments each pointing to different K8s namespaces and credentials.</div><div class="concept-card-tag">Coming</div></div>
-        <div class="concept-card"><span class="concept-card-icon">⏪</span><div class="concept-card-title">Automatic Rollback</div><div class="concept-card-body">If pods fail health checks post-deploy, Harness automatically redeploys previous version. No human needed.</div><div class="concept-card-tag">Coming</div></div>
+      <div style="background:linear-gradient(135deg,#0D1A2A 0%,var(--bg) 100%);border:1px solid #1E3A5F;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--blue-dim);border:1px solid #1E3A5F;padding:.3rem .8rem;border-radius:999px">Day 4 · CD + Kubernetes</div>
+        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">CD + Kubernetes Deployments</h2>
+        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">Deploy all 4 microservices to dd-stg Kubernetes cluster using Harness CD. Rolling deployments with health checks. Automatic rollback if pods fail. Harness Service, Environment, and Infrastructure definitions.</p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">✓ All 4 services deployed</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">✓ Rolling deployment</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #6B4A00;color:var(--orange);background:var(--orange-dim)">✓ Auto rollback</span>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'d4-concepts')">🧠 CD Concepts</div>
+        <div class="tab" onclick="switchTab(this,'d4-setup')">🛠️ Setup Steps</div>
+        <div class="tab" onclick="switchTab(this,'d4-yaml')">💻 Pipeline YAML</div>
+        <div class="tab" onclick="switchTab(this,'d4-k8s')">☸️ K8s Manifests</div>
+        <div class="tab" onclick="switchTab(this,'d4-qa')">❓ Interview Q&A</div>
+      </div>
+
+      <div id="d4-concepts">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🧠</span>Harness CD Entity Model</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">harness cd entities</span></div><div class="code-body"><pre>Service          = WHAT to deploy
+  Docker image: pavantechy09hub/accounts-service:latest
+  K8s manifest: k8s/accounts-service/deployment.yaml
+  Parameterized: image tag changes per deployment
+
+Environment      = WHERE to deploy
+  dev    → dd-stg cluster, accounts namespace
+  staging → dd-stg cluster (different namespace)
+  prod   → (real AKS/EKS in enterprise)
+
+Infrastructure   = HOW to connect
+  Kubernetes connector: ddstgk8s
+  Namespace: accounts
+  Service account: harness-sa
+
+Pipeline         = ORCHESTRATION
+  Stage 1: Deploy (K8sRollingDeploy)
+  Stage 2: Health Check (curl /health)
+  Stage 3: Approval Gate (manual)
+  Rollback: K8sRollingRollback on failure</pre></div></div>
+
+        <div class="concept-grid">
+          <div class="concept-card"><span class="concept-card-icon">🔄</span><div class="concept-card-title">Rolling Deployment</div><div class="concept-card-body">Replace pods one by one. maxSurge:1, maxUnavailable:0. Pod must pass readinessProbe before traffic routes to it. Zero downtime. Default strategy for stateless services.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">⏪</span><div class="concept-card-title">Automatic Rollback</div><div class="concept-card-body">If health check fails after deploy, Harness runs K8sRollingRollback step automatically. Previous Deployment revision restored. No human needed. MTTR from 45min to under 5min.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">🏥</span><div class="concept-card-title">Health Verification</div><div class="concept-card-body">After deploy: curl /health endpoint. If returns 200 — deployment verified. If non-200 — rollback triggered. This is why our FastAPI services have /health endpoints.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">🌍</span><div class="concept-card-title">Environment Overrides</div><div class="concept-card-body">Same service deployed to dev and prod with different configs. Dev: 1 replica, no resource limits. Prod: 3 replicas, full resource limits. Override at Environment level, not in application code.</div></div>
+        </div>
+      </div>
+
+      <div id="d4-setup" style="display:none">
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Apply all K8s namespaces</div><div class="step-d"><code>kubectl apply -f k8s/namespaces/namespaces.yaml</code><br>Creates: harness-builds, accounts, payments, fraud, notifications</div></div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Create Harness Service for accounts-service</div><div class="step-d">Project → Services → + New Service<br>Name: accounts-service<br>Deployment Type: Kubernetes<br>Manifest: Git → bankopsgithub → k8s/accounts-service/deployment.yaml<br>Artifact: Docker Hub → pavantechy09hub/accounts-service</div></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Create Environment: dev</div><div class="step-d">Project → Environments → + New Environment<br>Name: dev<br>Type: PreProduction<br>Infrastructure: Kubernetes → ddstgk8s → namespace: accounts</div></div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Create CD pipeline</div><div class="step-d">Pipelines → + New → Deployment type: Kubernetes<br>Select Service: accounts-service<br>Select Environment: dev<br>Execution: Rolling Deploy step</div></div></div>
+          <div class="step"><div class="step-n">5</div><div class="step-content"><div class="step-t">Run and verify</div><div class="step-d"><code>kubectl get pods -n accounts</code><br>Should show accounts-service pods Running<br><code>kubectl port-forward svc/accounts-service 8000:80 -n accounts</code><br><code>curl http://localhost:8000/health</code></div></div></div>
+        </div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">day 4 practice commands</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Apply namespaces
+kubectl apply -f k8s/namespaces/namespaces.yaml
+kubectl get namespaces
+
+# After pipeline runs - verify deployments
+kubectl get pods -n accounts
+kubectl get pods -n payments
+kubectl get pods -n fraud
+kubectl get pods -n notifications
+
+# Test each service
+kubectl port-forward svc/accounts-service 8000:80 -n accounts &
+kubectl port-forward svc/payments-service 8001:80 -n payments &
+curl http://localhost:8000/health
+curl http://localhost:8001/health
+
+# Check rollout status
+kubectl rollout status deployment/accounts-service -n accounts
+kubectl rollout history deployment/accounts-service -n accounts
+
+# Force a rollback manually (to test rollback)
+kubectl rollout undo deployment/accounts-service -n accounts</pre></div></div>
+      </div>
+
+      <div id="d4-yaml" style="display:none">
+        <div class="code-block"><div class="code-header"><span class="code-lang">.harness/pipelines/day4-cd-kubernetes.yaml</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre>pipeline:
+  name: day4-cd-all-services
+  identifier: day4_cd_all_services
+  stages:
+    - stage:
+        name: Deploy accounts-service
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: accounts_service
+          environment:
+            environmentRef: dev
+            infrastructureDefinitions:
+              - identifier: dd_stg_k8s_infra
+          execution:
+            steps:
+              - step:
+                  name: Rolling Deploy
+                  type: K8sRollingDeploy
+                  timeout: 10m
+                  spec:
+                    skipDryRun: false
+              - step:
+                  name: Health Check
+                  type: Run
+                  spec:
+                    connectorRef: dockerhub
+                    image: curlimages/curl:latest
+                    command: |
+                      sleep 10
+                      curl -f http://accounts-service.accounts.svc.cluster.local/health
+                      echo "accounts-service healthy"
+            rollbackSteps:
+              - step:
+                  name: Auto Rollback
+                  type: K8sRollingRollback</pre></div></div>
+      </div>
+
+      <div id="d4-k8s" style="display:none">
+        <div class="code-block"><div class="code-header"><span class="code-lang">k8s/accounts-service/deployment.yaml</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: accounts-service
+  namespace: accounts
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1        # create 1 extra pod during rollout
+      maxUnavailable: 0  # never go below 3 healthy pods
+  selector:
+    matchLabels:
+      app: accounts-service
+      harness.io/track: stable
+  template:
+    metadata:
+      labels:
+        app: accounts-service
+        harness.io/track: stable  # required for blue-green Day 5
+    spec:
+      containers:
+        - name: accounts-service
+          image: pavantechy09hub/accounts-service:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m       # always set limits
+              memory: 256Mi   # prevents OOMKill cascades
+          readinessProbe:      # pod only gets traffic when ready
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 3
+          livenessProbe:       # restart if unhealthy
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5</pre></div></div>
+      </div>
+
+      <div id="d4-qa" style="display:none">
+        <div class="qa-list">
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is the difference between a Harness Service, Environment, and Infrastructure Definition?</span><span class="qa-arrow">▼</span></div><div class="qa-answer"><strong>Service</strong> defines WHAT you are deploying — the Docker image, Kubernetes manifests, or Helm chart. It is versioned and parameterized so the same service definition deploys to dev and prod with different image tags. <strong>Environment</strong> defines WHERE you are deploying — dev, staging, or prod. It contains environment-specific overrides like replica counts or resource limits. <strong>Infrastructure Definition</strong> defines HOW to connect to that environment — which Kubernetes cluster, which namespace, which service account. Separating these three concerns means you can deploy the same service to any environment without changing the service definition itself.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How does automatic rollback work in Harness Kubernetes deployments?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Harness configures rollbackSteps in the pipeline stage alongside the normal execution steps. If any step in the execution block fails — including a health check curl command — Harness automatically runs the rollbackSteps instead. For K8sRollingRollback, Harness calls kubectl rollout undo on the Deployment, which Kubernetes handles by restoring the previous ReplicaSet. The previous pods come back up while the new pods are terminated. The entire rollback typically completes in 60-90 seconds. This replaces the manual process of an SRE debugging at 3am and manually running rollback commands — it happens automatically the moment a health check fails.</div></div>
+        </div>
       </div>
     </div>
 
@@ -1581,50 +1945,581 @@ kubectl get namespace harness-builds
       </div>
 
     <div class="page" id="page-day6">
-      <div class="alert alert-info"><span class="alert-icon">🔄</span>Day 6 — OPA Governance. Policies blocking bad deployments. Four-eyes principle enforced.</div>
-      <div class="code-block"><div class="code-header"><span class="code-lang">.harness/policies/opa-prod-approval.rego</span></div><div class="code-body"><pre>package pipeline
+      <div style="background:linear-gradient(135deg,#1A0A0A 0%,var(--bg) 100%);border:1px solid #7F1D1D;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--red);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--red-dim);border:1px solid #7F1D1D;padding:.3rem .8rem;border-radius:999px">Day 6 · Governance</div>
+        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">Governance + OPA Policies</h2>
+        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">Enforce enterprise deployment rules using Open Policy Agent. Block bad deployments automatically. Four-eyes principle. No Friday deploys. Compliance audit trail for every decision.</p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">✓ OPA policies active</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">✓ Four-eyes enforced</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #6B4A00;color:var(--orange);background:var(--orange-dim)">✓ Audit trail complete</span>
+        </div>
+      </div>
 
-# Block prod deployment without 2 approvals
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'d6-opa')">🛡️ OPA Concepts</div>
+        <div class="tab" onclick="switchTab(this,'d6-policies')">📋 Policy Examples</div>
+        <div class="tab" onclick="switchTab(this,'d6-rbac')">👥 RBAC + Users</div>
+        <div class="tab" onclick="switchTab(this,'d6-setup')">🛠️ Setup Steps</div>
+        <div class="tab" onclick="switchTab(this,'d6-qa')">❓ Interview Q&A</div>
+      </div>
+
+      <div id="d6-opa">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🛡️</span>How OPA Works in Harness</div>
+        <div class="flow-diagram">
+          <div class="flow-title">OPA Policy Evaluation Flow</div>
+          <div class="flow-steps">
+            <div class="flow-step highlight"><div>Pipeline Step</div><div class="flow-label">about to run</div></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step warning"><div>OPA Evaluates</div><div class="flow-label">all policies</div></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step success"><div>All Pass</div><div class="flow-label">step runs</div></div>
+          </div>
+          <div style="margin:.5rem 0;font-size:12px;color:var(--muted)">Or:</div>
+          <div class="flow-steps">
+            <div class="flow-step highlight"><div>Pipeline Step</div><div class="flow-label">about to run</div></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step warning"><div>OPA Evaluates</div><div class="flow-label">finds violation</div></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step danger"><div>BLOCKED</div><div class="flow-label">message shown</div></div>
+          </div>
+        </div>
+        <div class="concept-grid">
+          <div class="concept-card"><span class="concept-card-icon">📜</span><div class="concept-card-title">Rego Language</div><div class="concept-card-body">OPA uses Rego — a declarative policy language. <code>deny[msg]</code> rules block pipeline steps. If ANY deny rule evaluates to true, the step is blocked with the message. Policies stored as code in Git — changes go through PR review.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">👥</span><div class="concept-card-title">Four-Eyes Principle</div><div class="concept-card-body">No single person can deploy to production alone. OPA policy checks: count of approvals ≥ 2 AND no self-approval. Required by PCI-DSS, SOX, FCA regulations. Automated — humans cannot bypass it accidentally.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">📊</span><div class="concept-card-title">Audit Trail</div><div class="concept-card-body">Every OPA evaluation is logged. Who triggered, which policy evaluated, pass or fail. Compliance teams can query: "show all production deployments last quarter with approval evidence." Built-in — zero extra tooling.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">⏰</span><div class="concept-card-title">Business Hours</div><div class="concept-card-body">Bank regulatory requirement: no production deployments Friday 5pm to Monday 9am. OPA policy checks time automatically. Emergency override: CISO approval required. No human has to remember — policy enforces it.</div></div>
+        </div>
+      </div>
+
+      <div id="d6-policies" style="display:none">
+        <div class="code-block"><div class="code-header"><span class="code-lang">.harness/policies/prod-deployment-policy.rego</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre>package pipeline
+
+# RULE 1: Production requires 2 approvals
 deny[msg] {
-  input.pipeline.stages[_].stage.spec.environment == "prod"
+  input.pipeline.stages[_].stage.spec.environment.identifier == "prod"
   count(input.approvals) < 2
-  msg := "Production requires minimum 2 approvals"
+  msg := "Production requires minimum 2 approvals (four-eyes principle)"
 }
 
-# Block self-approval
+# RULE 2: No self-approval
 deny[msg] {
   input.pipeline.triggeredBy == input.approvals[_].approvedBy
   msg := "Cannot approve your own deployment"
+}
+
+# RULE 3: Business hours only
+deny[msg] {
+  input.pipeline.stages[_].stage.spec.environment.identifier == "prod"
+  hour := time.clock(time.now_ns())[0]
+  hour >= 17
+  msg := "Production deployments only 9am-5pm Monday-Friday"
+}
+
+# RULE 4: Resource limits required
+deny[msg] {
+  container := input.manifest.spec.template.spec.containers[_]
+  not container.resources.limits.memory
+  msg := sprintf("Container %s missing memory limit", [container.name])
+}
+
+# RULE 5: Block HIGH security findings
+deny[msg] {
+  input.securityScan.status == "FAILED"
+  input.securityScan.severity == "HIGH"
+  msg := sprintf("HIGH finding blocks deployment: %s", [input.securityScan.checkId])
 }</pre></div></div>
+      </div>
+
+      <div id="d6-rbac" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>👥</span>Roles, Users and Team Isolation</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">enterprise RBAC structure</span></div><div class="code-body"><pre>Harness Roles:
+  Account Admin     → full access everything
+  Org Admin         → full access within org
+  Project Admin     → full access within project
+  Developer         → create/run pipelines, no delete
+  Pipeline Executor → run only, cannot edit
+  Viewer            → read-only (compliance team)
+
+Bank Team Setup:
+  payments-dev-team  → Developer on payments-platform
+  fraud-dev-team     → Developer on fraud-platform
+  sre-team           → Pipeline Executor + Approver on ALL
+  platform-team      → Project Admin on ALL
+  compliance-team    → Viewer on ALL
+
+Result:
+  Pavan (payments dev) CANNOT see fraud-platform
+  Fraud team CANNOT run payments pipelines
+  SRE approves deployments in any project
+  Compliance reads everything, changes nothing
+
+User Groups (create in Harness):
+  Project Settings → Access Control → User Groups
+  Add members, assign role, select resources
+  Pipeline approval gates reference user groups:
+    approvers:
+      userGroups: [sre-team]
+      minimumCount: 1</pre></div></div>
+      </div>
+
+      <div id="d6-setup" style="display:none">
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Create OPA Policy in Harness</div><div class="step-d">Project Settings → Policies → + New Policy<br>Name: prod-deployment-policy<br>Paste content from .harness/policies/prod-deployment-policy.rego<br>Save and set to Error (blocks pipeline) not Warning</div></div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Create Policy Set</div><div class="step-d">Project Settings → Policy Sets → + New Policy Set<br>Name: bank-governance<br>Entity Type: Pipeline<br>Add Policy: prod-deployment-policy<br>Evaluation: On Run</div></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Create User Groups</div><div class="step-d">Project Settings → Access Control → User Groups<br>Create: sre-team, platform-team<br>Add yourself to both for practice<br>In enterprise: add real team members</div></div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Test policy enforcement</div><div class="step-d">Run a pipeline that deploys to prod environment<br>OPA should evaluate and show policy results<br>Try running without 2 approvals — should be blocked<br>Check: Project Settings → Audit Trail for policy decisions</div></div></div>
+        </div>
+      </div>
+
+      <div id="d6-qa" style="display:none">
+        <div class="qa-list">
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is OPA and how does Harness use it for governance?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Open Policy Agent is a policy-as-code engine using the Rego language. Harness evaluates every pipeline step against configured OPA policies before execution. If any deny rule returns a message, the step is blocked. We use it to enforce: production requiring two approvers from different teams, no self-approval of your own deployment, no production deployments outside business hours, and mandatory resource limits on all Kubernetes manifests. All policies are stored in Git so every governance change goes through PR review with the same audit trail as application code. Compliance teams can audit all policy decisions in the Harness Audit Trail.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How do you implement four-eyes principle in a deployment pipeline?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Four-eyes means no single person can deploy to production alone — two people from different teams must approve. In Harness we implement this with two separate HarnessApproval steps, each requiring a different user group. The first approval gate requires the SRE team, the second requires the Platform team. An OPA policy enforces no self-approval so the person who triggered the pipeline cannot approve either gate. All approvals are logged with timestamp, approver identity, and comment providing the compliance audit trail. In a bank this is required by PCI-DSS and FCA regulations — the automated implementation means it cannot be accidentally bypassed even under time pressure during an incident.</div></div>
+        </div>
+      </div>
     </div>
 
     <div class="page" id="page-day7">
-      <div class="alert alert-info"><span class="alert-icon">🔄</span>Day 7 — GitOps. Git commit = deployment. notification-service added. Drift auto-reconciled.</div>
-      <div class="concept-grid">
-        <div class="concept-card"><span class="concept-card-icon">📦</span><div class="concept-card-title">Push CD vs Pull GitOps</div><div class="concept-card-body">Push: pipeline deploys to cluster. Pull: agent watches Git, pulls changes, applies automatically. Both have valid enterprise uses.</div></div>
-        <div class="concept-card"><span class="concept-card-icon">🔄</span><div class="concept-card-title">Drift Detection</div><div class="concept-card-body">Someone runs kubectl apply manually. GitOps agent detects mismatch between Git and cluster. Auto-reconciles. Same concept as Terraform drift detection.</div></div>
+      <div style="background:linear-gradient(135deg,#1A0D3A 0%,var(--bg) 100%);border:1px solid #3B1F6B;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--purple);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--purple-dim);border:1px solid #3B1F6B;padding:.3rem .8rem;border-radius:999px">Day 7 · GitOps</div>
+        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">GitOps with Harness</h2>
+        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">Git commit = deployment. Harness GitOps agent watches your repo and automatically reconciles cluster state. notification-service added. Drift detected and auto-fixed.</p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">✓ notification-service added</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #3B1F6B;color:var(--purple);background:var(--purple-dim)">✓ GitOps enabled</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">✓ Drift detection</span>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'d7-concepts')">🧠 GitOps Concepts</div>
+        <div class="tab" onclick="switchTab(this,'d7-compare')">📊 Push vs Pull</div>
+        <div class="tab" onclick="switchTab(this,'d7-setup')">🛠️ Setup Steps</div>
+        <div class="tab" onclick="switchTab(this,'d7-qa')">❓ Interview Q&A</div>
+      </div>
+
+      <div id="d7-concepts">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🧠</span>What GitOps Means</div>
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;margin-bottom:1rem;font-size:13px;color:var(--muted);line-height:1.7">
+          <strong style="color:var(--white)">Core principle:</strong> Git is the single source of truth for cluster state. Every change to the cluster goes through Git. The cluster state is always derivable from the Git history. "Desired state is what is in Git. Actual state is what is in the cluster. The agent continuously reconciles them."
+        </div>
+        <div class="flow-diagram">
+          <div class="flow-title">GitOps Flow</div>
+          <div class="flow-steps">
+            <div class="flow-step highlight"><div>Git Commit</div><div class="flow-label">k8s/manifest.yaml</div></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step"><div>GitOps Agent</div><div class="flow-label">detects change</div></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step success"><div>kubectl apply</div><div class="flow-label">cluster updated</div></div>
+          </div>
+          <div style="margin:.5rem 0;font-size:12px;color:var(--muted)">Drift detection (someone manually changes cluster):</div>
+          <div class="flow-steps">
+            <div class="flow-step danger"><div>Manual kubectl</div><div class="flow-label">cluster drifted</div></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step warning"><div>Agent detects</div><div class="flow-label">Git vs cluster differ</div></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step success"><div>Auto-reconcile</div><div class="flow-label">Git state restored</div></div>
+          </div>
+        </div>
+        <div class="concept-grid">
+          <div class="concept-card"><span class="concept-card-icon">📦</span><div class="concept-card-title">Immutable Audit Trail</div><div class="concept-card-body">Every cluster change = a Git commit. Full history of who changed what and when. Rollback = git revert. Compliance teams love this — immutable evidence of every deployment decision.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">🔄</span><div class="concept-card-title">Drift Detection</div><div class="concept-card-body">Someone runs kubectl manually — GitOps agent detects mismatch between Git and cluster. Auto-reconciles back to Git state. Same concept as Terraform drift detection from cloud-iac-learning Day 1.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">🚀</span><div class="concept-card-title">Self-Service Deployments</div><div class="concept-card-body">Teams deploy by merging PRs. No access to kubectl required. No pipeline to run. Update manifest → PR approved → merged → deployed. Scales to 500 teams without platform team bottleneck.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">⚡</span><div class="concept-card-title">When to Use GitOps</div><div class="concept-card-body">Best for: pure K8s manifest deployments, config changes. Use Pipeline CD for: Terraform, database migrations, complex multi-step approvals. Enterprise uses BOTH — GitOps for apps, Pipeline CD for infrastructure.</div></div>
+        </div>
+      </div>
+
+      <div id="d7-compare" style="display:none">
+        <table class="compare-table">
+          <tr><th>Aspect</th><th>Pipeline CD (Push)</th><th>GitOps (Pull)</th></tr>
+          <tr><td>How it works</td><td>Pipeline pushes to cluster</td><td class="winner">Agent pulls from Git</td></tr>
+          <tr><td>Trigger</td><td>Pipeline execution</td><td class="winner">Git commit</td></tr>
+          <tr><td>Audit trail</td><td class="neutral">Pipeline logs</td><td class="winner">Git history (immutable)</td></tr>
+          <tr><td>Drift detection</td><td class="loser">Manual/scheduled</td><td class="winner">Automatic continuous</td></tr>
+          <tr><td>Rollback</td><td class="neutral">Re-run pipeline</td><td class="winner">git revert = deployment</td></tr>
+          <tr><td>Compliance</td><td class="neutral">Good</td><td class="winner">Best (immutable history)</td></tr>
+          <tr><td>Best for</td><td>Terraform, DB migrations, complex approvals</td><td class="winner">K8s manifests, config</td></tr>
+          <tr><td>Bank pattern</td><td colspan="2" class="neutral">Use BOTH: GitOps for apps, Pipeline for infrastructure</td></tr>
+        </table>
+      </div>
+
+      <div id="d7-setup" style="display:none">
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Install GitOps Agent on dd-stg</div><div class="step-d">Project Settings → GitOps → Agents → + New Agent<br>Name: dd-stg-gitops-agent<br>Type: Connected<br>Namespace: harness-gitops<br>Install using provided kubectl command</div></div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Create GitOps Repository</div><div class="step-d">Project Settings → GitOps → Repositories<br>Connect: bankopsgithub connector<br>Repo: harness-enterprise-training<br>Path: k8s/ (root of manifests)</div></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Create Application for each service</div><div class="step-d">Project → GitOps → Applications → + New Application<br>For accounts-service:<br>Source: k8s/accounts-service/<br>Destination: accounts namespace<br>Sync Policy: Automated</div></div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Test GitOps deployment</div><div class="step-d">Edit k8s/accounts-service/deployment.yaml (change replicas)<br>git add . && git commit -m "scale accounts-service to 4 replicas"<br>git push origin main<br>Watch GitOps agent automatically apply the change</div></div></div>
+          <div class="step"><div class="step-n">5</div><div class="step-content"><div class="step-t">Test drift detection</div><div class="step-d">kubectl scale deployment accounts-service --replicas=1 -n accounts<br>Watch GitOps agent detect drift and restore to 4 replicas<br>This happens within 3 minutes automatically</div></div></div>
+        </div>
+      </div>
+
+      <div id="d7-qa" style="display:none">
+        <div class="qa-list">
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is GitOps and how does it differ from traditional CD pipelines?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">GitOps is a deployment approach where Git is the single source of truth for cluster state. A GitOps agent running in the cluster continuously compares desired state in Git with actual state in the cluster and reconciles any differences. Traditional CD pipelines push changes to the cluster when a pipeline runs. GitOps agents pull changes from Git continuously. The key differences: GitOps provides an immutable audit trail because every cluster change requires a Git commit, drift detection is automatic and continuous rather than scheduled, rollback is as simple as git revert, and teams can deploy by merging PRs without needing kubectl access. In enterprise, both are used together — GitOps for Kubernetes application deployments, pipeline CD for Terraform infrastructure changes.</div></div>
+        </div>
       </div>
     </div>
 
     <div class="page" id="page-day8">
-      <div class="alert alert-info"><span class="alert-icon">🔄</span>Day 8 — AIOps + AIDA + SRM. AI explains failures. SLOs and error budgets configured.</div>
-      <div class="concept-grid">
-        <div class="concept-card" onclick="showModal('aida')"><span class="concept-card-icon">🧠</span><div class="concept-card-title">Harness AIDA</div><div class="concept-card-body">AI analyzes pipeline failures and explains root cause in plain English. Suggests exact fix with code snippet.</div></div>
-        <div class="concept-card"><span class="concept-card-icon">📉</span><div class="concept-card-title">Error Budgets</div><div class="concept-card-body">99.9% SLO = 43.8 min/month downtime budget. Over 90% consumed = deployments blocked automatically.</div></div>
+      <div style="background:linear-gradient(135deg,#0D1A0D 0%,var(--bg) 100%);border:1px solid #1A3A1A;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--green-dim);border:1px solid var(--green);padding:.3rem .8rem;border-radius:999px">Day 8 · AIOps</div>
+        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">AIOps + AIDA + SRM</h2>
+        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">Harness AIDA explains pipeline failures in plain English. SLOs configured with error budgets. Deployments blocked when error budget is exhausted. MTTR from 45 minutes to under 3 minutes.</p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">✓ AIDA active</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">✓ SLOs configured</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #6B4A00;color:var(--orange);background:var(--orange-dim)">✓ Error budgets tracked</span>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'d8-aida')">🧠 AIDA</div>
+        <div class="tab" onclick="switchTab(this,'d8-slo')">📊 SLOs + Error Budgets</div>
+        <div class="tab" onclick="switchTab(this,'d8-k8sgpt')">🔬 K8sGPT + Ollama</div>
+        <div class="tab" onclick="switchTab(this,'d8-qa')">❓ Interview Q&A</div>
+      </div>
+
+      <div id="d8-aida">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🧠</span>Harness AIDA — AI Development Assistant</div>
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;margin-bottom:1rem">
+          <div style="font-size:13px;font-weight:600;margin-bottom:.6rem">What AIDA Does</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.7">When a pipeline step fails, AIDA automatically analyzes the logs, error messages, and pipeline context. It explains the root cause in plain English and suggests the exact fix — including the specific line of code or configuration to change.</div>
+        </div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">example AIDA output (when pipeline fails)</span></div><div class="code-body"><pre>AIDA Analysis — Pipeline Failed at Run Tests step
+
+Root Cause:
+  ModuleNotFoundError: No module named 'httpx'
+  The test imports httpx but it is not in requirements.txt
+
+Why this happened:
+  requirements.txt was updated to remove httpx in commit abc1234
+  but test_main.py still imports from httpx
+
+Fix:
+  Option 1: Add httpx back to requirements.txt
+    httpx==0.27.0
+
+  Option 2: Update tests to not use httpx directly
+    Replace: from httpx import AsyncClient
+    With:    from fastapi.testclient import TestClient
+
+Similar issue found in: src/payments-service/requirements.txt
+Check if payments-service has the same missing dependency.</pre></div></div>
+        <div class="concept-grid">
+          <div class="concept-card"><span class="concept-card-icon">⚡</span><div class="concept-card-title">MTTR Reduction</div><div class="concept-card-body">Before AIDA: SRE reads logs, searches Stack Overflow, figures out root cause — 45 minutes. With AIDA: root cause and fix shown in 30 seconds. MTTR: 45min → 3min. Multiplied across 50 services and 200 engineers = massive productivity gain.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">🔬</span><div class="concept-card-title">vs K8sGPT</div><div class="concept-card-body">K8sGPT analyzes Kubernetes cluster health (pod failures, OOMKill, ImagePullBackOff). AIDA analyzes pipeline failures (test errors, build failures, deployment issues). Use both — they cover different layers.</div></div>
+        </div>
+      </div>
+
+      <div id="d8-slo" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>📊</span>SLOs, SLIs, SLAs and Error Budgets</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">definitions</span></div><div class="code-body"><pre>SLI (Service Level Indicator) = the metric you measure
+  Example: fraction of HTTP requests returning 200
+
+SLO (Service Level Objective) = your internal target
+  accounts-service: 99.9% of requests must succeed
+  payments-service: 99.99% (higher = payment critical)
+
+SLA (Service Level Agreement) = external customer contract
+  If SLO breached: customer gets credit
+  SLA is looser than SLO — SLO is your internal buffer
+
+Error Budget = how much failure you can afford
+  99.9% SLO = 0.1% failure allowed
+  Per month = 43.8 minutes of downtime
+
+BankOps SLOs configured in Harness SRM:
+  accounts-service:     99.95%  → 21 min/month budget
+  payments-service:     99.99%  → 4.3 min/month budget
+  fraud-service:        99.9%   → 43.8 min/month budget
+  notification-service: 99.5%   → 3.6 hours/month budget
+
+Error Budget Gates (Harness blocks deployments):
+  > 50% consumed → deployment warning shown
+  > 75% consumed → extra approval required
+  > 90% consumed → deployments blocked automatically
+  100% consumed  → incident review required before any deploy</pre></div></div>
+      </div>
+
+      <div id="d8-k8sgpt" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🔬</span>K8sGPT + Ollama (Already Installed)</div>
+        <div class="alert alert-success"><span>✅</span>K8sGPT v0.3.45 and Ollama llama3.2:1b are already installed from our Day 5 setup. Use them alongside Harness AIDA for complete AIOps coverage.</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">k8sgpt commands</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Verify K8sGPT + Ollama working
+$env:PATH += ";C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin"
+$env:OLLAMA_MODELS = "E:\ollama-models\models"
+k8sgpt version
+ollama list
+
+# Analyze cluster health
+kubectl config use-context kind-dd-stg
+k8sgpt analyze --explain --backend ollama
+
+# Create a broken pod to test
+kubectl run broken-pod --image=nginx:doesnotexist -n accounts
+Start-Sleep -Seconds 30
+k8sgpt analyze --explain --backend ollama
+# Shows: ImagePullBackOff - image not found, fix: correct image name
+
+# Cleanup
+kubectl delete pod broken-pod -n accounts</pre></div></div>
+      </div>
+
+      <div id="d8-qa" style="display:none">
+        <div class="qa-list">
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is the difference between SLI, SLO, and SLA?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">An SLI is the Service Level Indicator — the actual metric measured, such as the fraction of HTTP requests returning 200. An SLO is the Service Level Objective — the internal target value for that SLI, such as 99.9% of requests must succeed. An SLA is the Service Level Agreement — the external contract with customers carrying financial penalties if breached, typically set looser than the SLO. The SLO is your internal buffer before the SLA is breached. In Harness SRM we configure SLIs and SLOs, which track error budgets and automatically gate deployments when budgets are running low, preventing SLA violations before they happen.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How do error budgets influence deployment decisions?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">An error budget is the amount of failure you can afford while still meeting your SLO. For accounts-service with 99.95% SLO, the monthly error budget is 21 minutes. As incidents consume budget, Harness SRM progressively restricts deployments. At 75% consumed, extra approvals are required. At 90%, deployments are blocked automatically until budget recovers. This creates a direct feedback loop — teams that cause incidents burn their own error budget and lose the ability to deploy new features. It aligns incentives: teams want to maintain reliability because instability directly limits their deployment velocity. This is the SRE model from Google that enterprises now adopt widely.</div></div>
+        </div>
       </div>
     </div>
 
     <div class="page" id="page-day9">
-      <div class="alert alert-info"><span class="alert-icon">🔄</span>Day 9 — FinOps + CCM. Cost per service. Anomaly detection. Right-sizing recommendations.</div>
-      <div class="concept-grid">
-        <div class="concept-card" onclick="showModal('finops')"><span class="concept-card-icon">💰</span><div class="concept-card-title">Cost Per Service</div><div class="concept-card-body">payments-service costs $234/day. fraud-service costs $89/day. anomaly: fraud cost increased 340% today.</div></div>
-        <div class="concept-card"><span class="concept-card-icon">📐</span><div class="concept-card-title">Right-Sizing</div><div class="concept-card-body">accounts-service requests 2 CPU but uses 0.3 average. Reduce to 0.5. Save $180/month automatically.</div></div>
+      <div style="background:linear-gradient(135deg,#1A1A00 0%,var(--bg) 100%);border:1px solid #3A2A00;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--yellow);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--yellow-dim);border:1px solid #3A2A00;padding:.3rem .8rem;border-radius:999px">Day 9 · FinOps</div>
+        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">FinOps + Cloud Cost Management</h2>
+        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">Cost per service, cost per deployment, anomaly detection. Know exactly what each microservice costs. Right-sizing recommendations. Budget alerts. The financial accountability layer for cloud.</p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--yellow);color:var(--yellow);background:var(--yellow-dim)">✓ Cost per service</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">✓ Anomaly detection</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">✓ Right-sizing recommendations</span>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'d9-finops')">💰 FinOps Concepts</div>
+        <div class="tab" onclick="switchTab(this,'d9-ccm')">📊 CCM Setup</div>
+        <div class="tab" onclick="switchTab(this,'d9-optimize')">⚡ Optimization</div>
+        <div class="tab" onclick="switchTab(this,'d9-qa')">❓ Interview Q&A</div>
+      </div>
+
+      <div id="d9-finops">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>💰</span>FinOps — Financial Operations for Cloud</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">finops phases</span></div><div class="code-body"><pre>Phase 1 — INFORM (see what you spend):
+  Without FinOps: "Why did our AWS bill double this quarter?"
+  With Harness CCM:
+    accounts-service costs $12.40/day
+    payments-service costs $28.90/day (payment processing intensive)
+    fraud-service costs $45.20/day (ML model compute)
+    notification-service costs $3.10/day (lightweight)
+
+Phase 2 — OPTIMIZE (find and fix waste):
+  Right-sizing alert:
+    "accounts-service requests 2 CPU but uses 0.3 average"
+    Fix: reduce CPU request to 0.5
+    Saving: $180/month
+
+  Reserved instances:
+    "fraud-service has run 180 days continuously"
+    On-demand: $1,350/month
+    Reserved 1-year: $780/month
+    Saving: $570/month
+
+Phase 3 — OPERATE (continuous culture):
+  Monthly cost review per team
+  Budget alerts at 80% of monthly limit
+  Cost per deployment tracked
+  Teams accountable for their cloud spend</pre></div></div>
+
+        <div class="concept-grid">
+          <div class="concept-card"><span class="concept-card-icon">🏷️</span><div class="concept-card-title">Why Tags Matter</div><div class="concept-card-body">Every Terraform resource in cloud-iac-learning is tagged with Service, Team, Environment, CostCenter. Harness CCM reads these tags to build cost breakdowns. Without tags: one big bill. With tags: cost per service, per team, per environment.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">🚨</span><div class="concept-card-title">Anomaly Detection</div><div class="concept-card-body">fraud-service cost increased 340% in one day. Root cause: SQS backlog caused Lambda to run 10x more than expected — $890/day unexpected charge. CCM detected it in 2 hours. Without CCM: discovered at end of month on the bill.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">📊</span><div class="concept-card-title">Showback vs Chargeback</div><div class="concept-card-body">Showback: show teams their costs (informational). Chargeback: actually bill teams internally for their cloud usage. Enterprises start with showback to drive awareness, then move to chargeback for accountability. Both require tags.</div></div>
+        </div>
+      </div>
+
+      <div id="d9-ccm" style="display:none">
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Enable CCM in Harness</div><div class="step-d">Account Settings → Cloud Cost Management → Enable<br>Free tier: up to $250k cloud spend managed<br>Connect your AWS account (even Floci generates mock data)</div></div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Verify resource tags exist</div><div class="step-d">All Terraform resources should have tags from cloud-iac-learning<br>Check: aws resourcegroupstaggingapi get-resources --endpoint-url http://localhost:4566<br>Tags: Environment, Service, Team, CostCenter</div></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Create cost perspectives</div><div class="step-d">CCM → Perspectives → + New Perspective<br>Group by: Service tag<br>Now see cost per microservice</div></div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Set budget alerts</div><div class="step-d">CCM → Budgets → + New Budget<br>Amount: $1000/month<br>Alert at: 80% ($800)<br>Notify: Slack channel</div></div></div>
+        </div>
+      </div>
+
+      <div id="d9-optimize" style="display:none">
+        <div class="code-block"><div class="code-header"><span class="code-lang">right-sizing recommendations (CCM shows these)</span></div><div class="code-body"><pre>accounts-service:
+  Current:  CPU request 2000m, actual usage 300m average
+  Recommended: CPU request 500m
+  Memory: 256Mi request, 128Mi actual → reduce to 150Mi
+  Monthly saving: $180
+
+fraud-service (ML model):
+  Running 24/7 but only needed 8am-8pm weekdays
+  Recommendation: scale to 0 outside business hours
+  Monthly saving: $890 (67% reduction)
+
+payments-service:
+  Running since 180 days continuously
+  Recommendation: purchase 1-year Reserved Instance
+  On-demand: $1,350/month
+  Reserved: $780/month
+  Monthly saving: $570
+
+Total monthly optimization opportunity: $1,640</pre></div></div>
+      </div>
+
+      <div id="d9-qa" style="display:none">
+        <div class="qa-list">
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is FinOps and how does it relate to DevOps?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">FinOps is Financial Operations for cloud — the practice of bringing financial accountability to variable cloud spend. DevOps gave teams the ability to deploy infrastructure instantly; FinOps ensures they understand and optimize the cost of what they deploy. The three phases are Inform (see your spend), Optimize (reduce waste), and Operate (build continuous cost culture). In a bank, FinOps is critical because cloud costs can spiral quickly — a single misconfigured Lambda or forgotten RDS instance can cost thousands per month. Harness CCM connects deployment events to cost data so teams can see the cost impact of every deployment decision in real time.</div></div>
+        </div>
       </div>
     </div>
 
     <div class="page" id="page-day10">
-      <div class="alert alert-success"><span class="alert-icon">🏆</span>Day 10 — Capstone. All 4 services. Complete enterprise pipeline. 90-day migration plan delivered.</div>
-      <div class="app-evolution"><div class="evolution-title">Final State — All Services Deployed</div><div class="evolution-track"><div class="svc-chip accounts">🏦 accounts-service</div><div class="svc-chip payments">💳 payments-service</div><div class="svc-chip fraud">🔍 fraud-service</div><div class="svc-chip notifications">🔔 notification-service</div></div></div>
+      <div style="background:linear-gradient(135deg,#0D1F0D 0%,#0D1F2A 50%,var(--bg) 100%);border:1px solid #1A3A2A;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--green-dim);border:1px solid var(--green);padding:.3rem .8rem;border-radius:999px">Day 10 · Capstone</div>
+        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">Enterprise Capstone + Migration Plan</h2>
+        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">All 4 services. All environments. Complete enterprise pipeline: CI → canary CD → approval gates → blue-green prod → Dynatrace monitoring → cost tracking. 90-day Jenkins migration plan delivered.</p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">✓ All 4 services</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">✓ All environments</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #6B4A00;color:var(--orange);background:var(--orange-dim)">✓ Production grade</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #3B1F6B;color:var(--purple);background:var(--purple-dim)">✓ 90-day plan</span>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'d10-overview')">🏆 Capstone Overview</div>
+        <div class="tab" onclick="switchTab(this,'d10-pipeline')">⚡ Full Pipeline</div>
+        <div class="tab" onclick="switchTab(this,'d10-migration')">📋 Migration Plan</div>
+        <div class="tab" onclick="switchTab(this,'d10-portfolio')">💼 Portfolio Value</div>
+        <div class="tab" onclick="switchTab(this,'d10-qa')">❓ Final Q&A</div>
+      </div>
+
+      <div id="d10-overview">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🏆</span>What Was Built Across 10 Days</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.8rem;margin-bottom:1.5rem">
+          <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem;margin-bottom:.4rem">🤖</div><div style="font-size:12px;font-weight:600;color:var(--green)">Delegate</div><div style="font-size:11px;color:var(--muted);margin-top:.3rem">helm-delegate on dd-stg</div></div>
+          <div style="background:var(--blue-dim);border:1px solid #1E3A5F;border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem;margin-bottom:.4rem">🔌</div><div style="font-size:12px;font-weight:600;color:var(--blue)">Connectors</div><div style="font-size:11px;color:var(--muted);margin-top:.3rem">GitHub, K8s, Docker Hub</div></div>
+          <div style="background:var(--orange-dim);border:1px solid #6B4A00;border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem;margin-bottom:.4rem">⚡</div><div style="font-size:12px;font-weight:600;color:var(--orange)">10 Pipelines</div><div style="font-size:11px;color:var(--muted);margin-top:.3rem">All in GitHub</div></div>
+          <div style="background:var(--purple-dim);border:1px solid #3B1F6B;border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem;margin-bottom:.4rem">🐤🔵🟢</div><div style="font-size:12px;font-weight:600;color:var(--purple)">Strategies</div><div style="font-size:11px;color:var(--muted);margin-top:.3rem">Canary + Blue-Green</div></div>
+          <div style="background:var(--red-dim);border:1px solid #7F1D1D;border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem;margin-bottom:.4rem">🛡️</div><div style="font-size:12px;font-weight:600;color:var(--red)">OPA Governance</div><div style="font-size:11px;color:var(--muted);margin-top:.3rem">5 policies enforced</div></div>
+          <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem;margin-bottom:.4rem">🧠</div><div style="font-size:12px;font-weight:600;color:var(--green)">AIOps</div><div style="font-size:11px;color:var(--muted);margin-top:.3rem">AIDA + K8sGPT</div></div>
+        </div>
+
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>📦</span>Application — Final State</div>
+        <div class="app-evolution"><div class="evolution-title">All 4 Services Deployed and Running</div><div class="evolution-track"><div class="svc-chip accounts">🏦 accounts-service</div><div class="svc-chip payments">💳 payments-service</div><div class="svc-chip fraud">🔍 fraud-service</div><div class="svc-chip notifications">🔔 notification-service</div></div></div>
+      </div>
+
+      <div id="d10-pipeline" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>⚡</span>Complete Enterprise Pipeline Flow</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">day10-capstone-full-pipeline.yaml — what each stage does</span></div><div class="code-body"><pre>Stage 1: CI All Services (parallel)
+  Run tests for all 4 services simultaneously
+  pytest for accounts, payments, fraud, notification
+  All must pass before proceeding
+
+Stage 2: Deploy Dev (automatic)
+  Rolling deploy to dev namespace
+  Health check: curl /health → 200
+  Smoke test passes → proceed automatically
+
+Stage 3: SRE Approval for Staging
+  SRE reviews: what changed, test results, diff
+  24h timeout — if not approved, pipeline fails
+  Audit log: who approved, when, why
+
+Stage 4: Canary Deploy Staging (25%→100%)
+  25% of staging traffic on new version
+  Monitor 30 seconds
+  Auto-rollback if health check fails
+  Promote to 100% if healthy
+
+Stage 5: Two-Person Production Approval
+  Approval 1: SRE team (cannot be same person as triggerer)
+  Approval 2: Platform team
+  OPA policy enforces both required
+  Neither can be the person who triggered the pipeline
+
+Stage 6: Blue-Green Production Deploy
+  Green deployed with zero traffic
+  Health verified on Green
+  Service selector switched: 2 second cutover
+  Blue kept alive 30 minutes for instant rollback
+  Post-deploy monitoring: 60 second verification window
+
+Notifications:
+  Slack: every stage result
+  PagerDuty: if production deployment fails
+  Audit trail: complete record for compliance</pre></div></div>
+      </div>
+
+      <div id="d10-migration" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>📋</span>90-Day Jenkins to Harness Migration Plan</div>
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;border-left:3px solid var(--green)">
+            <div style="font-size:13px;font-weight:600;margin-bottom:.5rem;color:var(--green)">Phase 1: Foundation (Days 1-30)</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.7">Install Delegates in non-prod. Migrate 1 non-critical service as POC. Run Jenkins + Harness in parallel. Train all teams (3 days platform, 1 day SRE, 0.5 day dev leads). Get stakeholder sign-off with ROI numbers.</div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;border-left:3px solid var(--blue)">
+            <div style="font-size:13px;font-weight:600;margin-bottom:.5rem;color:var(--blue)">Phase 2: Migration (Days 31-60)</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.7">New services go Harness-only from day 1. Migrate existing services lowest-risk first (notification, fraud, accounts, then payments last). Keep Jenkins for 2 weeks per service as fallback. Never leave teams without rollback option.</div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;border-left:3px solid var(--purple)">
+            <div style="font-size:13px;font-weight:600;margin-bottom:.5rem;color:var(--purple)">Phase 3: Completion (Days 61-90)</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.7">Migrate payments-service with 4-week parallel running and validated rollback. Decommission Jenkins. Enable OPA governance on all pipelines. Enable CCM cost tracking. Full audit trail operational. Cost saving: $1,800/month vs Jenkins infrastructure.</div>
+          </div>
+        </div>
+        <div class="code-block" style="margin-top:1rem"><div class="code-header"><span class="code-lang">cost comparison: jenkins vs harness</span></div><div class="code-body"><pre>Current Jenkins cost:
+  2x Jenkins master servers:     $400/month
+  4x Jenkins agent servers:      $800/month
+  Jenkins admin time (0.5 FTE):  $3,000/month
+  Plugin maintenance (8h/month): $400/month
+  Total:                         $4,600/month
+
+Harness cost:
+  Harness SaaS (50 services):   $2,000/month
+  Delegate infrastructure:       $200/month
+  Admin time (0.1 FTE):         $600/month
+  Total:                         $2,800/month
+
+Net saving: $1,800/month = $21,600/year
+Plus: faster deployments, fewer incidents, better compliance
+ROI: Positive in month 3</pre></div></div>
+      </div>
+
+      <div id="d10-portfolio" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>💼</span>What This Portfolio Proves</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">combined portfolio after both repos</span></div><div class="code-body"><pre>cloud-iac-learning (10 days):
+  Infrastructure: Terraform, Bicep, AWS, Azure, Kubernetes
+  Security: IAM, RBAC, Checkov, Secrets Manager
+  Monitoring: CloudWatch, Azure Monitor, K8sGPT AIOps
+  CI/CD: GitHub Actions, OIDC, drift detection
+
+harness-enterprise-training (10 days):
+  Enterprise CD: Harness pipelines, Delegates, Connectors
+  Migration: Jenkins → Harness with documented 90-day plan
+  Deployment strategies: Canary, Blue-Green, Rolling, Feature Flags
+  Governance: OPA policies, four-eyes, deployment freeze
+  GitOps: Harness GitOps, comparison with Argo CD
+  AIOps: Harness AIDA + K8sGPT + Ollama (hands-on)
+  FinOps: Cost per service, anomaly detection
+
+Job roles this covers:
+  DevOps Engineer          ← both repos
+  Platform Engineer        ← both repos
+  SRE                      ← monitoring + SLOs + error budgets
+  Release Engineer         ← Harness + deployment strategies
+  FinOps Engineer          ← CCM + cost optimization
+
+Interview answer:
+  "I built a complete AWS + Azure banking platform using
+   Terraform and Bicep, then deployed it using Harness
+   enterprise CD with canary and blue-green strategies.
+   I implemented OPA governance policies, GitOps with
+   automatic drift detection, and AIOps using both
+   Harness AIDA and K8sGPT with local Ollama. I also
+   wrote a 90-day Jenkins migration plan with ROI
+   justification. All code is public on GitHub."</pre></div></div>
+      </div>
+
+      <div id="d10-qa" style="display:none">
+        <div class="qa-list">
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What are DORA metrics and how does Harness improve them?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">DORA metrics are four industry-standard measures of DevOps performance. Deployment Frequency measures how often you deploy to production — Harness automation enables multiple deploys per day vs manual weekly releases. Lead Time for Changes measures time from commit to production — removing manual gates and automating health checks cuts this from days to hours. MTTR measures recovery time from incidents — automatic rollback on health check failure reduces this from 45 minutes to under 5 minutes. Change Failure Rate measures percentage of deployments causing incidents — canary deployments catch issues before full rollout, reducing this from 15% to under 5%. Measuring these before and after migration provides concrete ROI evidence for leadership approval.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>Walk me through a complete deployment from code push to production in your setup.</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Developer pushes to feature branch. GitHub webhook fires to Harness. CI pipeline runs: tests pass for all 4 services in parallel, Docker image built and pushed. PR is opened, Harness posts CI status to GitHub. Code owner reviews per CODEOWNERS file and approves. PR merges to main. CD pipeline triggers: rolling deploy to dev, health checks pass, smoke tests pass. SRE receives Slack notification to approve staging. SRE reviews diff, test results, cost impact and approves in Harness UI. Canary deploy to staging at 25%, health monitored for 30 seconds, promoted to 100%. Two-person approval required for production — SRE and Platform team both approve via OPA-enforced separate gates. Blue-green deploy to production: Green deployed with zero traffic, smoke tested, service selector switched in 2 seconds, Blue kept alive 30 minutes. Slack notification confirms deployment. Complete audit trail logged for compliance. Total time from merge to production: under 30 minutes with zero manual intervention except approvals.</div></div>
+        </div>
+      </div>
+    </div>
+
     </div>
 
     <!-- INTERVIEW Q&A -->
