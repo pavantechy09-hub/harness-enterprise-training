@@ -233,6 +233,55 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);font-size:1
   .migration-flow{grid-template-columns:1fr;gap:.5rem}
   .migration-arrow{transform:rotate(90deg)}
 }
+
+/* ── DAY 5 DEPLOYMENT STRATEGIES ── */
+.strategy-selector{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:1.5rem}
+.strategy-btn{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1rem;cursor:pointer;transition:all .2s;text-align:center}
+.strategy-btn:hover{border-color:var(--muted);transform:translateY(-2px)}
+.strategy-btn.active{border-color:var(--blue);background:var(--blue-dim)}
+.strategy-btn-icon{font-size:1.4rem;margin-bottom:.4rem;display:block}
+.strategy-btn-name{font-size:12px;font-weight:600;margin-bottom:.2rem}
+.strategy-btn-desc{font-size:10px;color:var(--muted)}
+.flow-diagram{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:1.5rem;margin:.8rem 0}
+.flow-title{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;font-family:var(--mono)}
+.flow-steps{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.flow-step{background:var(--surface3);border:1px solid var(--border);border-radius:6px;padding:.6rem 1rem;font-size:12px;text-align:center;min-width:100px}
+.flow-step.highlight{border-color:var(--blue);background:var(--blue-dim);color:var(--blue)}
+.flow-step.success{border-color:var(--green);background:var(--green-dim);color:var(--green)}
+.flow-step.danger{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+.flow-step.warning{border-color:var(--yellow);background:var(--yellow-dim);color:var(--yellow)}
+.flow-arrow{color:var(--muted2);font-size:16px;flex-shrink:0}
+.flow-label{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:.3rem}
+.traffic-viz{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:1.5rem;margin:.8rem 0}
+.traffic-bars{display:flex;flex-direction:column;gap:.8rem}
+.traffic-row{display:flex;align-items:center;gap:.8rem}
+.traffic-label{font-family:var(--mono);font-size:11px;width:80px;flex-shrink:0}
+.traffic-bar-track{flex:1;height:24px;background:var(--surface3);border-radius:4px;overflow:hidden;display:flex}
+.traffic-bar-old{background:linear-gradient(90deg,#1E3A5F,#0D2040);height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--mono);color:var(--blue);transition:width .5s ease}
+.traffic-bar-new{background:linear-gradient(90deg,#0D2010,#1A3A1F);height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--mono);color:var(--green);transition:width .5s ease}
+.traffic-controls{display:flex;gap:.5rem;margin-top:1rem;flex-wrap:wrap}
+.traffic-btn{background:var(--surface3);border:1px solid var(--border2);color:var(--muted);padding:.4rem .8rem;border-radius:4px;font-size:11px;cursor:pointer;font-family:var(--mono);transition:all .15s}
+.traffic-btn:hover{border-color:var(--muted);color:var(--white)}
+.traffic-btn.active{border-color:var(--green);color:var(--green);background:var(--green-dim)}
+.bg-viz{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:1.5rem;margin:.8rem 0}
+.bg-environments{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.bg-env{border-radius:8px;padding:1rem;border:2px solid transparent;transition:all .3s}
+.bg-env.blue-env{background:#0A1628;border-color:#1E3A5F}
+.bg-env.blue-env.live{border-color:var(--blue);box-shadow:0 0 20px rgba(88,166,255,.1)}
+.bg-env.green-env{background:#0A1F0A;border-color:#1A3A1A}
+.bg-env.green-env.live{border-color:var(--green);box-shadow:0 0 20px rgba(63,185,80,.1)}
+.bg-env-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem}
+.bg-env-name{font-weight:600;font-size:13px}
+.bg-pods{display:flex;gap:.4rem;flex-wrap:wrap}
+.bg-pod{width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .3s}
+.pod-blue{background:#0D2040;border:1px solid var(--blue);color:var(--blue)}
+.pod-green{background:var(--green-dim);border:1px solid var(--green);color:var(--green)}
+.pod-dead{background:var(--surface3);border:1px solid var(--border2);color:var(--muted2)}
+.bg-traffic-indicator{margin-top:.8rem;font-size:11px;font-family:var(--mono);color:var(--muted)}
+.bg-traffic-bar{height:6px;border-radius:3px;margin-top:.4rem;overflow:hidden;background:var(--surface3)}
+.bg-traffic-fill{height:100%;border-radius:3px;transition:width .5s ease}
+.section-title{font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)}
+
 </style>
 </head>
 <body>
@@ -710,13 +759,270 @@ Harness  → shows step passed/failed in UI</pre></div></div>
     </div>
 
     <div class="page" id="page-day5">
-      <div class="alert alert-info"><span class="alert-icon">🔄</span>Day 5 — Deployment Strategies. Canary, Blue-Green, Rolling, Feature Flags. fraud-service added.</div>
-      <div class="concept-grid">
-        <div class="concept-card" onclick="showModal('canary')"><span class="concept-card-icon">🐤</span><div class="concept-card-title">Canary Deployment</div><div class="concept-card-body">10%→25%→50%→100% traffic shift. Auto-rollback if error rate exceeds threshold. Best for payment flows.</div><div class="concept-card-tag">Coming</div></div>
-        <div class="concept-card" onclick="showModal('bluegreen')"><span class="concept-card-icon">🔵🟢</span><div class="concept-card-title">Blue-Green</div><div class="concept-card-body">Two identical environments. Instant traffic switch. Old version kept 30min for instant rollback.</div><div class="concept-card-tag">Coming</div></div>
-        <div class="concept-card"><span class="concept-card-icon">🏁</span><div class="concept-card-title">Feature Flags</div><div class="concept-card-body">Deploy code without activating it. Enable for 5% of users. Kill switch if something goes wrong.</div><div class="concept-card-tag">Coming</div></div>
+      <div style="background:linear-gradient(135deg,#0D1F2A 0%,var(--bg) 100%);border:1px solid #1A3A5F;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--blue-dim);border:1px solid #1E3A5F;padding:.3rem .8rem;border-radius:999px">Day 5 · Advanced CD</div>
+        <h2 style="font-size:1.6rem;font-weight:700;margin-bottom:.6rem;border:none;padding:0">Deployment Strategies</h2>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:1rem">Canary, Blue-Green, Rolling, and Feature Flags — the four strategies every enterprise engineer must know. Built on real Kubernetes with automatic rollback.</p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">✓ Canary — payments-service</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">✓ Blue-Green — accounts-service</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #6B4A00;color:var(--orange);background:var(--orange-dim)">✓ Rolling — fraud-service</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #3B1F6B;color:var(--purple);background:var(--purple-dim)">✓ Feature Flags — notification-service</span>
+        </div>
       </div>
-    </div>
+
+      <div class="strategy-selector">
+        <div class="strategy-btn active" onclick="selectD5Strategy(this,'d5-canary')"><span class="strategy-btn-icon">🐤</span><div class="strategy-btn-name">Canary</div><div class="strategy-btn-desc">Gradual traffic shift</div></div>
+        <div class="strategy-btn" onclick="selectD5Strategy(this,'d5-bluegreen')"><span class="strategy-btn-icon">🔵🟢</span><div class="strategy-btn-name">Blue-Green</div><div class="strategy-btn-desc">Instant switch</div></div>
+        <div class="strategy-btn" onclick="selectD5Strategy(this,'d5-rolling')"><span class="strategy-btn-icon">🔄</span><div class="strategy-btn-name">Rolling</div><div class="strategy-btn-desc">Pod by pod</div></div>
+        <div class="strategy-btn" onclick="selectD5Strategy(this,'d5-compare')"><span class="strategy-btn-icon">📊</span><div class="strategy-btn-name">Compare All</div><div class="strategy-btn-desc">When to use each</div></div>
+      </div>
+
+      <!-- CANARY -->
+      <div id="d5-canary" style="display:block">
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab(this,'d5c-concept')">🧠 How It Works</div>
+          <div class="tab" onclick="switchTab(this,'d5c-live')">⚡ Live Simulator</div>
+          <div class="tab" onclick="switchTab(this,'d5c-yaml')">💻 Harness YAML</div>
+          <div class="tab" onclick="switchTab(this,'d5c-qa')">❓ Interview Q&A</div>
+        </div>
+        <div id="d5c-concept">
+          <div class="alert alert-warn"><span class="alert-icon">⚠️</span>Named after "canary in a coal mine" — send small % of traffic first to detect problems before full deployment.</div>
+          <div class="flow-diagram">
+            <div class="flow-title">Canary Flow — payments-service v1.1.0</div>
+            <div class="flow-steps">
+              <div class="flow-step"><div>Deploy v1.1.0</div><div class="flow-label">alongside v1.0.0</div></div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-step highlight"><div>10% traffic</div><div class="flow-label">→ v1.1.0</div></div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-step warning"><div>Monitor 5min</div><div class="flow-label">errors / p99</div></div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-step success"><div>25%→50%→100%</div><div class="flow-label">if healthy</div></div>
+            </div>
+            <div style="margin-top:1rem;font-size:12px;color:var(--red)">↩ Error rate spikes → auto rollback → only canary % affected</div>
+          </div>
+          <div class="concept-grid">
+            <div class="concept-card"><span class="concept-card-icon">✅</span><div class="concept-card-title">When to Use Canary</div><div class="concept-card-body">High-risk payment changes, new fraud algorithms, any change touching money movement, real production validation needed.</div></div>
+            <div class="concept-card"><span class="concept-card-icon">❌</span><div class="concept-card-title">When NOT to Use</div><div class="concept-card-body">DB schema migrations, breaking API changes, when mixed versions cause data corruption — use blue-green instead.</div></div>
+            <div class="concept-card"><span class="concept-card-icon">🎯</span><div class="concept-card-title">Auto-Rollback Triggers</div><div class="concept-card-body">Error rate &gt; 1%, p99 latency &gt; 5s, HTTP 5xx spike, health check non-200, custom business metric breach.</div></div>
+          </div>
+        </div>
+        <div id="d5c-live" style="display:none">
+          <div class="traffic-viz">
+            <div style="font-size:13px;font-weight:600;margin-bottom:1rem">payments-service — Canary Deployment Progress</div>
+            <div class="traffic-bars">
+              <div class="traffic-row"><span class="traffic-label">v1.0.0 (old)</span><div class="traffic-bar-track"><div class="traffic-bar-old" id="c-old-bar" style="width:90%">90%</div><div class="traffic-bar-new" id="c-new-bar" style="width:10%">10%</div></div><span style="font-family:var(--mono);font-size:11px;width:50px;text-align:right;color:var(--muted)" id="c-traffic-pct">10%→new</span></div>
+              <div class="traffic-row"><span class="traffic-label">Error rate</span><div class="traffic-bar-track"><div id="c-error-bar" style="width:1%;height:100%;background:linear-gradient(90deg,var(--red-dim),#7F1D1D);display:flex;align-items:center;padding:0 4px;font-size:9px;font-family:var(--mono);color:var(--red)">0.5%</div></div><span id="c-error-status" style="font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green)">✓ OK</span></div>
+              <div class="traffic-row"><span class="traffic-label">p99 latency</span><div class="traffic-bar-track"><div id="c-latency-bar" style="width:24%;height:100%;background:linear-gradient(90deg,#1E3A5F,#0D2040);display:flex;align-items:center;padding:0 4px;font-size:9px;font-family:var(--mono);color:var(--blue)">240ms</div></div><span id="c-latency-status" style="font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:3px;background:var(--green-dim);color:var(--green)">✓ OK</span></div>
+            </div>
+            <div class="traffic-controls">
+              <button class="traffic-btn active" onclick="setCS(0)">Start 10%</button>
+              <button class="traffic-btn" onclick="setCS(1)">Promote 25%</button>
+              <button class="traffic-btn" onclick="setCS(2)">Promote 50%</button>
+              <button class="traffic-btn" onclick="setCS(3)">Full 100%</button>
+              <button class="traffic-btn" onclick="setCS(4)" style="color:var(--red);border-color:#7F1D1D">Simulate Failure</button>
+              <button class="traffic-btn" onclick="setCS(5)" style="color:var(--orange);border-color:#6B4A00">Auto Rollback</button>
+            </div>
+            <div id="c-status-msg" style="margin-top:.8rem;font-size:12px;font-family:var(--mono);color:var(--muted)">Monitoring canary at 10%...</div>
+          </div>
+        </div>
+        <div id="d5c-yaml" style="display:none">
+          <div class="code-block"><div class="code-header"><span class="code-lang">.harness/pipelines/day5-canary-payments.yaml</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre>pipeline:
+  name: Canary Deployment - payments-service
+  stages:
+    - stage:
+        name: Canary 10% Traffic
+        type: Deployment
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: K8sCanaryDeploy
+                  spec:
+                    instanceSelection:
+                      type: Count
+                      spec:
+                        count: 1
+            rollbackSteps:
+              - step:
+                  type: K8sCanaryDelete
+    - stage:
+        name: Verify Canary Health
+        type: CI
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  spec:
+                    image: curlimages/curl:latest
+                    command: |
+                      sleep 30
+                      curl -f http://payments-service.payments/health
+                      echo "Canary healthy"
+    - stage:
+        name: Full Rollout
+        type: Deployment
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: K8sCanaryDelete
+              - step:
+                  type: K8sRollingDeploy</pre></div></div>
+        </div>
+        <div id="d5c-qa" style="display:none">
+          <div class="qa-list">
+            <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>Explain canary deployment end-to-end in a banking context.</span><span class="qa-arrow">▼</span></div><div class="qa-answer">A canary deployment gradually shifts traffic from old to new version. For payments-service we deploy v1.1.0 alongside v1.0.0. Harness routes 10% of transactions to the new version, monitoring error rates and p99 latency. If metrics stay healthy, Harness promotes to 25%, 50%, then 100%. If checks fail, automatic rollback fires and only 10% of users were exposed. <strong>This is why banks use canary for payment changes</strong> — even if broken, blast radius is a fraction of customers, not everyone.</div></div>
+            <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>When would canary NOT be the right strategy?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Canary is wrong when mixed versions cause data corruption — e.g. a DB schema migration where new code writes a field old code doesn't understand. Also wrong for breaking API contract changes. In these cases <strong>blue-green is safer</strong> — zero real users see new version until full validation and switch. Feature flags are better when the change is behavioural and can be toggled per user without redeployment.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLUE-GREEN -->
+      <div id="d5-bluegreen" style="display:none">
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab(this,'d5bg-concept')">🧠 How It Works</div>
+          <div class="tab" onclick="switchTab(this,'d5bg-live')">⚡ Live Simulator</div>
+          <div class="tab" onclick="switchTab(this,'d5bg-yaml')">💻 Harness YAML</div>
+          <div class="tab" onclick="switchTab(this,'d5bg-qa')">❓ Interview Q&A</div>
+        </div>
+        <div id="d5bg-concept">
+          <div class="flow-diagram">
+            <div class="flow-title">Blue-Green Flow — accounts-service</div>
+            <div class="flow-steps">
+              <div class="flow-step highlight"><div>Blue (v1.0.0)</div><div class="flow-label">100% traffic</div></div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-step"><div>Deploy Green</div><div class="flow-label">0% traffic</div></div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-step warning"><div>Smoke Test</div><div class="flow-label">Green only</div></div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-step success"><div>Switch Traffic</div><div class="flow-label">100% → Green</div></div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-step"><div>Blue Standby</div><div class="flow-label">30min rollback</div></div>
+            </div>
+            <div style="margin-top:1rem;font-size:12px;color:var(--blue)">↩ Issue detected → switch back to Blue in 2 seconds → zero data loss</div>
+          </div>
+          <div class="concept-grid">
+            <div class="concept-card"><span class="concept-card-icon">✅</span><div class="concept-card-title">Why Blue-Green for accounts-service</div><div class="concept-card-body">Compliance requires instant rollback. Account balance errors trigger regulatory reporting. Blue-green = <strong>2-second rollback</strong> vs 8-minute manual recovery.</div></div>
+            <div class="concept-card"><span class="concept-card-icon">💡</span><div class="concept-card-title">Key Difference from Canary</div><div class="concept-card-body"><strong>Canary:</strong> real users see new version gradually.<br><strong>Blue-Green:</strong> zero real users until switch. Either 0% or 100% on new version.</div></div>
+            <div class="concept-card"><span class="concept-card-icon">💰</span><div class="concept-card-title">Cost Tradeoff</div><div class="concept-card-body">Requires double pods during deployment window. 3 Blue + 3 Green = 6 pods. Blue decommissioned after 30min. Worth it for compliance-critical services.</div></div>
+          </div>
+        </div>
+        <div id="d5bg-live" style="display:none">
+          <div class="bg-viz">
+            <div style="font-size:13px;font-weight:600;margin-bottom:1rem">accounts-service — Blue-Green State</div>
+            <div class="bg-environments">
+              <div class="bg-env blue-env live" id="bg-blue-env">
+                <div class="bg-env-header"><span class="bg-env-name" style="color:var(--blue)">🔵 Blue (v1.0.0)</span><span id="bg-blue-badge" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--blue-dim);color:var(--blue);border:1px solid #1E3A5F">LIVE</span></div>
+                <div class="bg-pods" id="bg-blue-pods"><div class="bg-pod pod-blue">📦</div><div class="bg-pod pod-blue">📦</div><div class="bg-pod pod-blue">📦</div></div>
+                <div class="bg-traffic-indicator">Traffic:<div class="bg-traffic-bar"><div class="bg-traffic-fill" id="bg-blue-fill" style="width:100%;background:linear-gradient(90deg,var(--blue),#1E3A5F)"></div></div></div>
+                <div id="bg-blue-pct" style="font-family:var(--mono);font-size:11px;color:var(--blue);margin-top:.3rem">100% of requests</div>
+              </div>
+              <div class="bg-env green-env" id="bg-green-env">
+                <div class="bg-env-header"><span class="bg-env-name" style="color:var(--muted)">🟢 Green (v1.2.0)</span><span id="bg-green-badge" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:var(--surface3);color:var(--muted2);border:1px solid var(--border2)">NOT DEPLOYED</span></div>
+                <div class="bg-pods" id="bg-green-pods"><div class="bg-pod pod-dead">📦</div><div class="bg-pod pod-dead">📦</div><div class="bg-pod pod-dead">📦</div></div>
+                <div class="bg-traffic-indicator">Traffic:<div class="bg-traffic-bar"><div class="bg-traffic-fill" id="bg-green-fill" style="width:0%;background:linear-gradient(90deg,var(--green),#1A3A1F)"></div></div></div>
+                <div id="bg-green-pct" style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:.3rem">0% of requests</div>
+              </div>
+            </div>
+            <div class="traffic-controls">
+              <button class="traffic-btn active" onclick="setBGS(0)">1. Initial</button>
+              <button class="traffic-btn" onclick="setBGS(1)">2. Deploy Green</button>
+              <button class="traffic-btn" onclick="setBGS(2)">3. Smoke Test</button>
+              <button class="traffic-btn" onclick="setBGS(3)">4. Switch Traffic</button>
+              <button class="traffic-btn" onclick="setBGS(4)" style="color:var(--red);border-color:#7F1D1D">5. Issue Found!</button>
+              <button class="traffic-btn" onclick="setBGS(5)" style="color:var(--orange);border-color:#6B4A00">6. Rollback</button>
+            </div>
+            <div id="bg-status-msg" style="margin-top:.8rem;font-size:12px;font-family:var(--mono);color:var(--muted)">Phase 1: Blue is live. Green not yet deployed.</div>
+          </div>
+        </div>
+        <div id="d5bg-yaml" style="display:none">
+          <div class="code-block"><div class="code-header"><span class="code-lang">.harness/pipelines/day5-bluegreen-accounts.yaml</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre>pipeline:
+  name: Blue-Green Deployment - accounts-service
+  stages:
+    - stage:
+        name: Deploy Green (zero traffic)
+        type: Deployment
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: K8sBlueGreenDeploy
+                  spec:
+                    skipDryRun: false
+            rollbackSteps:
+              - step:
+                  type: K8sBlueGreenRollback
+    - stage:
+        name: Smoke Test Green
+        type: CI
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  spec:
+                    image: curlimages/curl:latest
+                    command: |
+                      curl -f http://accounts-service-stage.accounts/health
+                      echo "Green smoke test passed"
+    - stage:
+        name: Approve Traffic Switch
+        type: Approval
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: HarnessApproval
+                  spec:
+                    approvers:
+                      userGroups: [sre_team]
+                    minimumCount: 1
+    - stage:
+        name: Switch 100% to Green
+        type: Deployment
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: K8sSwapServiceSelectors
+                  spec:
+                    service1: accounts-service
+                    service2: accounts-service-stage
+                  # Switch completes in under 2 seconds</pre></div></div>
+        </div>
+        <div id="d5bg-qa" style="display:none">
+          <div class="qa-list">
+            <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>Explain blue-green and when to use it over canary.</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Blue-green maintains two complete identical environments. Blue is current production at 100% traffic. Green is deployed with new version at zero traffic. After full smoke testing of Green, traffic switches instantly via Kubernetes Service selector update completing in under 3 seconds. Blue stays alive 30 minutes for rollback. <strong>Use over canary when instant rollback is required for compliance</strong> — our accounts-service changes must be reversible within 60 seconds per FCA regulation. Also use when mixed versions cause data inconsistency.</div></div>
+            <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How does Harness implement blue-green in Kubernetes technically?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Harness creates two Deployments labelled <code>harness.io/color: blue</code> and <code>harness.io/color: green</code>. Two Services: primary pointing to live colour, stage pointing to non-live for smoke testing. Traffic switch = <code>kubectl patch service accounts-service</code> updating selector from blue to green. Propagates to kube-proxy in 1-3 seconds with zero dropped requests. Rollback = same operation in reverse.</div></div>
+            <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is the main cost disadvantage of blue-green?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Requires double compute during deployment — both Blue and Green run full replica counts simultaneously. accounts-service with 3 replicas means 6 pods during switch window. This is why blue-green is reserved for <strong>compliance-critical services</strong> where safety justifies cost, while stateless services use rolling deployments with zero overhead.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROLLING -->
+      <div id="d5-rolling" style="display:none">
+        <div class="alert alert-success"><span class="alert-icon">✅</span>Used for fraud-service — stateless ML scoring, low risk, zero extra infrastructure cost.</div>
+        <div class="concept-grid">
+          <div class="concept-card"><span class="concept-card-icon">🔄</span><div class="concept-card-title">How Rolling Works</div><div class="concept-card-body">Replace pods one by one:<br>[v1][v1][v1] → [v2][v1][v1] → [v2][v2][v1] → [v2][v2][v2]<br><br>Brief mixed-version window acceptable for stateless services like fraud scoring.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">⚙️</span><div class="concept-card-title">Key Config</div><div class="concept-card-body"><strong>maxSurge: 1</strong> — create 1 extra pod before killing old.<br><strong>maxUnavailable: 0</strong> — never fewer than desired count.<br><strong>readinessProbe</strong> — pod gets traffic only after health check passes.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">✅</span><div class="concept-card-title">When to Use</div><div class="concept-card-body">Stateless services, bug fixes, config changes, notification systems. Zero extra cost. Default Kubernetes strategy. No compliance constraints.</div></div>
+        </div>
+      </div>
+
+      <!-- COMPARISON -->
+      <div id="d5-compare" style="display:none">
+        <table class="compare-table">
+          <tr><th>Aspect</th><th>🐤 Canary</th><th>🔵🟢 Blue-Green</th><th>🔄 Rolling</th><th>🚩 Feature Flags</th></tr>
+          <tr><td>User exposure</td><td class="neutral">Gradual (10%→100%)</td><td class="winner">Zero until switch</td><td class="loser">Immediate</td><td class="winner">Controlled per user</td></tr>
+          <tr><td>Rollback speed</td><td class="neutral">Seconds (auto)</td><td class="winner">2 seconds</td><td class="neutral">Minutes</td><td class="winner">Milliseconds</td></tr>
+          <tr><td>Extra cost</td><td class="neutral">+1 pod</td><td class="loser">2x during window</td><td class="winner">Zero</td><td class="winner">Zero</td></tr>
+          <tr><td>Compliance fit</td><td class="neutral">Good</td><td class="winner">Best</td><td class="loser">Weakest</td><td class="winner">Best</td></tr>
+          <tr><td>Bank service</td><td class="neutral">payments-service</td><td class="winner">accounts-service</td><td class="neutral">fraud-service</td><td class="winner">notification-service</td></tr>
+        </table>
+        <div class="card" style="margin-top:1rem"><div class="card-title">🏦 Decision Framework</div><div class="card-body"><strong>Canary:</strong> payment logic, fraud algorithms — real user validation with controlled blast radius.<br><strong>Blue-Green:</strong> compliance-critical, instant rollback required, regulatory audit trail needed.<br><strong>Rolling:</strong> stateless services, low risk, zero extra cost justified.<br><strong>Feature Flags:</strong> A/B testing, kill switch needed, new integrations, per-user targeting.</div></div>
+      </div>
 
     <div class="page" id="page-day6">
       <div class="alert alert-info"><span class="alert-icon">🔄</span>Day 6 — OPA Governance. Policies blocking bad deployments. Four-eyes principle enforced.</div>
@@ -882,6 +1188,81 @@ function copyCode(btn){
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalBtn()});
+
+// ── DAY 5 SIMULATORS ──
+function selectD5Strategy(btn, id){
+  document.querySelectorAll('.strategy-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['d5-canary','d5-bluegreen','d5-rolling','d5-compare'].forEach(s=>{
+    const el=document.getElementById(s);
+    if(el) el.style.display = s===id ? 'block' : 'none';
+  });
+}
+
+const canaryStages=[
+  {old:90,nw:10,err:0.5,lat:240,errOk:true,latOk:true,msg:'Monitoring canary at 10% — watching error rate and p99 latency...'},
+  {old:75,nw:25,err:0.8,lat:260,errOk:true,latOk:true,msg:'✓ 10% healthy. Promoting to 25%...'},
+  {old:50,nw:50,err:0.9,lat:270,errOk:true,latOk:true,msg:'✓ 25% healthy. Promoting to 50%...'},
+  {old:0,nw:100,err:0.4,lat:230,errOk:true,latOk:true,msg:'✅ Full rollout complete! v1.1.0 serving 100%.'},
+  {old:75,nw:25,err:23,lat:8200,errOk:false,latOk:false,msg:'🚨 Error rate 23%! Latency 8200ms! Triggering automatic rollback...'},
+  {old:100,nw:0,err:0.4,lat:240,errOk:true,latOk:true,msg:'✅ Rollback complete. 100% traffic on v1.0.0. Only 25% of users saw bad version for <30s.'},
+];
+function setCS(i){
+  const s=canaryStages[i];
+  const ob=document.getElementById('c-old-bar');
+  const nb=document.getElementById('c-new-bar');
+  if(!ob)return;
+  ob.style.width=s.old+'%'; ob.textContent=s.old+'%';
+  nb.style.width=s.nw+'%'; nb.textContent=s.nw>0?s.nw+'%':'';
+  document.getElementById('c-traffic-pct').textContent=s.nw+'%→new';
+  document.getElementById('c-error-bar').style.width=Math.min(s.err*2,100)+'%';
+  document.getElementById('c-error-bar').textContent=s.err+'%';
+  document.getElementById('c-latency-bar').style.width=Math.min(s.lat/50,100)+'%';
+  document.getElementById('c-latency-bar').textContent=s.lat+'ms';
+  const es=document.getElementById('c-error-status');
+  es.textContent=s.errOk?'✓ OK':'✗ BREACH';
+  es.style.background=s.errOk?'var(--green-dim)':'var(--red-dim)';
+  es.style.color=s.errOk?'var(--green)':'var(--red)';
+  const ls=document.getElementById('c-latency-status');
+  ls.textContent=s.latOk?'✓ OK':'✗ BREACH';
+  ls.style.background=s.latOk?'var(--green-dim)':'var(--red-dim)';
+  ls.style.color=s.latOk?'var(--green)':'var(--red)';
+  document.getElementById('c-status-msg').textContent='Status: '+s.msg;
+  document.querySelectorAll('#d5c-live .traffic-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+}
+
+const bgStages=[
+  {bt:100,gt:0,bl:true,gl:false,bp:'live',gp:'dead',blb:'LIVE',glb:'NOT DEPLOYED',msg:'Phase 1: Blue live. Green not deployed. 100% traffic on v1.0.0.'},
+  {bt:100,gt:0,bl:true,gl:false,bp:'live',gp:'green',blb:'LIVE',glb:'DEPLOYING...',msg:'Phase 2: Deploying Green (v1.2.0). Blue still 100%. Green has zero traffic.'},
+  {bt:100,gt:0,bl:true,gl:false,bp:'live',gp:'green',blb:'LIVE',glb:'SMOKE TESTING',msg:'Phase 3: Smoke testing Green directly. Zero real users on Green.'},
+  {bt:0,gt:100,bl:false,gl:true,bp:'live',gp:'green',blb:'STANDBY (30min)',glb:'LIVE',msg:'Phase 4: Switched! Green 100%. Blue kept alive 30min for rollback. Switch took <2 seconds.'},
+  {bt:0,gt:100,bl:false,gl:true,bp:'live',gp:'green',blb:'STANDBY — READY',glb:'⚠️ ISSUE!',msg:'Phase 5: Issue on Green! Balance calculation error. Triggering instant rollback...'},
+  {bt:100,gt:0,bl:true,gl:false,bp:'live',gp:'green',blb:'LIVE (restored)',glb:'DECOMMISSIONING',msg:'Phase 6: Rollback in 2 seconds! Blue serving 100%. Zero downtime. Zero data loss.'},
+];
+function setBGS(i){
+  const s=bgStages[i];
+  const bef=document.getElementById('bg-blue-fill');
+  if(!bef)return;
+  document.getElementById('bg-blue-fill').style.width=s.bt+'%';
+  document.getElementById('bg-green-fill').style.width=s.gt+'%';
+  document.getElementById('bg-blue-pct').textContent=s.bt+'% of requests';
+  document.getElementById('bg-green-pct').textContent=s.gt+'% of requests';
+  document.getElementById('bg-blue-pct').style.color=s.bl?'var(--blue)':'var(--muted)';
+  document.getElementById('bg-green-pct').style.color=s.gl?'var(--green)':'var(--muted)';
+  const bb=document.getElementById('bg-blue-badge');
+  bb.textContent=s.blb; bb.style.background=s.bl?'var(--blue-dim)':'var(--surface3)';
+  bb.style.color=s.bl?'var(--blue)':'var(--muted2)'; bb.style.border=s.bl?'1px solid var(--blue)':'1px solid var(--border2)';
+  const gb=document.getElementById('bg-green-badge');
+  gb.textContent=s.glb; gb.style.background=s.gl?'var(--green-dim)':'var(--surface3)';
+  gb.style.color=s.gl?'var(--green)':'var(--muted2)'; gb.style.border=s.gl?'1px solid var(--green)':'1px solid var(--border2)';
+  document.getElementById('bg-blue-env').classList.toggle('live',s.bl);
+  document.getElementById('bg-green-env').classList.toggle('live',s.gl);
+  document.getElementById('bg-blue-pods').innerHTML=s.bp==='live'?'<div class="bg-pod pod-blue">📦</div><div class="bg-pod pod-blue">📦</div><div class="bg-pod pod-blue">📦</div>':'<div class="bg-pod pod-dead">📦</div><div class="bg-pod pod-dead">📦</div><div class="bg-pod pod-dead">📦</div>';
+  document.getElementById('bg-green-pods').innerHTML=s.gp==='green'?'<div class="bg-pod pod-green">📦</div><div class="bg-pod pod-green">📦</div><div class="bg-pod pod-green">📦</div>':'<div class="bg-pod pod-dead">📦</div><div class="bg-pod pod-dead">📦</div><div class="bg-pod pod-dead">📦</div>';
+  document.getElementById('bg-status-msg').textContent=s.msg;
+  document.querySelectorAll('#d5bg-live .traffic-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+}
+
 </script>
 </body>
 </html>
