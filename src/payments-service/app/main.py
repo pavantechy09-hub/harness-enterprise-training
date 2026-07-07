@@ -24,7 +24,7 @@ class Payment(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"status": "healthy", "service": "payments-service", "version": "1.0.0"}
+    return {"status": "healthy", "service": "payments-service", "version": "2.0.0"}
 
 @app.post("/payments", response_model=Payment, status_code=201)
 def create_payment(req: CreatePaymentRequest):
