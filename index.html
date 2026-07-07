@@ -467,89 +467,645 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);font-size:1
     </div>
 
     <!-- DAY 1 -->
+    <!-- DAY 1 - FULL CONTENT -->
     <div class="page" id="page-day1">
-      <div class="alert alert-success"><span class="alert-icon">✅</span>Day 1 complete — Harness account, Delegate installed on dd-stg, GitHub connected, first pipeline running.</div>
+
+      <!-- Hero Banner -->
+      <div style="background:linear-gradient(135deg,#0D1F0D 0%,var(--bg) 100%);border:1px solid #1A3A1A;border-radius:12px;padding:2rem;margin-bottom:1.5rem;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-40%;right:-5%;width:300px;height:300px;background:radial-gradient(circle,rgba(63,185,80,.06) 0%,transparent 70%)"></div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--green-dim);border:1px solid var(--green);padding:.3rem .8rem;border-radius:999px">Day 1 · Harness Foundations</div>
+        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">Setup, Delegate &amp; First CI Pipeline</h2>
+        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">Install Harness Delegate on dd-stg cluster. Connect GitHub. Build your first CI pipeline that runs pytest on accounts-service automatically. Understand every component end to end.</p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">✓ Delegate installed</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">✓ GitHub connected</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #6B4A00;color:var(--orange);background:var(--orange-dim)">✓ CI pipeline passing</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #3B1F6B;color:var(--purple);background:var(--purple-dim)">✓ 6 tests green</span>
+        </div>
+      </div>
+
+      <!-- Build Result -->
+      <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem 1.2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem">
+        <div style="font-size:1.8rem">✅</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--green)">Build #2 — SUCCESS</div>
+          <div style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:.2rem">day1-accounts-service-ci · Duration: 3m 33s · 6 passed, 0 failed · accounts-service</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
       <div class="tabs">
-        <div class="tab active tab-icon" onclick="switchTab(this,'d1-concepts')">🧠 Concepts</div>
-        <div class="tab" onclick="switchTab(this,'d1-handson')">🛠️ Hands-On</div>
-        <div class="tab" onclick="switchTab(this,'d1-code')">💻 Pipeline YAML</div>
-        <div class="tab" onclick="switchTab(this,'d1-qa')">❓ Interview Q&A</div>
+        <div class="tab active" onclick="switchTab(this,'d1-overview')">📋 Overview</div>
+        <div class="tab" onclick="switchTab(this,'d1-delegate')">🤖 Delegate Deep Dive</div>
+        <div class="tab" onclick="switchTab(this,'d1-connectors')">🔌 Connectors</div>
+        <div class="tab" onclick="switchTab(this,'d1-pipeline')">⚡ Pipeline Flow</div>
+        <div class="tab" onclick="switchTab(this,'d1-enterprise')">🏢 Enterprise Standards</div>
+        <div class="tab" onclick="switchTab(this,'d1-issues')">🐛 Issues &amp; Fixes</div>
+        <div class="tab" onclick="switchTab(this,'d1-qa')">❓ Interview Q&amp;A</div>
       </div>
 
-      <div id="d1-concepts">
-        <div class="section"><div class="section-title"><span class="icon">🤖</span>What is the Harness Delegate?</div>
-          <div class="card"><div class="card-title">The Problem It Solves</div><div class="card-body">Harness SaaS lives at <strong>app.harness.io</strong>. Your cluster lives at <strong>localhost</strong>. The internet cannot reach localhost. The Delegate solves this by running <strong>inside your cluster</strong> and polling Harness outbound. All traffic is outbound — no inbound firewall rules needed.</div></div>
-          <div class="code-block"><div class="code-header"><span class="code-lang">polling loop (every 10s)</span></div><div class="code-body"><pre>Delegate → GET https://app.harness.io/tasks?delegateId=dd-stg
-Harness  → "Run: terraform apply in day7-security/"
-Delegate → executes locally (has access to localhost:4566)
-Delegate → POST results back to Harness
-Harness  → shows step passed/failed in UI</pre></div></div>
-          <div class="card"><div class="card-title">Enterprise Pattern — Multiple Delegates</div><div class="card-body"><strong>Production:</strong> 2 Delegates minimum (HA), tagged <code>env=prod</code>, has prod credentials only.<br><strong>Staging:</strong> 1 Delegate, tagged <code>env=staging</code>.<br><strong>Dev/local:</strong> dd-stg-delegate on your laptop, tagged <code>env=dev</code>.<br><br>Pipeline steps use selector: <code>env=prod</code> → only prod Delegates run prod steps. <strong>Security enforced at infrastructure level.</strong></div></div>
+      <!-- OVERVIEW TAB -->
+      <div id="d1-overview">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>📋</span>What Was Built Today</div>
+
+        <div class="concept-grid">
+          <div class="concept-card" onclick="switchTabById('d1-delegate')"><span class="concept-card-icon">🤖</span><div class="concept-card-title">Harness Delegate</div><div class="concept-card-body">Agent pod installed on dd-stg cluster. Polls Harness every 10s. Executes all pipeline steps locally inside your network.</div><div class="concept-card-tag">Core</div></div>
+          <div class="concept-card" onclick="switchTabById('d1-connectors')"><span class="concept-card-icon">🔌</span><div class="concept-card-title">3 Connectors Created</div><div class="concept-card-body">GitHub (bankopsgithub), Kubernetes (ddstgk8s), Docker Hub (dockerhub). Each connector = credentials + endpoint for one system.</div><div class="concept-card-tag">Setup</div></div>
+          <div class="concept-card" onclick="switchTabById('d1-pipeline')"><span class="concept-card-icon">⚡</span><div class="concept-card-title">First CI Pipeline</div><div class="concept-card-body">accounts-service CI running on Harness. Clone → Install → Test. 6 tests passing. Build pod created and deleted automatically.</div><div class="concept-card-tag">Running</div></div>
+          <div class="concept-card" onclick="switchTabById('d1-enterprise')"><span class="concept-card-icon">🏢</span><div class="concept-card-title">Enterprise Patterns</div><div class="concept-card-body">CODEOWNERS file, shared CI templates, OPA governance policies, GitHub vs Harness storage decision.</div><div class="concept-card-tag">Standards</div></div>
+        </div>
+
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🏗️</span>Harness Entity Hierarchy</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">hierarchy — what we created</span></div><div class="code-body"><pre>Account: pavantechy09                    ← your Harness login
+  └── Organisation: default              ← (free tier = one org only)
+        └── Project: bank-platform       ← our application workspace
+              ├── Pipelines              ← day1-accounts-service-ci ✓
+              ├── Connectors             ← bankopsgithub, ddstgk8s, dockerhub ✓
+              ├── Delegates              ← helm-delegate ✓
+              ├── Secrets                ← GitHub token (encrypted) ✓
+              └── Templates              ← standard-ci-template (Day 2+)</pre></div></div>
+
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🔄</span>Complete Flow Diagram</div>
+        <div class="flow-diagram">
+          <div class="flow-title">Day 1 — Full CI Flow</div>
+          <div class="flow-steps">
+            <div class="flow-step highlight"><div>GitHub Push</div><div class="flow-label">main branch</div></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step"><div>Webhook</div><div class="flow-label">→ Harness SaaS</div></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step highlight"><div>Delegate</div><div class="flow-label">picks up task</div></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step"><div>Build Pod</div><div class="flow-label">harness-builds ns</div></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step success"><div>6 Tests Pass</div><div class="flow-label">✓ SUCCESS</div></div>
+          </div>
+        </div>
+
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>📦</span>What Day 2 Adds</div>
+        <div class="concept-grid">
+          <div class="concept-card"><span class="concept-card-icon">🐳</span><div class="concept-card-title">Docker Build + Push</div><div class="concept-card-body">Build accounts-service Docker image, tag with git SHA, push to Docker Hub. CD pipeline uses this specific image tag.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">🔀</span><div class="concept-card-title">PR Trigger</div><div class="concept-card-body">Auto-run CI on every GitHub PR. Block merge if tests fail. Today was manual trigger only.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">📊</span><div class="concept-card-title">Test Coverage Report</div><div class="concept-card-body">pytest --cov=app generates coverage %. Harness shows it in the Tests tab of every build.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">🔔</span><div class="concept-card-title">Slack Notifications</div><div class="concept-card-body">Notify team on build failure. Nobody manually checks Harness — alerts come to Slack.</div></div>
         </div>
       </div>
 
-      <div id="d1-handson" style="display:none">
-        <div class="steps">
-          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Verify cluster is running</div><div class="step-desc"><code>kubectl config use-context kind-dd-stg && kubectl get nodes</code></div></div></div>
-          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">In Harness UI: Project Settings → Delegates → New Delegate</div><div class="step-desc">Select Kubernetes, name: dd-stg-delegate, size: Small</div></div></div>
-          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Copy the Helm install command from Harness</div><div class="step-desc">Harness generates it with your account token pre-filled</div></div></div>
-          <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Run the Helm command in your PowerShell</div><div class="step-desc"><code>helm install harness-delegate harness/harness-delegate --namespace harness-delegate-ng --create-namespace ...</code></div></div></div>
-          <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Verify Delegate connected</div><div class="step-desc"><code>kubectl get pods -n harness-delegate-ng</code> → should show Running. In Harness UI: green connected status.</div></div></div>
-          <div class="step"><div class="step-num">6</div><div class="step-content"><div class="step-title">Connect GitHub repository</div><div class="step-desc">Project Settings → Connectors → New → GitHub → HTTP → enter repo URL + Personal Access Token</div></div></div>
+      <!-- DELEGATE TAB -->
+      <div id="d1-delegate" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🤖</span>Delegate — The Most Important Concept</div>
+
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;margin-bottom:1rem">
+          <div style="font-size:13px;font-weight:600;margin-bottom:.5rem">The Problem Delegate Solves</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.7">Harness SaaS lives at <strong style="color:var(--white)">app.harness.io</strong> on the internet. Your Kubernetes cluster lives at <strong style="color:var(--white)">localhost</strong> on your laptop (or in a private VPC in production). The internet cannot reach localhost or a private VPC. <strong style="color:var(--green)">The Delegate bridges this gap.</strong></div>
         </div>
+
+        <div class="flow-diagram">
+          <div class="flow-title">Without Delegate vs With Delegate</div>
+          <div class="flow-steps">
+            <div class="flow-step danger"><div>Harness SaaS</div><div class="flow-label">app.harness.io</div></div>
+            <div class="flow-arrow">✗</div>
+            <div class="flow-step danger"><div>Your Cluster</div><div class="flow-label">localhost (blocked)</div></div>
+          </div>
+          <div style="margin:.8rem 0;font-size:12px;color:var(--muted)">With Delegate — all traffic is OUTBOUND from your side:</div>
+          <div class="flow-steps">
+            <div class="flow-step success"><div>Delegate Pod</div><div class="flow-label">inside your cluster</div></div>
+            <div class="flow-arrow">→ polls every 10s</div>
+            <div class="flow-step highlight"><div>Harness SaaS</div><div class="flow-label">gets tasks</div></div>
+            <div class="flow-arrow">→ executes locally</div>
+            <div class="flow-step success"><div>Your Cluster</div><div class="flow-label">full access ✓</div></div>
+          </div>
+        </div>
+
+        <div class="concept-grid">
+          <div class="concept-card"><span class="concept-card-icon">🔒</span><div class="concept-card-title">Security Benefit</div><div class="concept-card-body"><strong>No inbound firewall rules needed.</strong> No VPN. No public IP on your cluster. All traffic is outbound on port 443. Security team happy. Works behind corporate firewalls.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">🔄</span><div class="concept-card-title">Polling Loop</div><div class="concept-card-body">Delegate calls Harness every 10 seconds: "Any tasks for me?" Same concept as Kubernetes controller reconciliation loop. If Delegate goes offline — tasks queue in Harness until it reconnects.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">🏷️</span><div class="concept-card-title">Selector Tags</div><div class="concept-card-body">Delegates have tags like <code>env=prod</code> or <code>env=dev</code>. Pipeline steps target specific tags. Prod pipelines ONLY run on prod Delegates. Dev credentials never touch prod.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">⚖️</span><div class="concept-card-title">vs GitHub Actions Runner</div><div class="concept-card-body">Same concept as self-hosted GitHub Actions runner. But Delegate: auto-upgrades itself, auto-selects based on tags, understands native Harness step types, load balances across multiple instances.</div></div>
+        </div>
+
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🏢</span>Enterprise Delegate Architecture</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">real enterprise setup (vs our local setup)</span></div><div class="code-body"><pre>Real Enterprise:                    Your Setup (equivalent):
+                                    
+AWS EKS (prod) us-east-1            kind dd-stg (local)
+  └── harness-delegate-ng ns          └── harness-delegate-ng ns
+        ├── delegate-prod-1 pod              └── helm-delegate pod ✓
+        └── delegate-prod-2 pod (HA)    
+                                    
+AWS EKS (staging)                   (same cluster, different namespace)
+  └── delegate-staging-1 pod        
+                                    
+AWS EKS (dev)                       Floci localhost:4566
+  └── delegate-dev-1 pod              (pretends to be AWS)
+
+Both poll → app.harness.io         helm-delegate polls → app.harness.io
+Prod delegate: tag env=prod        helm-delegate: tag helm-delegate
+Dev delegate: tag env=dev          Runs ALL steps (single env setup)
+
+The ONLY difference: real clusters live in AWS, yours is local
+Everything else — delegate concept, connectors, pipelines — IDENTICAL</pre></div></div>
+
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>💻</span>Delegate Installation Commands</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">how we installed it</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Add Harness helm repo
+helm repo add harness-delegate https://app.harness.io/storage/harness-download/delegate-helm-chart/
+helm repo update harness-delegate
+
+# Install delegate as single line (PowerShell backtick issues)
+helm install helm-delegate harness-delegate/harness-delegate-ng   --namespace harness-delegate-ng   --create-namespace   --set delegateName=helm-delegate   --set accountId=YOUR_ACCOUNT_ID   --set delegateToken=YOUR_TOKEN   --set managerEndpoint=https://app.harness.io   --set delegateDockerImage=us-docker.pkg.dev/gar-prod-setup/harness-public/harness/delegate:26.06.89303   --set replicas=1   --set upgrader.enabled=false
+
+# Verify running
+kubectl get pods -n harness-delegate-ng
+# Expected: helm-delegate-xxxxx   1/1   Running
+
+# Check logs if issues
+kubectl logs -f deployment/helm-delegate -n harness-delegate-ng</pre></div></div>
       </div>
 
-      <div id="d1-code" style="display:none">
-        <div class="code-block"><div class="code-header"><span class="code-lang">.harness/pipelines/day1-first-pipeline.yaml</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre>pipeline:
-  name: Day 1 - First Pipeline
-  identifier: day1_first_pipeline
+      <!-- CONNECTORS TAB -->
+      <div id="d1-connectors" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🔌</span>The 5 Connectors — What Each Does</div>
+
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;margin-bottom:1rem;font-size:13px;color:var(--muted);line-height:1.7">
+          <strong style="color:var(--white)">Mental model:</strong> Delegate = the executor (runs tasks). Connectors = the credentials + endpoints (tells Delegate WHERE and HOW to connect). Together they form the complete execution engine.
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:.8rem;margin-bottom:1.5rem">
+
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;border-left:3px solid var(--green)">
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.6rem">
+              <span style="font-size:1.4rem">🤖</span>
+              <div>
+                <div style="font-size:13px;font-weight:600">Harness Delegate (helm-delegate)</div>
+                <div style="font-family:var(--mono);font-size:10px;color:var(--green)">TYPE: Agent Pod · NAMESPACE: harness-delegate-ng</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6">Not technically a connector but the foundation of everything. Runs inside dd-stg cluster. Polls Harness every 10s for tasks. Executes all steps locally using the other connectors for credentials.</div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;border-left:3px solid var(--blue)">
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.6rem">
+              <span style="font-size:1.4rem">🐙</span>
+              <div>
+                <div style="font-size:13px;font-weight:600">GitHub Connector (bankopsgithub)</div>
+                <div style="font-family:var(--mono);font-size:10px;color:var(--blue)">ID: bankopsgithub · URL: github.com/pavantechy09-hub/harness-enterprise-training</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6"><strong style="color:var(--white)">What it stores:</strong> Your GitHub Personal Access Token (encrypted in Harness Secrets Manager).<br><strong style="color:var(--white)">What it does:</strong> Delegate uses this to clone your repo into each build pod during "Clone codebase" step.<br><strong style="color:var(--white)">Without it:</strong> Harness cannot read your application code. Every build fails at clone step.</div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;border-left:3px solid var(--purple)">
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.6rem">
+              <span style="font-size:1.4rem">☸️</span>
+              <div>
+                <div style="font-size:13px;font-weight:600">Kubernetes Connector (ddstgk8s)</div>
+                <div style="font-family:var(--mono);font-size:10px;color:var(--purple)">ID: ddstgk8s · CLUSTER: kind-dd-stg</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6"><strong style="color:var(--white)">What it stores:</strong> Permission to talk to Kubernetes API (uses Delegate service account).<br><strong style="color:var(--white)">What it does:</strong> Delegate uses this to CREATE build pods in harness-builds namespace for each pipeline run. Pods are deleted after build completes.<br><strong style="color:var(--white)">Without it:</strong> Harness cannot create build environment. All pipeline steps fail with "empty connector" error.</div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;border-left:3px solid var(--orange)">
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.6rem">
+              <span style="font-size:1.4rem">🐳</span>
+              <div>
+                <div style="font-size:13px;font-weight:600">Docker Hub Connector (dockerhub)</div>
+                <div style="font-family:var(--mono);font-size:10px;color:var(--orange)">ID: dockerhub · URL: index.docker.io/v1/</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6"><strong style="color:var(--white)">What it stores:</strong> Docker Hub credentials (anonymous for public images).<br><strong style="color:var(--white)">What it does:</strong> Build pods use this to pull <code>python:3.12-slim</code> image before running your test command.<br><strong style="color:var(--white)">Without it:</strong> Run steps fail with "Run step with Kubernetes infra can't have empty connector field".</div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;border-left:3px solid var(--yellow)">
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.6rem">
+              <span style="font-size:1.4rem">🔐</span>
+              <div>
+                <div style="font-size:13px;font-weight:600">Harness Built-in Secrets Manager</div>
+                <div style="font-family:var(--mono);font-size:10px;color:var(--yellow)">ID: harnessSecretManager · AUTO-CREATED</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6"><strong style="color:var(--white)">What it does:</strong> Encrypts all credentials stored in Harness. GitHub token, Docker password — never stored in plain text. Reference in pipelines as <code>&lt;+secrets.getValue("my-secret")&gt;</code>.<br><strong style="color:var(--white)">Enterprise upgrade:</strong> Replace with HashiCorp Vault, AWS Secrets Manager, or Azure Key Vault.</div>
+          </div>
+        </div>
+
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🗺️</span>Complete Integration Map</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">how everything connects</span></div><div class="code-body"><pre>┌─────────────────────────────────────────────┐
+│         HARNESS SaaS (app.harness.io)       │
+│  Pipelines · Approvals · Dashboards · RBAC  │
+└──────────────────┬──────────────────────────┘
+                   │ assigns tasks (HTTPS outbound)
+                   │ receives results
+                   ▼
+┌─────────────────────────────────────────────┐
+│        DELEGATE POD (helm-delegate)         │
+│     namespace: harness-delegate-ng          │
+│     cluster: kind-dd-stg                    │
+│                                             │
+│  Polls Harness every 10s for tasks          │
+│  Executes steps locally                     │
+│  Has access to your entire network          │
+└──────┬──────────┬──────────┬────────────────┘
+       │          │          │
+       ▼          ▼          ▼
+  bankopsgithub  dockerhub  ddstgk8s
+  GitHub Token   Docker Hub K8s API
+       │          │          │
+       ▼          ▼          ▼
+  github.com   docker.io  harness-builds ns
+  clone repo   pull imgs  create build pods</pre></div></div>
+      </div>
+
+      <!-- PIPELINE FLOW TAB -->
+      <div id="d1-pipeline" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>⚡</span>Exactly What Ran — Step by Step</div>
+
+        <div style="display:flex;flex-direction:column;gap:.8rem;margin-bottom:1.5rem">
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem">
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.6rem">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--blue-dim);border:1px solid var(--blue);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--blue);flex-shrink:0">1</div>
+              <div style="font-size:13px;font-weight:600">Initialize <span style="font-family:var(--mono);font-size:10px;color:var(--muted);font-weight:400;margin-left:.5rem">13 seconds</span></div>
+            </div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.7">Delegate received task from Harness. Called Kubernetes API using ddstgk8s connector. Created pod <code>harnessci-ciaccountsservi-k4tjrlr3</code> in <code>harness-builds</code> namespace.<br><br>Pod had 3 containers:<br>• <strong style="color:var(--white)">lite-engine</strong> — Harness orchestrator (manages step execution)<br>• <strong style="color:var(--white)">step-1</strong> — Clone codebase container<br>• <strong style="color:var(--white)">step-2</strong> — Run Tests container</div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem">
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.6rem">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--blue-dim);border:1px solid var(--blue);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--blue);flex-shrink:0">2</div>
+              <div style="font-size:13px;font-weight:600">Clone Codebase <span style="font-family:var(--mono);font-size:10px;color:var(--muted);font-weight:400;margin-left:.5rem">automatic</span></div>
+            </div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.7">Harness used <code>bankopsgithub</code> connector to clone your repo into <code>/harness/</code> directory inside the build pod. Your application code is now available at <code>/harness/src/accounts-service/</code></div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--green-dim);border-radius:8px;padding:1.2rem;border-color:var(--green)">
+            <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.6rem">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--green-dim);border:1px solid var(--green);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--green);flex-shrink:0">3</div>
+              <div style="font-size:13px;font-weight:600">Run Tests <span style="font-family:var(--mono);font-size:10px;color:var(--muted);font-weight:400;margin-left:.5rem">1 min 25 seconds</span></div>
+            </div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.7">Container pulled <code>python:3.12-slim</code> from Docker Hub. Ran your commands:<br><br><code>cd src/accounts-service</code><br><code>pip install -r requirements.txt -q</code><br><code>pytest app/tests/ -v</code><br><br>Result: <strong style="color:var(--green)">6 passed, 6 warnings in 4.80s</strong><br><br>Build pod deleted automatically. Results sent to Harness UI.</div>
+          </div>
+        </div>
+
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>💻</span>Pipeline YAML (stored in GitHub)</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">.harness/pipelines/day1-accounts-service-ci.yaml</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre>pipeline:
+  name: day1-accounts-service-ci
+  identifier: day1_accounts_service_ci
   projectIdentifier: bankplatform
   orgIdentifier: default
+
+  properties:
+    ci:
+      codebase:
+        connectorRef: bankopsgithub          # GitHub connector ID
+        repoName: harness-enterprise-training
+        build:
+          type: branch
+          spec:
+            branch: main
+
   stages:
     - stage:
-        name: Hello Harness
-        identifier: hello_harness
+        name: CI accounts-service
+        identifier: CI_accountsservice
         type: CI
         spec:
-          cloneCodebase: true
+          cloneCodebase: true                 # auto-clone on every run
           infrastructure:
             type: KubernetesDirect
             spec:
-              connectorRef: dd_stg_k8s
-              namespace: harness-builds
+              connectorRef: ddstgk8s         # K8s connector ID
+              namespace: harness-builds       # must pre-create this namespace
+              os: Linux
           execution:
             steps:
               - step:
-                  name: Print Hello
-                  identifier: print_hello
                   type: Run
+                  name: Run Tests
+                  identifier: Run_Tests
                   spec:
-                    image: alpine:3.18
+                    connectorRef: dockerhub   # Docker connector ID
+                    image: python:3.12-slim
+                    shell: Sh
                     command: |
-                      echo "Hello from Harness!"
-                      echo "Running on delegate: $DELEGATE_NAME"
-                      kubectl get nodes
-              - step:
-                  name: Verify Floci
-                  identifier: verify_floci
-                  type: Run
-                  spec:
-                    image: amazon/aws-cli:latest
-                    command: |
-                      aws --endpoint-url http://host.docker.internal:4566 s3 ls
-                      echo "Floci connected successfully"</pre></div></div>
+                      cd src/accounts-service
+                      pip install -r requirements.txt -q
+                      pytest app/tests/ -v</pre></div></div>
+
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🚀</span>GitHub vs Harness — Where to Store Pipeline Code</div>
+        <table class="compare-table">
+          <tr><th>Aspect</th><th>Inline (Harness)</th><th>Remote (GitHub) ← Enterprise Standard</th></tr>
+          <tr><td>Audit trail</td><td class="loser">No — changes invisible</td><td class="winner">Full git history of every change</td></tr>
+          <tr><td>Code review</td><td class="loser">Anyone changes silently</td><td class="winner">PR required, team reviews pipeline changes</td></tr>
+          <tr><td>Disaster recovery</td><td class="loser">Lost if Harness deleted</td><td class="winner">Safe in GitHub forever</td></tr>
+          <tr><td>Compliance</td><td class="loser">Cannot prove who changed what</td><td class="winner">SOX/PCI-DSS: full audit trail</td></tr>
+          <tr><td>Best for</td><td class="neutral">Learning, experiments</td><td class="winner">Any team, any production pipeline</td></tr>
+        </table>
       </div>
 
+      <!-- ENTERPRISE STANDARDS TAB -->
+      <div id="d1-enterprise" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🏢</span>Enterprise Standards — How Large Companies Do This</div>
+
+        <div style="font-size:14px;font-weight:600;margin-bottom:.8rem;color:var(--muted)">1. CODEOWNERS — Who Must Review What</div>
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1rem;margin-bottom:.8rem;font-size:13px;color:var(--muted);line-height:1.7">
+          GitHub CODEOWNERS file automatically assigns reviewers based on which files changed. Nobody can merge to main without the correct owner approving. This enforces the right people review the right changes.
+        </div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">CODEOWNERS (root of repo)</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># CODEOWNERS — GitHub enforces these on every PR
+# Format: file-pattern @github-username-or-team
+
+# Global: platform team reviews everything
+*                                   @platform-team
+
+# Application code: service leads must review
+src/accounts-service/**             @payments-lead @accounts-senior
+src/payments-service/**             @payments-lead @payments-senior
+src/fraud-service/**                @fraud-lead @ml-team
+src/notification-service/**         @platform-lead
+
+# Pipeline code: platform team MUST review all pipeline changes
+# Prevents developers silently changing deployment pipelines
+.harness/**                         @platform-team
+
+# Infrastructure: platform + security review
+infra/**                            @platform-team @security-team
+
+# OPA policies: security + compliance must review
+.harness/policies/**                @security-team @compliance-team
+
+# In enterprise with teams:
+# Nobody from payments team can approve fraud pipeline changes
+# Platform team has visibility across everything
+# Compliance team has read access — can audit any change</pre></div></div>
+
+        <div style="font-size:14px;font-weight:600;margin:1.5rem 0 .8rem;color:var(--muted)">2. Shared Pipeline Templates — Like GitLab Shared Templates</div>
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1rem;margin-bottom:.8rem;font-size:13px;color:var(--muted);line-height:1.7">
+          Without templates: 4 services = 4 duplicate CI configs. If you fix a bug in test logic, you fix it 4 times. With templates: define once, all services inherit. One change propagates everywhere automatically.
+        </div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">.harness/templates/standard-ci-template.yaml</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Defined ONCE — used by ALL 4 services
+template:
+  name: Standard CI Template
+  identifier: standard_ci_template
+  versionLabel: v1.0
+  type: Stage
+  spec:
+    type: CI
+    spec:
+      execution:
+        steps:
+          - step:
+              name: Run Tests
+              type: Run
+              spec:
+                connectorRef: dockerhub
+                image: python:3.12-slim
+                command: |
+                  cd src/&lt;+stage.variables.service_name&gt;
+                  pip install -r requirements.txt -q
+                  pytest app/tests/ -v
+
+      variables:
+        - name: service_name    # overridden per service
+          type: String
+          value: &lt;+input&gt;
+
+---
+# accounts-service pipeline uses template:
+stages:
+  - stage:
+      template:
+        templateRef: standard_ci_template
+        versionLabel: v1.0
+        templateInputs:
+          type: CI
+          spec:
+            variables:
+              - name: service_name
+                value: accounts-service   # only this changes
+
+# payments-service pipeline — identical except service_name:
+stages:
+  - stage:
+      template:
+        templateRef: standard_ci_template
+        versionLabel: v1.0
+        templateInputs:
+          type: CI
+          spec:
+            variables:
+              - name: service_name
+                value: payments-service</pre></div></div>
+
+        <div style="font-size:14px;font-weight:600;margin:1.5rem 0 .8rem;color:var(--muted)">3. Team Isolation — Projects + RBAC</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">enterprise team structure</span></div><div class="code-body"><pre>Account: firstnational-bank
+  │
+  ├── Project: payments-platform
+  │     Roles:
+  │       payments-dev-team  → Developer (create/run pipelines, no delete)
+  │       sre-team           → Pipeline Executor + Approver
+  │       platform-team      → Project Admin
+  │     Result:
+  │       Pavan (payments dev) CANNOT see fraud-platform project
+  │       Fraud team CANNOT see payments pipelines
+  │
+  ├── Project: fraud-platform
+  │     Roles:
+  │       fraud-dev-team     → Developer
+  │       ml-team            → Developer
+  │       sre-team           → Pipeline Executor + Approver
+  │
+  └── Account Level (SHARED)
+        Templates → used by ALL projects
+        Docker Hub connector → used by ALL projects
+        Shared K8s connectors → used by ALL projects
+        Harness Secrets Manager → all secrets encrypted here
+
+Roles in Harness:
+  Account Admin    → full access everything
+  Project Admin    → full access within project
+  Developer        → create/run pipelines, cannot delete
+  Pipeline Executor → run only, cannot edit
+  Viewer           → read-only (compliance team)</pre></div></div>
+
+        <div style="font-size:14px;font-weight:600;margin:1.5rem 0 .8rem;color:var(--muted)">4. Complete PR → Production Flow</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">enterprise deployment flow</span></div><div class="code-body"><pre>Developer pushes to feature branch
+       ↓
+GitHub PR created
+  → CODEOWNERS auto-assigns reviewers
+  → Harness CI runs automatically (triggered by PR)
+       ↓
+CI checks:
+  ✓ Tests pass (pytest)
+  ✓ Lint check passes (flake8)
+  ✓ Security scan passes (bandit/checkov)
+  ✓ Coverage above threshold
+  → If any fail: PR blocked, developer fixes
+       ↓
+Code Owner approves PR (e.g. payments-lead)
+  → GitHub shows: "Required review approved"
+       ↓
+Merge to main
+       ↓
+Harness CD pipeline triggers automatically
+       ↓
+Stage 1: Deploy to dev (automatic, no approval)
+  → Rolling deployment
+  → Health check: GET /health → 200
+  → Smoke tests pass
+       ↓
+Stage 2: Harness Approval Gate
+  → SRE team notified in Slack
+  → SRE reviews: what changed, test results, diff
+  → SRE approves in Harness UI
+       ↓
+Stage 3: Deploy to staging (canary 10%→100%)
+  → Monitor error rate and p99 latency
+  → Auto-rollback if thresholds breached
+       ↓
+Stage 4: Second Approval Gate
+  → Platform team + SRE both approve
+  → OPA policy blocks if same person approves twice
+       ↓
+Stage 5: Deploy to production (blue-green)
+  → Full validation before traffic switch
+  → Instant rollback if issues
+  → Dynatrace monitors post-deploy
+       ↓
+Slack notification: "payments-service v1.1.0 deployed to prod"
+Audit trail: complete record of who approved what and when</pre></div></div>
+
+        <div style="font-size:14px;font-weight:600;margin:1.5rem 0 .8rem;color:var(--muted)">5. OPA Governance Policies</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">.harness/policies/prod-deployment-policy.rego</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Block prod without 2 approvals (four-eyes principle)
+deny[msg] {
+  input.pipeline.stages[_].stage.spec.environment.identifier == "prod"
+  count(input.approvals) < 2
+  msg := "Production requires 2 approvals — four-eyes principle"
+}
+
+# Block self-approval
+deny[msg] {
+  input.pipeline.triggeredBy == input.approvals[_].approvedBy
+  msg := "Cannot approve your own deployment"
+}
+
+# Block outside business hours
+deny[msg] {
+  input.pipeline.stages[_].stage.spec.environment.identifier == "prod"
+  hour := time.clock(time.now_ns())[0]
+  hour >= 17
+  msg := "No production deployments after 5pm"
+}
+
+# Block if Checkov has HIGH findings
+deny[msg] {
+  input.securityScan.status == "FAILED"
+  input.securityScan.severity == "HIGH"
+  msg := sprintf("HIGH security finding blocks deployment: %s", [input.securityScan.checkId])
+}</pre></div></div>
+      </div>
+
+      <!-- ISSUES TAB -->
+      <div id="d1-issues" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🐛</span>Issues We Hit — Root Cause + Fix + Lesson</div>
+
+        <div style="display:flex;flex-direction:column;gap:1rem">
+
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--red-dim);border-bottom:1px solid #7F1D1D;padding:.8rem 1.2rem;display:flex;align-items:center;gap:.6rem">
+              <span>🔴</span>
+              <span style="font-size:13px;font-weight:600;color:var(--red)">Issue 1: Run step with Kubernetes infra can't have empty connector field</span>
+            </div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">What happened:</strong> Used <code>connectorRef: account.harnessci</code> — a default connector name that doesn't exist in our account.<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> Every connector has a unique ID generated when you CREATE it. You cannot guess or assume the ID. The Run step requires a valid Docker registry connector to know where to pull container images from.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Created Docker Hub connector manually (Project Settings → Connectors → Docker Registry). Got actual ID: <code>dockerhub</code>. Updated YAML.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> Always create ALL connectors BEFORE writing pipeline YAML. Then reference their actual IDs. In enterprise, connectors are created once by platform team and shared across projects.
+            </div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--red-dim);border-bottom:1px solid #7F1D1D;padding:.8rem 1.2rem;display:flex;align-items:center;gap:.6rem">
+              <span>🔴</span>
+              <span style="font-size:13px;font-weight:600;color:var(--red)">Issue 2: namespaces "harness-builds" not found</span>
+            </div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">What happened:</strong> Harness tried to create a build pod in <code>harness-builds</code> namespace. Pipeline failed immediately at Initialize step.<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> Harness does NOT auto-create Kubernetes namespaces. This is a Kubernetes security principle — namespaces are isolation boundaries and should be created deliberately, not by automation.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> <code>kubectl create namespace harness-builds</code> then re-run pipeline.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> In enterprise, platform team pre-creates all namespaces with proper RBAC before pipelines run. Add namespace creation to your cluster bootstrap scripts, not your pipelines.
+            </div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--yellow-dim);border-bottom:1px solid #3A2A00;padding:.8rem 1.2rem;display:flex;align-items:center;gap:.6rem">
+              <span>🟡</span>
+              <span style="font-size:13px;font-weight:600;color:var(--yellow)">Issue 3: PowerShell backtick multiline helm command failed</span>
+            </div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">What happened:</strong> Helm install command using PowerShell backtick (`) for line continuation appeared to run but created no pods.<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> PowerShell backtick line continuation is extremely sensitive to trailing whitespace after the backtick. A single space after ` breaks the continuation silently.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Run entire helm command as single line without any line breaks.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> For complex PowerShell commands, use single line or use a .ps1 script file. Never rely on backtick continuation for critical commands.
+            </div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--yellow-dim);border-bottom:1px solid #3A2A00;padding:.8rem 1.2rem;display:flex;align-items:center;gap:.6rem">
+              <span>🟡</span>
+              <span style="font-size:13px;font-weight:600;color:var(--yellow)">Issue 4: Helm not found after choco install</span>
+            </div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">What happened:</strong> Chocolatey installed helm but <code>helm version</code> failed with "not recognized".<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> Chocolatey installs to a non-standard path. PATH environment variable not refreshed in current PowerShell session after install.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Manually found helm.exe location, added to PATH:<br><code>$env:PATH += ";C:\Program Files\...\kubernetes-helm	ools\windows-amd64"</code><br><br>
+              <strong style="color:var(--green)">Lesson:</strong> After choco install, either open new PowerShell window or manually refresh PATH. On Linux/Mac this is not an issue — brew/apt update PATH automatically.
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>⚡</span>Pre-Flight Checklist — Run Before Any Pipeline</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">day 1 setup checklist</span></div><div class="code-body"><pre># 1. Start environment
+. D:\cloud-iac\start-env.ps1
+
+# 2. Verify cluster is running
+kubectl config use-context kind-dd-stg
+kubectl get nodes
+# Expected: dd-stg-control-plane   Ready
+
+# 3. Verify delegate is running
+kubectl get pods -n harness-delegate-ng
+# Expected: helm-delegate-xxxxx   1/1   Running
+
+# 4. Verify build namespace exists
+kubectl get namespace harness-builds
+# If not found: kubectl create namespace harness-builds
+
+# 5. Verify Harness delegate shows Connected
+# app.harness.io → bank-platform → Project Settings → Delegates
+# helm-delegate should show: Connected, heartbeat recent
+
+# 6. Run pipeline
+# Pipelines → day1-accounts-service-ci → Run</pre></div></div>
+      </div>
+
+      <!-- INTERVIEW QA TAB -->
       <div id="d1-qa" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>❓</span>Interview Questions — Day 1 Concepts</div>
         <div class="qa-list">
-          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is a Harness Delegate and why is it needed?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">A Delegate is an agent pod running inside your Kubernetes cluster that polls Harness SaaS for tasks and executes them locally. It is needed because Harness SaaS lives on the internet but your infrastructure — clusters, Floci, internal APIs — lives behind firewalls. The Delegate makes all traffic outbound only, so <strong>no inbound firewall rules are needed</strong>, your credentials stay inside your network, and it works in air-gapped environments. Enterprise teams run 2+ Delegates per cluster for high availability.</div></div>
-          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is the Harness entity hierarchy?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Account is the top level. Under it you create <strong>Organisations</strong> (e.g. firstnational-bank) representing business units. Under each Org you create <strong>Projects</strong> (e.g. bank-platform) which are collections of related pipelines and resources. Inside a Project you define <strong>Services</strong> (what to deploy), <strong>Environments</strong> (where to deploy), <strong>Infrastructure Definitions</strong> (how to connect), and <strong>Pipelines</strong> (orchestration). This hierarchy enables fine-grained RBAC — a developer might access one Project but not another.</div></div>
-          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How do Delegate selectors work in enterprise?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Delegates are tagged with key-value pairs like <code>environment=prod</code> or <code>cluster=eks-us-east-1</code>. Pipeline steps specify which Delegates they should run on using these selectors. A prod deployment step with selector <code>environment=prod</code> will only execute on Delegates tagged with that value. This means <strong>prod credentials never touch dev Delegates</strong>, providing security isolation at the infrastructure level without any application-level code changes.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is a Harness Delegate and why is it needed?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">A Delegate is an agent pod running inside your Kubernetes cluster that polls Harness SaaS for tasks and executes them locally. It exists because Harness is a SaaS platform on the internet but your infrastructure — clusters, private registries, internal APIs — lives behind firewalls. The Delegate makes all communication <strong>outbound only from your side</strong>, so no inbound firewall rules are needed, no VPN is required, and your cluster needs no public IP. In enterprise, you run 2+ Delegates per cluster with different selector tags so prod pipelines only run on prod Delegates, completely isolating environments at the infrastructure level.</div></div>
+
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is the difference between a Delegate and a Connector in Harness?</span><span class="qa-arrow">▼</span></div><div class="qa-answer"><strong>Delegate = the executor</strong>. It runs inside your network and has access to everything locally. It receives tasks from Harness and runs them. <strong>Connectors = credentials + endpoints</strong>. They tell the Delegate WHERE to connect and with WHAT credentials. For example: when running a build, the Delegate uses the GitHub connector to clone code, the Docker connector to pull images, and the Kubernetes connector to create build pods. The Delegate knows HOW to run commands — the connectors know WHERE to connect and authenticate. You need both working together for any pipeline step to execute.</div></div>
+
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How does team isolation work in Harness for a large enterprise?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Harness uses a three-level hierarchy: Account → Organisation → Project. Each Project is a complete isolation boundary. The payments team only has access to the payments-platform project — they cannot see or run fraud-platform pipelines. Secrets are project-scoped, so payments credentials never touch fraud pipelines. RBAC roles control exactly what each team member can do within their project. Shared resources like Docker Hub connectors and standard CI templates live at Account level and are accessible by all projects. This mirrors how large banks operate: 50 teams, 50 projects, one account, with platform team managing shared resources centrally.</div></div>
+
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>Should you store pipeline code in Harness or GitHub? Why?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Always GitHub (or GitLab/Bitbucket) for any production or team pipeline. Storing inline in Harness means pipeline changes have no audit trail — anyone with Harness access can silently change a deployment pipeline. GitHub storage means every pipeline change goes through a PR, gets reviewed by the right people via CODEOWNERS, has a full git history, and is protected by the same governance as application code. For compliance frameworks like SOX and PCI-DSS, you must prove who changed the deployment pipeline and when — git history provides this automatically. Inline storage is only appropriate for learning and short-lived experiments.</div></div>
+
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is the CODEOWNERS file and how does it enforce governance?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">CODEOWNERS is a GitHub file that automatically assigns required reviewers based on which files a PR changes. If a developer modifies <code>src/payments-service/</code>, GitHub automatically requests review from <code>@payments-lead</code>. The PR cannot be merged until that person approves. In enterprise this means: a developer cannot change the deployment pipeline without the platform team reviewing it, infrastructure changes require the security team, and application changes require the service lead. Combined with Harness approval gates on the CD side, this creates a complete chain of custody from code change to production deployment with every decision documented and attributed.</div></div>
+
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What are Harness Pipeline Templates and why do enterprises use them?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Templates are reusable pipeline building blocks defined once and referenced by multiple pipelines. Instead of 4 microservices each having their own copy of the same CI logic, you define one standard CI template with a variable for the service name. Each service pipeline references the template and passes its service name as input. When the platform team improves the template — adds security scanning, updates the Python version — all 4 services automatically get the improvement. This is identical to GitLab shared pipeline templates. It eliminates duplication, enforces standards across all services, and means a single change can propagate to 50 services simultaneously.</div></div>
+
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>Walk me through what happens when a developer pushes code in your setup.</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Developer pushes to feature branch. GitHub sends a webhook to Harness. Harness checks if any pipeline is triggered by this event — in Day 2 we add a PR trigger. Harness assigns the CI task to helm-delegate (our Delegate running on dd-stg cluster). Delegate creates a build pod in harness-builds namespace using the ddstgk8s connector. The pod clones the repo using the bankopsgithub connector. It pulls python:3.12-slim using the dockerhub connector. It runs pip install and pytest. Results — pass or fail — are reported back to Harness UI. The pod is deleted automatically. The whole flow is automated, audited, and repeatable. The developer sees results in the Harness UI or gets a Slack notification if it fails.</div></div>
         </div>
       </div>
+
     </div>
 
-    <!-- DAY 2 -->
     <div class="page" id="page-day2">
       <div class="alert alert-success"><span class="alert-icon">✅</span>Day 2 — CI Migration from GitHub Actions. accounts-service CI pipeline fully migrated.</div>
       <div class="tabs">
@@ -1261,6 +1817,36 @@ function setBGS(i){
   document.getElementById('bg-green-pods').innerHTML=s.gp==='green'?'<div class="bg-pod pod-green">📦</div><div class="bg-pod pod-green">📦</div><div class="bg-pod pod-green">📦</div>':'<div class="bg-pod pod-dead">📦</div><div class="bg-pod pod-dead">📦</div><div class="bg-pod pod-dead">📦</div>';
   document.getElementById('bg-status-msg').textContent=s.msg;
   document.querySelectorAll('#d5bg-live .traffic-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+}
+
+
+function switchTabById(targetId){
+  // Find the tab that controls this content and activate it
+  const page = document.getElementById('page-day1');
+  if(!page) return;
+  const allTabs = page.querySelectorAll('.tab');
+  const allContents = page.querySelectorAll('[id^="d1-"]');
+  allContents.forEach(c => c.style.display = 'none');
+  const target = document.getElementById(targetId);
+  if(target) {
+    target.style.display = 'block';
+    // activate corresponding tab
+    const tabMap = {
+      'd1-overview':'📋 Overview',
+      'd1-delegate':'🤖 Delegate Deep Dive',
+      'd1-connectors':'🔌 Connectors',
+      'd1-pipeline':'⚡ Pipeline Flow',
+      'd1-enterprise':'🏢 Enterprise Standards',
+      'd1-issues':'🐛 Issues & Fixes',
+      'd1-qa':'❓ Interview Q&A'
+    };
+    allTabs.forEach(t => {
+      t.classList.remove('active');
+      if(t.textContent.trim().startsWith(tabMap[targetId]?.substring(0,3) || 'XX')) {
+        t.classList.add('active');
+      }
+    });
+  }
 }
 
 </script>
