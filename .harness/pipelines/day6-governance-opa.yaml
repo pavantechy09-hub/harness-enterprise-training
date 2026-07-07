@@ -1,0 +1,64 @@
+# Day 6: Governance + OPA Policies
+# All deployments now go through OPA policy evaluation
+# Four-eyes principle enforced on production
+pipeline:
+  name: day6-governed-deployment
+  identifier: day6_governed_deployment
+  projectIdentifier: bankplatform
+  orgIdentifier: default
+  tags:
+    day: "6"
+    type: governed-cd
+  stages:
+    - stage:
+        name: Policy Validation
+        identifier: policy_validation
+        type: CI
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: OPA Policy Check
+                  identifier: opa_check
+                  type: Run
+                  spec:
+                    connectorRef: dockerhub
+                    image: openpolicyagent/opa:latest
+                    command: |
+                      echo "Evaluating deployment against OPA policies..."
+                      opa eval --data .harness/policies/ \
+                        --input deployment-context.json \
+                        "data.pipeline.deny" | jq .
+                      echo "Policy evaluation complete"
+
+    - stage:
+        name: Deploy with Governance
+        identifier: deploy_governed
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: accounts_service
+          environment:
+            environmentRef: prod
+            infrastructureDefinitions:
+              - identifier: dd_stg_k8s_infra
+          execution:
+            steps:
+              - step:
+                  name: Production Deploy
+                  type: K8sBlueGreenDeploy
+              - step:
+                  name: Approval Gate 1 - SRE
+                  type: HarnessApproval
+                  spec:
+                    approvers:
+                      userGroups: [_project_all_users]
+                      minimumCount: 1
+              - step:
+                  name: Approval Gate 2 - Platform
+                  type: HarnessApproval
+                  spec:
+                    approvers:
+                      userGroups: [_project_all_users]
+                      minimumCount: 1

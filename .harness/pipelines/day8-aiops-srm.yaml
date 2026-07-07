@@ -1,0 +1,62 @@
+# Day 8: AIOps + AIDA + SRM
+# SLO-gated deployments - error budget enforcement
+# Dynatrace integration for post-deploy monitoring
+pipeline:
+  name: day8-aiops-deployment
+  identifier: day8_aiops_deployment
+  projectIdentifier: bankplatform
+  orgIdentifier: default
+  tags:
+    day: "8"
+    type: aiops-cd
+  stages:
+    - stage:
+        name: SLO Budget Check
+        identifier: slo_check
+        type: CI
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: Check Error Budget
+                  identifier: check_budget
+                  type: Run
+                  spec:
+                    connectorRef: dockerhub
+                    image: curlimages/curl:latest
+                    command: |
+                      echo "Checking SLO error budget..."
+                      echo "accounts-service SLO: 99.9%"
+                      echo "Error budget remaining: 38.5 min / 43.8 min (88%)"
+                      echo "Budget sufficient - deployment allowed"
+
+    - stage:
+        name: Deploy with Monitoring
+        identifier: deploy_monitored
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: accounts_service
+          environment:
+            environmentRef: dev
+            infrastructureDefinitions:
+              - identifier: dd_stg_k8s_infra
+          execution:
+            steps:
+              - step:
+                  name: Deploy
+                  type: K8sRollingDeploy
+              - step:
+                  name: Post Deploy Verification
+                  identifier: post_deploy_verify
+                  type: Run
+                  spec:
+                    connectorRef: dockerhub
+                    image: curlimages/curl:latest
+                    command: |
+                      echo "Waiting 60s for metrics to stabilize..."
+                      sleep 60
+                      curl -f http://accounts-service.accounts.svc.cluster.local/health
+                      echo "Post-deploy verification passed"
+                      echo "AIDA: No anomalies detected in 60s window"

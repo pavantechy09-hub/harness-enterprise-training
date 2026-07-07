@@ -1,0 +1,48 @@
+# Day 1: First CI Pipeline - accounts-service
+# Connectors needed: bankopsgithub, ddstgk8s, dockerhub
+# Namespace needed: kubectl create namespace harness-builds
+pipeline:
+  name: day1-accounts-service-ci
+  identifier: day1_accounts_service_ci
+  projectIdentifier: bankplatform
+  orgIdentifier: default
+  tags:
+    day: "1"
+    service: accounts-service
+  properties:
+    ci:
+      codebase:
+        connectorRef: bankopsgithub
+        repoName: harness-enterprise-training
+        build:
+          type: branch
+          spec:
+            branch: main
+  stages:
+    - stage:
+        name: CI accounts-service
+        identifier: CI_accountsservice
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ddstgk8s
+              namespace: harness-builds
+              automountServiceAccountToken: true
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run Tests
+                  identifier: Run_Tests
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    shell: Sh
+                    command: |
+                      cd src/accounts-service
+                      pip install -r requirements.txt -q
+                      pytest app/tests/ -v

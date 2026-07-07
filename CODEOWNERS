@@ -1,0 +1,10 @@
+# CODEOWNERS
+*                                   @pavantechy09-hub
+src/accounts-service/**             @pavantechy09-hub
+src/payments-service/**             @pavantechy09-hub
+src/fraud-service/**                @pavantechy09-hub
+src/notification-service/**         @pavantechy09-hub
+.harness/**                         @pavantechy09-hub
+infra/**                            @pavantechy09-hub
+k8s/**                              @pavantechy09-hub
+.harness/policies/**                @pavantechy09-hub

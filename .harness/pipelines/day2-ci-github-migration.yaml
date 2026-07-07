@@ -1,0 +1,82 @@
+# Day 2: CI Migration from GitHub Actions
+# Adds: Docker build+push, PR trigger, test coverage, Slack notification
+# NEW connector needed: dockerhub-push (with Docker Hub credentials)
+# NEW secret needed: docker_hub_password, slack_webhook_url
+pipeline:
+  name: day2-accounts-ci-migrated
+  identifier: day2_accounts_ci_migrated
+  projectIdentifier: bankplatform
+  orgIdentifier: default
+  tags:
+    day: "2"
+    service: accounts-service
+  properties:
+    ci:
+      codebase:
+        connectorRef: bankopsgithub
+        repoName: harness-enterprise-training
+        build:
+          type: PR
+          spec: {}
+  stages:
+    - stage:
+        name: CI accounts-service
+        identifier: CI_accountsservice
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ddstgk8s
+              namespace: harness-builds
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  name: Run Tests with Coverage
+                  identifier: run_tests_coverage
+                  type: Run
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    shell: Sh
+                    command: |
+                      cd src/accounts-service
+                      pip install -r requirements.txt -q
+                      pytest app/tests/ -v \
+                        --junitxml=/harness/test-results.xml \
+                        --cov=app \
+                        --cov-report=xml:/harness/coverage.xml \
+                        --cov-report=term-missing
+                  reports:
+                    type: JUnit
+                    spec:
+                      paths: ["**/test-results.xml"]
+
+              - step:
+                  name: Build Docker Image
+                  identifier: build_docker
+                  type: BuildAndPushDockerRegistry
+                  spec:
+                    connectorRef: dockerhub
+                    repo: pavantechy09hub/accounts-service
+                    tags:
+                      - <+pipeline.sequenceId>
+                      - latest
+                    dockerfile: src/accounts-service/Dockerfile
+                    context: src/accounts-service
+
+  notificationRules:
+    - name: Slack on Failure
+      pipelineEvents:
+        - type: PipelineFailed
+      notificationMethod:
+        type: Slack
+        spec:
+          webhookUrl: <+secrets.getValue("slack_webhook_url")>
+          message: |
+            Build FAILED: accounts-service
+            PR: <+pipeline.properties.ci.codebase.build.spec.number>
+            Triggered by: <+pipeline.triggeredBy.name>
+            View: <+pipeline.executionUrl>

@@ -1,0 +1,48 @@
+# This is what we HAD before migrating to Harness CI
+# Kept for reference to show the migration comparison
+# Day 2: compare this with .harness/pipelines/day2-ci-github-migration.yaml
+name: CI (Before Harness Migration)
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkov Scan
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: infra/
+          soft_fail: true
+
+  test-accounts-service:
+    needs: security-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install and test
+        run: |
+          cd src/accounts-service
+          pip install -r requirements.txt -q
+          pytest app/tests/ -v
+
+  test-payments-service:
+    needs: security-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install and test
+        run: |
+          cd src/payments-service
+          pip install -r requirements.txt -q
+          pytest app/tests/ -v

@@ -1,0 +1,84 @@
+# Day 5: Blue-Green Deployment - accounts-service
+# Zero traffic on green until full validation
+# Instant rollback: switch service selector back to blue
+pipeline:
+  name: day5-bluegreen-accounts-service
+  identifier: day5_bluegreen_accounts_service
+  projectIdentifier: bankplatform
+  orgIdentifier: default
+  tags:
+    day: "5"
+    strategy: blue-green
+    service: accounts-service
+  stages:
+    - stage:
+        name: Deploy Green Zero Traffic
+        identifier: deploy_green
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: accounts_service
+          environment:
+            environmentRef: dev
+            infrastructureDefinitions:
+              - identifier: dd_stg_k8s_infra
+          execution:
+            steps:
+              - step:
+                  name: Blue Green Deploy
+                  identifier: bg_deploy
+                  type: K8sBlueGreenDeploy
+                  spec:
+                    skipDryRun: false
+            rollbackSteps:
+              - step:
+                  name: Blue Green Rollback
+                  type: K8sBlueGreenRollback
+
+    - stage:
+        name: Smoke Test Green
+        identifier: smoke_test
+        type: CI
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: Health Check Green
+                  type: Run
+                  spec:
+                    connectorRef: dockerhub
+                    image: curlimages/curl:latest
+                    command: |
+                      curl -f http://accounts-service-stage.accounts.svc.cluster.local/health
+                      echo "Green environment healthy"
+
+    - stage:
+        name: Approve Switch
+        identifier: approve_switch
+        type: Approval
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: HarnessApproval
+                  timeout: 24h
+                  spec:
+                    approvers:
+                      userGroups: [_project_all_users]
+                      minimumCount: 1
+
+    - stage:
+        name: Switch Traffic to Green
+        identifier: switch_traffic
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          execution:
+            steps:
+              - step:
+                  name: Swap Service Selectors
+                  type: K8sSwapServiceSelectors
+                  spec:
+                    service1: accounts-service
+                    service2: accounts-service-stage

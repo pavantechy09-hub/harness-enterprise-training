@@ -1,0 +1,36 @@
+---
+# Primary Service - gets 100% of real traffic
+# Harness updates selector for blue-green switching
+apiVersion: v1
+kind: Service
+metadata:
+  name: accounts-service
+  namespace: accounts
+  annotations:
+    harness.io/primary-service: "true"
+spec:
+  selector:
+    app: accounts-service
+    harness.io/track: stable
+  ports:
+    - port: 80
+      targetPort: 8000
+  type: ClusterIP
+---
+# Stage Service - used for blue-green smoke testing
+# Never gets real traffic, used by Harness for validation
+apiVersion: v1
+kind: Service
+metadata:
+  name: accounts-service-stage
+  namespace: accounts
+  annotations:
+    harness.io/stage-service: "true"
+spec:
+  selector:
+    app: accounts-service
+    harness.io/track: canary
+  ports:
+    - port: 80
+      targetPort: 8000
+  type: ClusterIP

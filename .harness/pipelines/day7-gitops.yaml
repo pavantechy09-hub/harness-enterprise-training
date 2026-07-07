@@ -1,0 +1,41 @@
+# Day 7: GitOps with Harness
+# Git commit = deployment trigger
+# Agent watches repo and reconciles cluster state
+# notification-service added
+pipeline:
+  name: day7-gitops-all-services
+  identifier: day7_gitops_all_services
+  projectIdentifier: bankplatform
+  orgIdentifier: default
+  tags:
+    day: "7"
+    type: gitops
+  stages:
+    - stage:
+        name: Sync All Services
+        identifier: sync_all
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          gitOpsEnabled: true
+          execution:
+            steps:
+              - step:
+                  name: GitOps Sync
+                  identifier: gitops_sync
+                  type: GitOpsSync
+                  timeout: 10m
+                  spec:
+                    prune: false
+                    dryRun: false
+                    applyOnly: false
+                    forceApply: false
+                    applicationsList:
+                      - applicationName: accounts-service
+                        agentId: harness-gitops-agent
+                      - applicationName: payments-service
+                        agentId: harness-gitops-agent
+                      - applicationName: fraud-service
+                        agentId: harness-gitops-agent
+                      - applicationName: notification-service
+                        agentId: harness-gitops-agent

@@ -1,0 +1,49 @@
+# Day 4: CD + Kubernetes Deployments
+# All 4 services deploying to dd-stg cluster
+# Rolling deployment with health checks and auto-rollback
+pipeline:
+  name: day4-cd-all-services
+  identifier: day4_cd_all_services
+  projectIdentifier: bankplatform
+  orgIdentifier: default
+  tags:
+    day: "4"
+    type: cd
+  stages:
+    - stage:
+        name: Deploy accounts-service
+        identifier: deploy_accounts
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: accounts_service
+          environment:
+            environmentRef: dev
+            infrastructureDefinitions:
+              - identifier: dd_stg_k8s_infra
+          execution:
+            steps:
+              - step:
+                  name: Rolling Deploy
+                  identifier: rolling_deploy
+                  type: K8sRollingDeploy
+                  timeout: 10m
+                  spec:
+                    skipDryRun: false
+              - step:
+                  name: Health Check
+                  identifier: health_check
+                  type: Run
+                  spec:
+                    connectorRef: dockerhub
+                    image: curlimages/curl:latest
+                    command: |
+                      sleep 10
+                      curl -f http://accounts-service.accounts.svc.cluster.local/health
+                      echo "accounts-service healthy"
+            rollbackSteps:
+              - step:
+                  name: Rollback
+                  identifier: rollback
+                  type: K8sRollingRollback

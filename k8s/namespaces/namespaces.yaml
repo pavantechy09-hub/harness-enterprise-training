@@ -1,0 +1,42 @@
+# Pre-create ALL namespaces before running any pipelines
+# Run: kubectl apply -f k8s/namespaces/namespaces.yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: harness-builds
+  labels:
+    purpose: ci-builds
+    managed-by: harness
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: accounts
+  labels:
+    team: platform
+    service: accounts-service
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: payments
+  labels:
+    team: payments
+    service: payments-service
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fraud
+  labels:
+    team: fraud
+    service: fraud-service
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: notifications
+  labels:
+    team: platform
+    service: notification-service

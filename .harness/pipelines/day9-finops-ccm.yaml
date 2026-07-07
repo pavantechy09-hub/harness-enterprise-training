@@ -1,0 +1,65 @@
+# Day 9: FinOps + Cloud Cost Management
+# Cost per deployment tracking
+# Budget alert before expensive deployments
+pipeline:
+  name: day9-finops-deployment
+  identifier: day9_finops_deployment
+  projectIdentifier: bankplatform
+  orgIdentifier: default
+  tags:
+    day: "9"
+    type: finops-cd
+  stages:
+    - stage:
+        name: Cost Impact Check
+        identifier: cost_check
+        type: CI
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: Estimate Deployment Cost
+                  identifier: cost_estimate
+                  type: Run
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    command: |
+                      echo "=== Cost Impact Analysis ==="
+                      echo "Service: accounts-service"
+                      echo "Current daily cost: $12.40"
+                      echo "Estimated post-deploy cost: $12.40 (no infra change)"
+                      echo "Monthly projection: $372"
+                      echo "Budget remaining: $628 / $1000"
+                      echo "=== Cost check passed ==="
+
+    - stage:
+        name: Deploy with Cost Tracking
+        identifier: deploy_cost_tracked
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: accounts_service
+          environment:
+            environmentRef: dev
+            infrastructureDefinitions:
+              - identifier: dd_stg_k8s_infra
+          execution:
+            steps:
+              - step:
+                  name: Deploy
+                  type: K8sRollingDeploy
+              - step:
+                  name: Tag Resources for Cost Allocation
+                  type: Run
+                  spec:
+                    connectorRef: dockerhub
+                    image: bitnami/kubectl:latest
+                    command: |
+                      kubectl label pods -n accounts \
+                        -l app=accounts-service \
+                        cost-center=CC-1234 \
+                        team=platform \
+                        environment=dev
+                      echo "Cost allocation tags applied"

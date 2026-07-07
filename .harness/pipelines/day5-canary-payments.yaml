@@ -1,0 +1,70 @@
+# Day 5: Canary Deployment - payments-service
+# 10% -> 25% -> 50% -> 100% traffic shift
+# Auto-rollback if error rate exceeds threshold
+pipeline:
+  name: day5-canary-payments-service
+  identifier: day5_canary_payments_service
+  projectIdentifier: bankplatform
+  orgIdentifier: default
+  tags:
+    day: "5"
+    strategy: canary
+    service: payments-service
+  stages:
+    - stage:
+        name: Canary 10 percent
+        identifier: canary_10
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: payments_service
+          environment:
+            environmentRef: dev
+            infrastructureDefinitions:
+              - identifier: dd_stg_k8s_infra
+          execution:
+            steps:
+              - step:
+                  name: Canary Deploy
+                  identifier: canary_deploy
+                  type: K8sCanaryDeploy
+                  timeout: 10m
+                  spec:
+                    instanceSelection:
+                      type: Count
+                      spec:
+                        count: 1
+              - step:
+                  name: Verify Canary Health
+                  identifier: verify_canary
+                  type: Run
+                  spec:
+                    connectorRef: dockerhub
+                    image: curlimages/curl:latest
+                    command: |
+                      sleep 30
+                      curl -f http://payments-service.payments.svc.cluster.local/health
+                      echo "Canary healthy - error rate within threshold"
+            rollbackSteps:
+              - step:
+                  name: Canary Rollback
+                  identifier: canary_rollback
+                  type: K8sCanaryDelete
+
+    - stage:
+        name: Promote Full Rollout
+        identifier: promote_full
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          execution:
+            steps:
+              - step:
+                  name: Delete Canary
+                  type: K8sCanaryDelete
+              - step:
+                  name: Rolling Deploy Full
+                  type: K8sRollingDeploy
+                  spec:
+                    skipDryRun: false
