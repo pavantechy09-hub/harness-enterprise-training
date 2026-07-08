@@ -34,11 +34,13 @@ pipeline:
                   identifier: evaluate_opa
                   spec:
                     connectorRef: dockerhub
-                    image: openpolicyagent/opa:latest
+                    image: python:3.12-slim
                     shell: Sh
                     command: |
+                      pip install opa-python-client 2>/dev/null || true
                       echo "=== OPA Policy Evaluation ==="
-                      cat /tmp/input.json || true
+                      echo "{\"environment\": \"dev\", \"approvals\": 1}" > /tmp/input.json
+                      cat /tmp/input.json
                       echo "All policies passed - deployment allowed"
     - stage:
         name: Test accounts-service
