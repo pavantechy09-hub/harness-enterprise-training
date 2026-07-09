@@ -39,6 +39,3 @@ def test_default_balance():
     r = client.post("/accounts", json={"name": "Zero", "email": "zero@bank.com"})
     assert r.json()["balance"] == 0.0
 
-def test_deliberate_failure():
-    # This test will fail to demonstrate Harness AIDA
-    assert 1 == 2, "Deliberate failure to test AIDA"
