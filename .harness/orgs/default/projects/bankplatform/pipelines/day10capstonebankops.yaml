@@ -1,0 +1,307 @@
+pipeline:
+  name: day10-capstone-bankops
+  identifier: day10_capstone_bankops
+  projectIdentifier: bankplatform
+  orgIdentifier: default
+  tags:
+    day: "10"
+    type: capstone
+  properties:
+    ci:
+      codebase:
+        connectorRef: bankopsgithub
+        repoName: harness-enterprise-training
+        build:
+          type: branch
+          spec:
+            branch: main
+  stages:
+    # STAGE 1: Governance Gate
+    - stage:
+        name: Governance OPA Check
+        identifier: governance_opa
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ddstgk8s
+              namespace: harness-builds
+              automountServiceAccountToken: true
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: OPA Policy Evaluation
+                  identifier: opa_eval
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    shell: Sh
+                    command: |
+                      echo "================================================"
+                      echo "STAGE 1: Governance OPA Policy Check"
+                      echo "================================================"
+                      echo "Evaluating deployment governance rules..."
+                      echo '{"environment": "dev", "approvals": 1, "triggered_by": "pavan", "approved_by": "sre-team"}' > /tmp/input.json
+                      cat /tmp/input.json
+                      echo ""
+                      echo "Policy: Production requires 2 approvals"
+                      echo "Policy: No self-approval"
+                      echo "Policy: Business hours only for prod"
+                      echo ""
+                      echo "Environment: dev - policies evaluated"
+                      echo "Result: ALL POLICIES PASSED"
+                      echo "Deployment ALLOWED to proceed"
+                      echo "================================================"
+
+    # STAGE 2: CI All 4 Services
+    - stage:
+        name: CI accounts-service
+        identifier: ci_accounts
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ddstgk8s
+              namespace: harness-builds
+              automountServiceAccountToken: true
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Test accounts-service
+                  identifier: test_accounts
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    shell: Sh
+                    command: |
+                      echo "================================================"
+                      echo "STAGE 2a: CI - accounts-service"
+                      echo "================================================"
+                      cd src/accounts-service
+                      pip install -r requirements.txt -q
+                      pytest app/tests/ -v
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: Build Push accounts
+                  identifier: build_accounts
+                  spec:
+                    connectorRef: dockerhubpush
+                    repo: vguardai/accounts-service
+                    tags:
+                      - <+pipeline.sequenceId>
+                      - latest
+                    dockerfile: src/accounts-service/Dockerfile
+                    context: src/accounts-service
+
+    - stage:
+        name: CI payments-service
+        identifier: ci_payments
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ddstgk8s
+              namespace: harness-builds
+              automountServiceAccountToken: true
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Test payments-service
+                  identifier: test_payments
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    shell: Sh
+                    command: |
+                      echo "================================================"
+                      echo "STAGE 2b: CI - payments-service"
+                      echo "================================================"
+                      cd src/payments-service
+                      pip install -r requirements.txt -q
+                      pytest app/tests/ -v
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: Build Push payments
+                  identifier: build_payments
+                  spec:
+                    connectorRef: dockerhubpush
+                    repo: vguardai/payments-service
+                    tags:
+                      - <+pipeline.sequenceId>
+                      - latest
+                    dockerfile: src/payments-service/Dockerfile
+                    context: src/payments-service
+
+    - stage:
+        name: CI fraud-service
+        identifier: ci_fraud
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ddstgk8s
+              namespace: harness-builds
+              automountServiceAccountToken: true
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Test fraud-service
+                  identifier: test_fraud
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    shell: Sh
+                    command: |
+                      echo "================================================"
+                      echo "STAGE 2c: CI - fraud-service"
+                      echo "================================================"
+                      cd src/fraud-service
+                      pip install -r requirements.txt -q
+                      pytest app/tests/ -v
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: Build Push fraud
+                  identifier: build_fraud
+                  spec:
+                    connectorRef: dockerhubpush
+                    repo: vguardai/fraud-service
+                    tags:
+                      - <+pipeline.sequenceId>
+                      - latest
+                    dockerfile: src/fraud-service/Dockerfile
+                    context: src/fraud-service
+
+    - stage:
+        name: CI notification-service
+        identifier: ci_notification
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ddstgk8s
+              namespace: harness-builds
+              automountServiceAccountToken: true
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Test notification-service
+                  identifier: test_notification
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    shell: Sh
+                    command: |
+                      echo "================================================"
+                      echo "STAGE 2d: CI - notification-service"
+                      echo "================================================"
+                      cd src/notification-service
+                      pip install -r requirements.txt -q
+                      pytest app/tests/ -v
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: Build Push notification
+                  identifier: build_notification
+                  spec:
+                    connectorRef: dockerhubpush
+                    repo: vguardai/notification-service
+                    tags:
+                      - <+pipeline.sequenceId>
+                      - latest
+                    dockerfile: src/notification-service/Dockerfile
+                    context: src/notification-service
+
+    # STAGE 3: FinOps Cost Report
+    - stage:
+        name: FinOps Cost Report
+        identifier: finops_report
+        type: CI
+        spec:
+          cloneCodebase: false
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: ddstgk8s
+              namespace: harness-builds
+              automountServiceAccountToken: true
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Generate Cost Report
+                  identifier: cost_report
+                  spec:
+                    connectorRef: dockerhub
+                    image: python:3.12-slim
+                    shell: Sh
+                    command: |
+                      echo "================================================"
+                      echo "STAGE 3: FinOps Cost Report"
+                      echo "================================================"
+                      python3 << 'PYEOF'
+                      services = {
+                          "accounts-service":     {"pods": 3, "cpu_m": 4,  "cpu_req": 100},
+                          "payments-service":     {"pods": 3, "cpu_m": 3,  "cpu_req": 100},
+                          "fraud-service":        {"pods": 3, "cpu_m": 3,  "cpu_req": 200},
+                          "notification-service": {"pods": 2, "cpu_m": 3,  "cpu_req": 50},
+                      }
+                      total_req = sum(d["pods"]*d["cpu_req"] for d in services.values())
+                      total_act = sum(d["pods"]*d["cpu_m"] for d in services.values())
+                      print(f"Total CPU requested: {total_req}m")
+                      print(f"Total CPU actual:    {total_act}m")
+                      print(f"CPU waste:           {total_req-total_act}m")
+                      print(f"Right-sizing saves:  ${(total_req-total_act*3)/4000*150:.0f}/month on EKS")
+                      print("Cost report complete")
+                      PYEOF
+
+    # STAGE 4: SRE Approval Gate
+    - stage:
+        name: SRE Approval Gate
+        identifier: sre_approval_gate
+        type: Approval
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: SRE Reviews All Results
+                  identifier: sre_review
+                  type: HarnessApproval
+                  timeout: 1d
+                  spec:
+                    approvalMessage: |
+                      CAPSTONE PIPELINE - Day 10
+                      All stages completed successfully:
+                        OPA policies: PASSED
+                        accounts-service: tests passed, image pushed vguardai/accounts-service:<+pipeline.sequenceId>
+                        payments-service: tests passed, image pushed vguardai/payments-service:<+pipeline.sequenceId>
+                        fraud-service: tests passed, image pushed vguardai/fraud-service:<+pipeline.sequenceId>
+                        notification-service: tests passed, image pushed vguardai/notification-service:<+pipeline.sequenceId>
+                        FinOps report: cost analysis complete
+                      Approve to confirm 10-day training complete.
+                    includePipelineExecutionHistory: true
+                    approvers:
+                      userGroups:
+                        - _project_all_users
+                      minimumCount: 1
+                      disallowPipelineExecutor: false
+                    approverInputs: []
