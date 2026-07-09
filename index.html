@@ -2085,169 +2085,132 @@ User Groups (create in Harness):
     <div class="page" id="page-day7">
       <div style="background:linear-gradient(135deg,#1A0D3A 0%,var(--bg) 100%);border:1px solid #3B1F6B;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
         <div style="font-family:var(--mono);font-size:11px;color:var(--purple);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--purple-dim);border:1px solid #3B1F6B;padding:.3rem .8rem;border-radius:999px">Day 7 · GitOps</div>
-        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">GitOps with Harness</h2>
-        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">Git commit = deployment. Harness GitOps agent watches your repo and automatically reconciles cluster state. notification-service added. Drift detected and auto-fixed.</p>
+        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">GitOps with Flux CD</h2>
+        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">Git commit = deployment. Flux CD watches your GitHub repo and automatically reconciles cluster state. Drift detected and auto-fixed in 60 seconds. Proved hands-on on dd-stg cluster.</p>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">✓ notification-service added</span>
-          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #3B1F6B;color:var(--purple);background:var(--purple-dim)">✓ GitOps enabled</span>
-          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">✓ Drift detection</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">Flux CD v2.9.1 installed</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #3B1F6B;color:var(--purple);background:var(--purple-dim)">Git commit = deploy proven</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">Drift detection in 60s</span>
         </div>
+      </div>
+
+      <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem 1.2rem;margin-bottom:1.5rem">
+        <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:.3rem">What We Actually Proved on dd-stg</div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--muted)">Flux installed in flux-system namespace. GitRepository watching harness-enterprise-training main branch. Committed replicas:2 - 2 new pods in 60s automatically. Scaled to 1 manually - Flux restored to 2 in 60s. Pruning proved: removed service from YAML, Flux deleted it from cluster.</div>
       </div>
 
       <div class="tabs">
-        <div class="tab active" onclick="switchTab(this,'d7-concepts')">🧠 GitOps Concepts</div>
-        <div class="tab" onclick="switchTab(this,'d7-compare')">📊 Push vs Pull</div>
-        <div class="tab" onclick="switchTab(this,'d7-setup')">🛠️ Setup Steps</div>
-        <div class="tab" onclick="switchTab(this,'d7-yaml')">💻 Pipeline YAML</div>
-        <div class="tab" onclick="switchTab(this,'d7-qa')">❓ Interview Q&A</div>
+        <div class="tab active" onclick="switchTab(this,'d7-concepts')">Concepts</div>
+        <div class="tab" onclick="switchTab(this,'d7-flux')">Flux Setup Steps</div>
+        <div class="tab" onclick="switchTab(this,'d7-compare')">Push vs Pull</div>
+        <div class="tab" onclick="switchTab(this,'d7-issues')">Issues and Fixes</div>
+        <div class="tab" onclick="switchTab(this,'d7-qa')">Interview Q&amp;A</div>
       </div>
 
       <div id="d7-concepts">
-        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🧠</span>What GitOps Means</div>
-        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;margin-bottom:1rem;font-size:13px;color:var(--muted);line-height:1.7">
-          <strong style="color:var(--white)">Core principle:</strong> Git is the single source of truth for cluster state. Every change to the cluster goes through Git. The cluster state is always derivable from the Git history. "Desired state is what is in Git. Actual state is what is in the cluster. The agent continuously reconciles them."
-        </div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">GitOps Flow - Proved Hands-On</div>
         <div class="flow-diagram">
-          <div class="flow-title">GitOps Flow</div>
+          <div class="flow-title">Test 1: Git commit = auto deployment</div>
           <div class="flow-steps">
-            <div class="flow-step highlight"><div>Git Commit</div><div class="flow-label">k8s/manifest.yaml</div></div>
-            <div class="flow-arrow">→</div>
-            <div class="flow-step"><div>GitOps Agent</div><div class="flow-label">detects change</div></div>
-            <div class="flow-arrow">→</div>
-            <div class="flow-step success"><div>kubectl apply</div><div class="flow-label">cluster updated</div></div>
+            <div class="flow-step highlight"><div>git push</div><div class="flow-label">replicas: 2</div></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><div>Flux detects</div><div class="flow-label">within 60s</div></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step success"><div>2 pods created</div><div class="flow-label">zero manual action</div></div>
           </div>
-          <div style="margin:.5rem 0;font-size:12px;color:var(--muted)">Drift detection (someone manually changes cluster):</div>
+          <div style="margin:.8rem 0;font-size:12px;color:var(--muted)">Test 2: Drift detection</div>
           <div class="flow-steps">
-            <div class="flow-step danger"><div>Manual kubectl</div><div class="flow-label">cluster drifted</div></div>
-            <div class="flow-arrow">→</div>
-            <div class="flow-step warning"><div>Agent detects</div><div class="flow-label">Git vs cluster differ</div></div>
-            <div class="flow-arrow">→</div>
-            <div class="flow-step success"><div>Auto-reconcile</div><div class="flow-label">Git state restored</div></div>
+            <div class="flow-step danger"><div>kubectl scale=1</div><div class="flow-label">manual change</div></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step warning"><div>Flux: Git=2 Cluster=1</div><div class="flow-label">drift detected</div></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step success"><div>Restored to 2</div><div class="flow-label">auto in 60s</div></div>
           </div>
         </div>
         <div class="concept-grid">
-          <div class="concept-card"><span class="concept-card-icon">📦</span><div class="concept-card-title">Immutable Audit Trail</div><div class="concept-card-body">Every cluster change = a Git commit. Full history of who changed what and when. Rollback = git revert. Compliance teams love this — immutable evidence of every deployment decision.</div></div>
-          <div class="concept-card"><span class="concept-card-icon">🔄</span><div class="concept-card-title">Drift Detection</div><div class="concept-card-body">Someone runs kubectl manually — GitOps agent detects mismatch between Git and cluster. Auto-reconciles back to Git state. Same concept as Terraform drift detection from cloud-iac-learning Day 1.</div></div>
-          <div class="concept-card"><span class="concept-card-icon">🚀</span><div class="concept-card-title">Self-Service Deployments</div><div class="concept-card-body">Teams deploy by merging PRs. No access to kubectl required. No pipeline to run. Update manifest → PR approved → merged → deployed. Scales to 500 teams without platform team bottleneck.</div></div>
-          <div class="concept-card"><span class="concept-card-icon">⚡</span><div class="concept-card-title">When to Use GitOps</div><div class="concept-card-body">Best for: pure K8s manifest deployments, config changes. Use Pipeline CD for: Terraform, database migrations, complex multi-step approvals. Enterprise uses BOTH — GitOps for apps, Pipeline CD for infrastructure.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">&#128230;</span><div class="concept-card-title">Immutable Audit Trail</div><div class="concept-card-body">Every cluster change = a Git commit with author, timestamp, message. git log answers who changed what and when. Required for SOX and PCI-DSS compliance in banking.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">&#128260;</span><div class="concept-card-title">Drift Detection Proved</div><div class="concept-card-body">Scaled accounts-service to 1 replica manually. Flux detected Git=2 Cluster=1 and restored to 2 within 60 seconds. No human needed. Self-healing infrastructure works.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">&#9986;</span><div class="concept-card-title">Pruning</div><div class="concept-card-body">Removed accounts-service-stage from service.yaml in GitHub, pushed. Flux deleted it from cluster automatically because --prune=true was set. Git deletions = cluster deletions.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">&#9889;</span><div class="concept-card-title">Flux over ArgoCD</div><div class="concept-card-body">Tried Harness GitOps Agent (ArgoCD) first. app-controller needed 3GB RAM. Single-node kind only had 3.2GB free. Switched to Flux: 4 pods, ~200MB total, same GitOps concepts.</div></div>
         </div>
+      </div>
+
+      <div id="d7-flux" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Exact Commands We Ran</div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Free cluster memory (critical first step)</div><div class="step-d">Scale all services and delegate to 0. Memory dropped from 72% to 6%. Flux needs about 200MB free to install.<br><code>kubectl scale deployment helm-delegate --replicas=0 -n harness-delegate-ng</code><br><code>kubectl scale deployment payments-service --replicas=0 -n payments</code><br>(same for fraud and notification)</div></div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Install Flux CLI via choco</div><div class="step-d"><code>choco install flux -y</code> - installed v2.9.1<br>Add to PATH: <code>$env:PATH += ";C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\lib\flux\tools"</code><br>Verify: <code>flux version</code> and <code>flux check --pre</code></div></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Bootstrap from C: drive (Windows fix)</div><div class="step-d">MUST run from C: drive - Windows path issue if run from D:<br><code>cd C:\Users\golip\AppData\Local\Temp</code><br><code>$env:GITHUB_TOKEN = "your-pat-token"</code><br><code>flux bootstrap github --owner=pavantechy09-hub --repository=harness-enterprise-training --branch=main --path=./flux --personal</code><br>Result: Flux installs on cluster AND pushes flux/ folder to your GitHub repo</div></div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Create GitRepository source</div><div class="step-d"><code>flux create source git bankops --url=https://github.com/pavantechy09-hub/harness-enterprise-training --branch=main --interval=1m --secret-ref=flux-system</code></div></div></div>
+          <div class="step"><div class="step-n">5</div><div class="step-content"><div class="step-t">Create Kustomization</div><div class="step-d"><code>flux create kustomization accounts-service --target-namespace=accounts --source=bankops --path="./k8s/accounts-service" --prune=true --interval=1m</code></div></div></div>
+          <div class="step"><div class="step-n">6</div><div class="step-content"><div class="step-t">Test: change replicas in Git</div><div class="step-d">Changed replicas: 1 to 2 in k8s/accounts-service/deployment.yaml, pushed to GitHub. Within 60 seconds 2 new pods appeared automatically. Zero manual kubectl needed.</div></div></div>
+          <div class="step"><div class="step-n">7</div><div class="step-content"><div class="step-t">Test: drift detection</div><div class="step-d"><code>kubectl scale deployment accounts-service --replicas=1 -n accounts</code><br>Within 60 seconds Flux detected Git=2, Cluster=1 and restored to 2. Proved.</div></div></div>
+          <div class="step"><div class="step-n">8</div><div class="step-content"><div class="step-t">Restore all services</div><div class="step-d"><code>kubectl scale deployment helm-delegate --replicas=1 -n harness-delegate-ng</code><br><code>kubectl scale deployment payments-service --replicas=3 -n payments</code><br>(same for fraud and notification)</div></div></div>
+        </div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">flux status commands</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre>flux check
+flux get sources git
+flux get kustomizations
+kubectl get pods -n flux-system
+
+# Force immediate reconciliation
+flux reconcile source git bankops
+flux reconcile kustomization accounts-service</pre></div></div>
       </div>
 
       <div id="d7-compare" style="display:none">
         <table class="compare-table">
-          <tr><th>Aspect</th><th>Pipeline CD (Push)</th><th>GitOps (Pull)</th></tr>
-          <tr><td>How it works</td><td>Pipeline pushes to cluster</td><td class="winner">Agent pulls from Git</td></tr>
-          <tr><td>Trigger</td><td>Pipeline execution</td><td class="winner">Git commit</td></tr>
-          <tr><td>Audit trail</td><td class="neutral">Pipeline logs</td><td class="winner">Git history (immutable)</td></tr>
-          <tr><td>Drift detection</td><td class="loser">Manual/scheduled</td><td class="winner">Automatic continuous</td></tr>
-          <tr><td>Rollback</td><td class="neutral">Re-run pipeline</td><td class="winner">git revert = deployment</td></tr>
-          <tr><td>Compliance</td><td class="neutral">Good</td><td class="winner">Best (immutable history)</td></tr>
-          <tr><td>Best for</td><td>Terraform, DB migrations, complex approvals</td><td class="winner">K8s manifests, config</td></tr>
-          <tr><td>Bank pattern</td><td colspan="2" class="neutral">Use BOTH: GitOps for apps, Pipeline for infrastructure</td></tr>
+          <tr><th>Aspect</th><th>Pipeline CD (Days 1-6)</th><th>GitOps Flux (Day 7)</th></tr>
+          <tr><td>How triggered</td><td>Manual run or webhook</td><td class="winner">Git commit automatic</td></tr>
+          <tr><td>Audit trail</td><td>Harness pipeline logs</td><td class="winner">Git history immutable</td></tr>
+          <tr><td>Drift detection</td><td class="loser">None</td><td class="winner">Automatic 60s response proved</td></tr>
+          <tr><td>Rollback</td><td>Re-run pipeline</td><td class="winner">git revert = deploy in 60s</td></tr>
+          <tr><td>Best for</td><td>Terraform, DB migrations, approvals</td><td class="winner">K8s manifests and config</td></tr>
+          <tr><td>Bank pattern</td><td colspan="2" class="neutral">Use BOTH - GitOps for apps, Pipeline CD for infra and approvals</td></tr>
+        </table>
+        <table class="compare-table" style="margin-top:1rem">
+          <tr><th>GitOps Tool</th><th>Memory Needed</th><th>Our Experience</th></tr>
+          <tr><td>Flux CD</td><td class="winner">~200MB (4 pods)</td><td class="winner">Worked perfectly on dd-stg</td></tr>
+          <tr><td>ArgoCD / Harness GitOps Agent</td><td class="loser">3GB+ (app-controller alone)</td><td class="loser">Failed - single-node kind cluster too small</td></tr>
         </table>
       </div>
 
-      <div id="d7-setup" style="display:none">
-        <div class="steps">
-          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Install GitOps Agent on dd-stg</div><div class="step-d">Project Settings → GitOps → Agents → + New Agent<br>Name: dd-stg-gitops-agent<br>Type: Connected<br>Namespace: harness-gitops<br>Install using provided kubectl command</div></div></div>
-          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Create GitOps Repository</div><div class="step-d">Project Settings → GitOps → Repositories<br>Connect: bankopsgithub connector<br>Repo: harness-enterprise-training<br>Path: k8s/ (root of manifests)</div></div></div>
-          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Create Application for each service</div><div class="step-d">Project → GitOps → Applications → + New Application<br>For accounts-service:<br>Source: k8s/accounts-service/<br>Destination: accounts namespace<br>Sync Policy: Automated</div></div></div>
-          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Test GitOps deployment</div><div class="step-d">Edit k8s/accounts-service/deployment.yaml (change replicas)<br>git add . && git commit -m "scale accounts-service to 4 replicas"<br>git push origin main<br>Watch GitOps agent automatically apply the change</div></div></div>
-          <div class="step"><div class="step-n">5</div><div class="step-content"><div class="step-t">Test drift detection</div><div class="step-d">kubectl scale deployment accounts-service --replicas=1 -n accounts<br>Watch GitOps agent detect drift and restore to 4 replicas<br>This happens within 3 minutes automatically</div></div></div>
+      <div id="d7-issues" style="display:none">
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--red-dim);border-bottom:1px solid #7F1D1D;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--red)">Issue 1: Harness GitOps Agent - app-controller needs 3GB RAM</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Error:</strong> "0/1 nodes available: Insufficient memory" - argocd-application-controller-0 stayed Pending forever<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> ArgoCD application-controller default memory request is 3GB. Our node had 3.2GB free but other system pods competed for it. Even patching the statefulset memory request caused image field to be lost (patch bug).<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Uninstalled ArgoCD. Switched to Flux CD which runs in 4 pods totaling ~200MB.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> In production on EKS with r5.xlarge (32GB RAM) ArgoCD runs fine. For local single-node kind clusters use Flux CD. Always check node capacity before installing heavy components.
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--red-dim);border-bottom:1px solid #7F1D1D;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--red)">Issue 2: Flux bootstrap Windows path error</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Error:</strong> "can't make C:\Users\golip\AppData\Local\Temp\flux-manifests relative to D:\harness-enterprise-training"<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> Flux creates temp manifests in Windows temp dir (C:) but was run from D: drive. Cross-drive relative path resolution fails on Windows.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> cd C:\Users\golip\AppData\Local\Temp then run bootstrap<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> Always run Flux commands from C: on Windows. This is a Windows-specific issue. On Linux and Mac it works from any directory.
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--yellow-dim);border-bottom:1px solid #3A2A00;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--yellow)">Issue 3: accounts-service-stage recreated by Flux every 60s</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">What happened:</strong> Deleted accounts-service-stage with kubectl. K8sGPT kept finding it as a problem. Flux kept creating it again within 60 seconds.<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> Service was in k8s/accounts-service/service.yaml in GitHub. Flux reconciles to Git state. kubectl delete is overridden by the agent.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Edit service.yaml to remove the stage service definition, push to GitHub. Flux pruned it automatically.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> With GitOps NEVER use kubectl for permanent changes. Everything goes through Git. This is the whole point - it prevents unauthorized or accidental changes from sticking.
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div id="d7-yaml" style="display:none">
-        <div class="code-block"><div class="code-header"><span class="code-lang">.harness/pipelines/day7-gitops.yaml</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre>pipeline:
-  name: day7-gitops-all-services
-  identifier: day7_gitops_all_services
-  projectIdentifier: bankplatform
-  orgIdentifier: default
-  tags:
-    day: "7"
-    type: gitops
-  stages:
-    - stage:
-        name: Sync All Services via GitOps
-        identifier: sync_all
-        type: Deployment
-        spec:
-          deploymentType: Kubernetes
-          gitOpsEnabled: true
-          execution:
-            steps:
-              - step:
-                  name: GitOps Sync
-                  identifier: gitops_sync
-                  type: GitOpsSync
-                  timeout: 10m
-                  spec:
-                    prune: false
-                    dryRun: false
-                    applyOnly: false
-                    applicationsList:
-                      - applicationName: accounts-service
-                        agentId: dd-stg-gitops-agent
-                      - applicationName: payments-service
-                        agentId: dd-stg-gitops-agent
-                      - applicationName: fraud-service
-                        agentId: dd-stg-gitops-agent
-                      - applicationName: notification-service
-                        agentId: dd-stg-gitops-agent
-
-# How drift detection works:
-# 1. Someone runs: kubectl scale deployment accounts-service --replicas=1 -n accounts
-# 2. GitOps agent detects: Git says 3 replicas, cluster has 1
-# 3. Agent auto-reconciles: kubectl apply restores to 3 replicas
-# 4. Harness UI shows: "Sync status: OutOfSync → Synced"
-# 5. No human needed — drift fixed automatically within 3 minutes</pre></div></div>
-
-        <div class="code-block" style="margin-top:1rem"><div class="code-header"><span class="code-lang">notification-service K8s manifest (added Day 7)</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># k8s/notification-service/deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: notification-service
-  namespace: notifications
-  labels:
-    app: notification-service
-    team: platform
-    cost-center: CC-1234
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: notification-service
-  template:
-    metadata:
-      labels:
-        app: notification-service
-    spec:
-      containers:
-        - name: notification-service
-          image: pavantechy09hub/notification-service:latest
-          ports:
-            - containerPort: 8003
-          resources:
-            requests:
-              cpu: 50m
-              memory: 64Mi
-            limits:
-              cpu: 200m
-              memory: 128Mi
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 8003
-            initialDelaySeconds: 5
-            periodSeconds: 3
-          env:
-            - name: FEATURE_FLAG_NEW_SMS
-              value: "false"  # Day 5 feature flag - disabled by default</pre></div></div>
       </div>
 
       <div id="d7-qa" style="display:none">
         <div class="qa-list">
-          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is GitOps and how does it differ from traditional CD pipelines?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">GitOps is a deployment approach where Git is the single source of truth for cluster state. A GitOps agent running in the cluster continuously compares desired state in Git with actual state in the cluster and reconciles any differences. Traditional CD pipelines push changes to the cluster when a pipeline runs. GitOps agents pull changes from Git continuously. The key differences: GitOps provides an immutable audit trail because every cluster change requires a Git commit, drift detection is automatic and continuous rather than scheduled, rollback is as simple as git revert, and teams can deploy by merging PRs without needing kubectl access. In enterprise, both are used together — GitOps for Kubernetes application deployments, pipeline CD for Terraform infrastructure changes.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">&#10067;</span>What is GitOps and how does it differ from traditional CD pipelines?</span><span class="qa-arrow">&#9660;</span></div><div class="qa-answer">GitOps means Git is the single source of truth for cluster state. A GitOps agent continuously compares desired state in Git with actual cluster state and reconciles any differences. We proved this with Flux CD on dd-stg: committed replicas:2 to GitHub and within 60 seconds the cluster updated with no pipeline trigger and no kubectl command. We also proved drift detection: manually scaled to 1 replica, Flux restored to 2 within 60 seconds automatically. Traditional CD pipelines push changes when triggered. GitOps agents pull continuously. In a bank we use both: GitOps for K8s application manifests, pipeline CD for Terraform infrastructure and complex multi-step approvals.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">&#10067;</span>Why did you choose Flux over ArgoCD?</span><span class="qa-arrow">&#9660;</span></div><div class="qa-answer">We tried ArgoCD first via the Harness GitOps Agent. The ArgoCD application-controller has a 3GB default memory request which our single-node kind cluster could not accommodate even after scaling everything else down. Flux runs in 4 lightweight pods using approximately 200MB total. In production on EKS with r5.xlarge nodes both work fine. The choice depends on needs: ArgoCD has a richer UI with application health visualization and more advanced sync policies. Flux has a lighter footprint, is more GitOps-native, and integrates well with Helm and Kustomize. For our learning environment Flux was the right choice.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">&#10067;</span>What is GitOps pruning and when is it dangerous?</span><span class="qa-arrow">&#9660;</span></div><div class="qa-answer">Pruning means the GitOps agent deletes Kubernetes resources that are removed from Git. We used --prune=true with Flux. When we removed accounts-service-stage from service.yaml in GitHub and pushed, Flux automatically deleted it from the cluster. This is powerful but dangerous if misconfigured. If someone accidentally deletes a manifest from Git, Flux will delete the resource from the cluster. In production always test prune behavior in dev first, use Git branch protection to prevent accidental deletes, keep database-related resources outside GitOps scope, and maintain emergency procedures for restoring accidentally pruned resources.</div></div>
         </div>
       </div>
     </div>
@@ -2255,144 +2218,186 @@ spec:
     <div class="page" id="page-day8">
       <div style="background:linear-gradient(135deg,#0D1A0D 0%,var(--bg) 100%);border:1px solid #1A3A1A;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
         <div style="font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--green-dim);border:1px solid var(--green);padding:.3rem .8rem;border-radius:999px">Day 8 · AIOps</div>
-        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">AIOps + AIDA + SRM</h2>
-        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">Harness AIDA explains pipeline failures in plain English. SLOs configured with error budgets. Deployments blocked when error budget is exhausted. MTTR from 45 minutes to under 3 minutes.</p>
+        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">AIOps + K8sGPT + AIDA + SRM</h2>
+        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">K8sGPT with Ollama diagnosed real cluster issues in 30 seconds. Harness pipeline failure demonstrated. SLOs and error budgets configured for BankOps. MTTR reduced from 45 minutes to under 3 minutes.</p>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">✓ AIDA active</span>
-          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">✓ SLOs configured</span>
-          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #6B4A00;color:var(--orange);background:var(--orange-dim)">✓ Error budgets tracked</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">K8sGPT v0.3.45</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">Ollama llama3.2:1b local</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #6B4A00;color:var(--orange);background:var(--orange-dim)">Real cluster issues found</span>
         </div>
       </div>
 
       <div class="tabs">
-        <div class="tab active" onclick="switchTab(this,'d8-aida')">🧠 AIDA</div>
-        <div class="tab" onclick="switchTab(this,'d8-slo')">📊 SLOs + Error Budgets</div>
-        <div class="tab" onclick="switchTab(this,'d8-k8sgpt')">🔬 K8sGPT + Ollama</div>
-        <div class="tab" onclick="switchTab(this,'d8-steps')">🛠️ Setup Steps</div>
-        <div class="tab" onclick="switchTab(this,'d8-qa')">❓ Interview Q&A</div>
+        <div class="tab active" onclick="switchTab(this,'d8-k8sgpt')">K8sGPT Hands-On</div>
+        <div class="tab" onclick="switchTab(this,'d8-aida')">Harness AIDA</div>
+        <div class="tab" onclick="switchTab(this,'d8-slo')">SLOs and Budgets</div>
+        <div class="tab" onclick="switchTab(this,'d8-issues')">Issues and Fixes</div>
+        <div class="tab" onclick="switchTab(this,'d8-qa')">Interview Q&amp;A</div>
       </div>
 
-      <div id="d8-aida">
-        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🧠</span>Harness AIDA — AI Development Assistant</div>
+      <div id="d8-k8sgpt">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Real Issues K8sGPT Found on Our Cluster</div>
         <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;margin-bottom:1rem">
-          <div style="font-size:13px;font-weight:600;margin-bottom:.6rem">What AIDA Does</div>
-          <div style="font-size:13px;color:var(--muted);line-height:1.7">When a pipeline step fails, AIDA automatically analyzes the logs, error messages, and pipeline context. It explains the root cause in plain English and suggests the exact fix — including the specific line of code or configuration to change.</div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:.6rem">What K8sGPT Diagnosed</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.8">
+            Issue 1: accounts/accounts-service-stage - Service has no endpoints. Expected labels app=accounts-service AND harness.io/track=canary. Leftover from Day 5 blue-green practice with no canary pods running.<br>
+            Issue 2: accounts/broken-pod - Failed to pull image nginx:doesnotexist999. Tag not found on Docker Hub. We created this intentionally to test diagnosis.<br>
+            After both fixed: "No problems detected"
+          </div>
         </div>
-        <div class="code-block"><div class="code-header"><span class="code-lang">example AIDA output (when pipeline fails)</span></div><div class="code-body"><pre>AIDA Analysis — Pipeline Failed at Run Tests step
+        <div class="code-block"><div class="code-header"><span class="code-lang">k8sgpt commands we ran</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Setup - must set model path first
+$env:OLLAMA_MODELS = "E:\ollama-models\models"
+k8sgpt version   # shows 0.3.45
+ollama list      # shows llama3.2:1b (1.3GB)
+
+# Analyze cluster - NOTE: no --model flag in v0.3.45
+kubectl config use-context kind-dd-stg
+k8sgpt analyze --explain --backend ollama
+
+# Simulate ImagePullBackOff for testing
+kubectl run broken-pod --image=nginx:doesnotexist999 -n accounts
+Start-Sleep -Seconds 30
+k8sgpt analyze --explain --backend ollama
+# Diagnoses: failed to pull nginx:doesnotexist999 - not found on Docker Hub
+
+# Clean up and verify
+kubectl delete pod broken-pod -n accounts
+k8sgpt analyze --explain --backend ollama
+# Result: No problems detected</pre></div></div>
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">MTTR Comparison</div>
+        <table class="compare-table">
+          <tr><th>Scenario</th><th>Without K8sGPT</th><th>With K8sGPT + Ollama</th></tr>
+          <tr><td>ImagePullBackOff</td><td>kubectl describe pod - read 50 lines - find error in Events - 10 min</td><td class="winner">30 seconds - image tag not found on Docker Hub</td></tr>
+          <tr><td>Service no endpoints</td><td>Check labels, selectors, pods manually - 15 min</td><td class="winner">30 seconds - exact label mismatch shown</td></tr>
+          <tr><td>OOMKill</td><td>Check metrics, logs, find memory limit - 20 min</td><td class="winner">1 minute - container hit memory limit</td></tr>
+          <tr><td>CrashLoopBackOff</td><td>kubectl logs, describe, investigate - 30 min</td><td class="winner">2 minutes - AI diagnoses root cause from logs</td></tr>
+        </table>
+      </div>
+
+      <div id="d8-aida" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Harness AIDA - What We Tested</div>
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;margin-bottom:1rem;font-size:13px;color:var(--muted);line-height:1.7">
+          We added deliberate test failure to accounts-service: assert 1 == 2, "Deliberate failure to test AIDA". Pipeline Build 13 failed: 1 failed, 6 passed, exit status 1. AIDA sparkle button was not visible on free tier - AIDA is a paid enterprise feature. However the pipeline logs showed exactly which test failed and at which line.
+        </div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">what AIDA shows on paid tier</span></div><div class="code-body"><pre>AIDA Analysis - Pipeline Build 13 Failed at Run Tests
 
 Root Cause:
-  ModuleNotFoundError: No module named 'httpx'
-  The test imports httpx but it is not in requirements.txt
+  test_deliberate_failure FAILED
+  File: app/tests/test_main.py line 42
+  AssertionError: Deliberate failure to test AIDA
+  assert 1 == 2 can never be true
 
-Why this happened:
-  requirements.txt was updated to remove httpx in commit abc1234
-  but test_main.py still imports from httpx
+Other tests: 6 passed - isolated to this one test
 
-Fix:
-  Option 1: Add httpx back to requirements.txt
-    httpx==0.27.0
+Suggested Fix:
+  Remove test_deliberate_failure from test_main.py
+  OR correct: assert 1 == 1
 
-  Option 2: Update tests to not use httpx directly
-    Replace: from httpx import AsyncClient
-    With:    from fastapi.testclient import TestClient
-
-Similar issue found in: src/payments-service/requirements.txt
-Check if payments-service has the same missing dependency.</pre></div></div>
-        <div class="concept-grid">
-          <div class="concept-card"><span class="concept-card-icon">⚡</span><div class="concept-card-title">MTTR Reduction</div><div class="concept-card-body">Before AIDA: SRE reads logs, searches Stack Overflow, figures out root cause — 45 minutes. With AIDA: root cause and fix shown in 30 seconds. MTTR: 45min → 3min. Multiplied across 50 services and 200 engineers = massive productivity gain.</div></div>
-          <div class="concept-card"><span class="concept-card-icon">🔬</span><div class="concept-card-title">vs K8sGPT</div><div class="concept-card-body">K8sGPT analyzes Kubernetes cluster health (pod failures, OOMKill, ImagePullBackOff). AIDA analyzes pipeline failures (test errors, build failures, deployment issues). Use both — they cover different layers.</div></div>
-        </div>
+What we actually did (free tier - no AIDA):
+  Read pipeline logs directly
+  Saw: FAILED app/tests/test_main.py::test_deliberate_failure
+  Removed last 3 lines from test file:
+    $lines = Get-Content "src/accounts-service/app/tests/test_main.py"
+    $lines | Select-Object -First ($lines.Count - 3) | Set-Content [path]
+  Pushed fix - Build 14 - 6 passed, 0 failed</pre></div></div>
+        <table class="compare-table" style="margin-top:1rem">
+          <tr><th>Tool</th><th>What It Analyzes</th><th>Cost</th></tr>
+          <tr><td>K8sGPT + Ollama</td><td class="winner">Kubernetes cluster health - pods, services, events</td><td class="winner">Free with local Ollama</td></tr>
+          <tr><td>Harness AIDA</td><td class="winner">Pipeline failures - test errors, build issues</td><td class="neutral">Paid enterprise feature</td></tr>
+          <tr><td>Both together</td><td colspan="2" class="winner">Complete AIOps coverage - cluster AND pipeline</td></tr>
+        </table>
       </div>
 
       <div id="d8-slo" style="display:none">
-        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>📊</span>SLOs, SLIs, SLAs and Error Budgets</div>
-        <div class="code-block"><div class="code-header"><span class="code-lang">definitions</span></div><div class="code-body"><pre>SLI (Service Level Indicator) = the metric you measure
-  Example: fraction of HTTP requests returning 200
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">SLOs, SLIs, SLAs and Error Budgets</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">BankOps SLO definitions</span></div><div class="code-body"><pre>SLI = what you measure
+  fraction of HTTP requests returning 200 OK
 
-SLO (Service Level Objective) = your internal target
-  accounts-service: 99.9% of requests must succeed
-  payments-service: 99.99% (higher = payment critical)
+SLO = your internal target
+  accounts-service:     99.95%  - 21 min/month error budget
+  payments-service:     99.99%  - 4.3 min/month error budget
+  fraud-service:        99.9%   - 43.8 min/month error budget
+  notification-service: 99.5%   - 3.6 hours/month budget
 
-SLA (Service Level Agreement) = external customer contract
-  If SLO breached: customer gets credit
-  SLA is looser than SLO — SLO is your internal buffer
+SLA = external customer contract
+  Always looser than SLO
+  SLO breach before SLA breach - SLO is your safety buffer
 
-Error Budget = how much failure you can afford
-  99.9% SLO = 0.1% failure allowed
-  Per month = 43.8 minutes of downtime
+Error Budget Gates in Harness SRM:
+  greater than 75% consumed: extra approval required
+  greater than 90% consumed: deployments blocked automatically
+  100% consumed: incident review required before any deploy
 
-BankOps SLOs configured in Harness SRM:
-  accounts-service:     99.95%  → 21 min/month budget
-  payments-service:     99.99%  → 4.3 min/month budget
-  fraud-service:        99.9%   → 43.8 min/month budget
-  notification-service: 99.5%   → 3.6 hours/month budget
-
-Error Budget Gates (Harness blocks deployments):
-  > 50% consumed → deployment warning shown
-  > 75% consumed → extra approval required
-  > 90% consumed → deployments blocked automatically
-  100% consumed  → incident review required before any deploy</pre></div></div>
-      </div>
-
-      <div id="d8-k8sgpt" style="display:none">
-        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🔬</span>K8sGPT + Ollama (Already Installed)</div>
-        <div class="alert alert-success"><span>✅</span>K8sGPT v0.3.45 and Ollama llama3.2:1b are already installed from our Day 5 setup. Use them alongside Harness AIDA for complete AIOps coverage.</div>
-        <div class="code-block"><div class="code-header"><span class="code-lang">k8sgpt commands</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Verify K8sGPT + Ollama working
-$env:PATH += ";C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin"
-$env:OLLAMA_MODELS = "E:\ollama-models\models"
-k8sgpt version
-ollama list
-
-# Analyze cluster health
-kubectl config use-context kind-dd-stg
-k8sgpt analyze --explain --backend ollama
-
-# Create a broken pod to test
-kubectl run broken-pod --image=nginx:doesnotexist -n accounts
-Start-Sleep -Seconds 30
-k8sgpt analyze --explain --backend ollama
-# Shows: ImagePullBackOff - image not found, fix: correct image name
-
-# Cleanup
-kubectl delete pod broken-pod -n accounts</pre></div></div>
-      </div>
-
-      <div id="d8-steps" style="display:none">
+Why error budgets align incentives:
+  Team causes incident - burns their own budget
+  Budget low - team cannot ship new features
+  Result: teams optimize for reliability
+  This is the Google SRE model</pre></div></div>
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">SRM Setup Steps</div>
         <div class="steps">
-          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Enable SRM in Harness</div><div class="step-d">Account Settings → Service Reliability Management → Enable<br>Free tier available for basic SLO tracking</div></div></div>
-          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Create Monitored Service for accounts-service</div><div class="step-d">SRM → Monitored Services → + New<br>Name: accounts-service<br>Type: Application<br>Health Source: Kubernetes metrics (via delegate)</div></div></div>
-          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Configure SLO</div><div class="step-d">SRM → SLOs → + New SLO<br>Service: accounts-service<br>SLI: HTTP success rate<br>Target: 99.95%<br>Window: Rolling 30 days<br>Error budget: 21 minutes/month</div></div></div>
-          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Add SLO gate to pipeline</div><div class="step-d">In day8-aiops-srm.yaml — SLO Budget Check stage<br>Checks error budget remaining before allowing deployment<br>If budget &lt; 10% — pipeline fails with clear message</div></div></div>
-          <div class="step"><div class="step-n">5</div><div class="step-content"><div class="step-t">Test AIDA on a failed pipeline</div><div class="step-d">Intentionally break a test (add a failing assertion)<br>Run the pipeline — it will fail<br>Click the AIDA icon on the failed step<br>Read the AI-generated root cause explanation</div></div></div>
-          <div class="step"><div class="step-n">6</div><div class="step-content"><div class="step-t">Verify K8sGPT alongside AIDA</div><div class="step-d">kubectl config use-context kind-dd-stg<br>k8sgpt analyze --explain --backend ollama<br>Compare: AIDA explains pipeline failures, K8sGPT explains cluster issues<br>Both together = complete AIOps coverage</div></div></div>
+          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Enable SRM in Harness</div><div class="step-d">Account Settings - Service Reliability Management - Enable. Free tier available for basic SLO tracking.</div></div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Create Monitored Service</div><div class="step-d">SRM - Monitored Services - New. Name: accounts-service. Type: Application. Health Source: Kubernetes metrics via delegate.</div></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Configure SLO</div><div class="step-d">SRM - SLOs - New SLO. Service: accounts-service. SLI: HTTP success rate. Target: 99.95%. Window: Rolling 30 days.</div></div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Add error budget gate to pipeline</div><div class="step-d">Add a Run step before deployment that checks error budget remaining. If below threshold, fail the pipeline. Prevents deploying when service is already struggling.</div></div></div>
         </div>
-        <div class="code-block" style="margin-top:1rem"><div class="code-header"><span class="code-lang">day 8 practice commands</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Start environment
-. D:\cloud-iac\start-env.ps1
-kubectl config use-context kind-dd-stg
+      </div>
 
-# Verify K8sGPT working
+      <div id="d8-issues" style="display:none">
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--red-dim);border-bottom:1px solid #7F1D1D;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--red)">Issue 1: k8sgpt --model flag removed in v0.3.45</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Error:</strong> "unknown flag: --model" when running k8sgpt analyze --explain --backend ollama --model llama3.2:1b<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> The --model flag was removed in k8sgpt v0.3.x. The model is configured in the k8sgpt settings file, not passed as a command flag.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Remove --model flag: <code>k8sgpt analyze --explain --backend ollama</code><br><br>
+              <strong style="color:var(--green)">Lesson:</strong> Always check available flags with k8sgpt analyze --help before running. CLI tools update their interfaces between versions.
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--red-dim);border-bottom:1px solid #7F1D1D;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--red)">Issue 2: Harness AIDA not available on free tier</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">What happened:</strong> Created deliberate test failure (assert 1 == 2). Pipeline Build 13 failed. Looked for AIDA sparkle button on failed step - not found.<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> Harness AIDA is a paid enterprise feature. Free tier shows pipeline logs and error summary but no AI-powered analysis.<br><br>
+              <strong style="color:var(--white)">Workaround:</strong> Pipeline logs showed the exact failure: "FAILED test_deliberate_failure - AssertionError". Used that to find and fix the issue.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> Good structured logs are sufficient even without AI. AIDA accelerates diagnosis but comprehensive logs are the foundation. Always ensure your test output is verbose enough to diagnose failures without AI assistance.
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--yellow-dim);border-bottom:1px solid #3A2A00;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--yellow)">Issue 3: Regex removal of test failed due to CRLF line endings</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Error:</strong> Ran regex replace to remove 3-line test function. Select-String still showed the test present after replacement.<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> Windows uses CRLF (carriage return + line feed) line endings. Unix uses LF only. The regex pattern used LF newlines but the file had CRLF, causing pattern mismatch.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Used line count approach instead of regex:<br>
+              <code>$lines = Get-Content "src/accounts-service/app/tests/test_main.py"</code><br>
+              <code>$lines | Select-Object -First ($lines.Count - 3) | Set-Content [same path]</code><br><br>
+              <strong style="color:var(--green)">Lesson:</strong> On Windows avoid multiline regex for file editing. Use line count or string index operations instead. The git warning "LF will be replaced by CRLF" is a frequent reminder of this Windows quirk.
+            </div>
+          </div>
+        </div>
+        <div class="code-block" style="margin-top:1rem"><div class="code-header"><span class="code-lang">day 8 quick reference</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Setup K8sGPT
 $env:OLLAMA_MODELS = "E:\ollama-models\models"
 k8sgpt version
 ollama list
+
+# Analyze cluster
+kubectl config use-context kind-dd-stg
 k8sgpt analyze --explain --backend ollama
 
-# Simulate a failing pipeline to test AIDA
-# In Harness: edit day1 pipeline, add a bad command
-# command: exit 1
-# Run pipeline, watch it fail
-# Click AIDA button on failed step
+# Common diagnoses:
+# ImagePullBackOff   - wrong image name or tag
+# Service no endpoints - label selector mismatch
+# OOMKill            - increase memory limits
+# CrashLoopBackOff   - check container logs
 
-# Simulate SLO breach
-kubectl run bad-pod --image=nginx:bad -n accounts
-Start-Sleep -Seconds 30
-k8sgpt analyze --explain --backend ollama
-kubectl delete pod bad-pod -n accounts</pre></div></div>
+# Fix file by removing last N lines (Windows safe)
+$lines = Get-Content "path/to/file.py"
+$lines | Select-Object -First ($lines.Count - 3) | Set-Content "path/to/file.py"</pre></div></div>
       </div>
 
       <div id="d8-qa" style="display:none">
         <div class="qa-list">
-          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is the difference between SLI, SLO, and SLA?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">An SLI is the Service Level Indicator — the actual metric measured, such as the fraction of HTTP requests returning 200. An SLO is the Service Level Objective — the internal target value for that SLI, such as 99.9% of requests must succeed. An SLA is the Service Level Agreement — the external contract with customers carrying financial penalties if breached, typically set looser than the SLO. The SLO is your internal buffer before the SLA is breached. In Harness SRM we configure SLIs and SLOs, which track error budgets and automatically gate deployments when budgets are running low, preventing SLA violations before they happen.</div></div>
-          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>How do error budgets influence deployment decisions?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">An error budget is the amount of failure you can afford while still meeting your SLO. For accounts-service with 99.95% SLO, the monthly error budget is 21 minutes. As incidents consume budget, Harness SRM progressively restricts deployments. At 75% consumed, extra approvals are required. At 90%, deployments are blocked automatically until budget recovers. This creates a direct feedback loop — teams that cause incidents burn their own error budget and lose the ability to deploy new features. It aligns incentives: teams want to maintain reliability because instability directly limits their deployment velocity. This is the SRE model from Google that enterprises now adopt widely.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">&#10067;</span>What is K8sGPT and how did you use it hands-on?</span><span class="qa-arrow">&#9660;</span></div><div class="qa-answer">K8sGPT is an open-source tool that analyzes Kubernetes clusters using AI to explain issues in plain English. We installed v0.3.45 with Ollama running llama3.2:1b locally for privacy. Running k8sgpt analyze --explain --backend ollama diagnosed two real issues on our cluster: accounts-service-stage had no matching endpoints because it needed canary-labeled pods that no longer existed after Day 5 blue-green practice, and a deliberately broken pod had ImagePullBackOff because nginx:doesnotexist999 did not exist on Docker Hub. It provided specific solutions for each. After fixes it confirmed "No problems detected". The value is speed: what takes 10-15 minutes of manual kubectl describe and log reading takes 30 seconds with K8sGPT and AI explanation.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">&#10067;</span>What is an error budget and how does it influence deployment velocity?</span><span class="qa-arrow">&#9660;</span></div><div class="qa-answer">An error budget is the allowable failure derived from your SLO. For payments-service with 99.99% SLO, the monthly error budget is 4.3 minutes of downtime. As incidents consume budget, Harness SRM progressively restricts the team: at 75% consumed extra approvals are required, at 90% deployments are blocked automatically. This creates a direct incentive alignment. Teams that cause incidents burn their own budget and lose deployment velocity. Teams that maintain reliability can deploy frequently. This is the Google SRE model: reliability and velocity are not opposites - reliable teams that don't cause incidents have the most freedom to deploy new features. Error budgets make this concrete and enforceable rather than aspirational.</div></div>
         </div>
       </div>
     </div>
