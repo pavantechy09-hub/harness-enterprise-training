@@ -1292,6 +1292,39 @@ docker stop $(docker ps -q --filter ancestor=pavantechy09hub/accounts-service:la
         <div class="alert alert-info" style="margin-top:1rem"><span>ℹ️</span> The trigger flow: Developer pushes branch → opens PR → GitHub sends webhook to Harness → Harness runs CI → posts result back to GitHub PR as a status check. This is the enterprise standard that replaces manually running tests.</div>
       </div>
 
+      <div id="d2-issues" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Issues Hit in Day 2</div>
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--red-dim);border-bottom:1px solid #7F1D1D;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--red)">Issue 1: dockerhub-push connector used wrong type (Artifactory instead of Docker Registry)</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Error:</strong> "Artifactory Server responded with Not Found" when testing dockerhub-push connector<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> When creating the connector, selected wrong type. Harness has both Artifactory and Docker Registry connector types. Docker Hub requires Docker Registry type, not Artifactory.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Delete the wrong connector. Create new with: Artifact Repositories → Docker Registry (not Artifactory). URL: https://index.docker.io/v1/ Provider: DockerHub.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> Always select Docker Registry type for Docker Hub. Artifactory is for JFrog Artifactory self-hosted registries. The URL pattern is different: Docker Hub uses index.docker.io/v1/ not /artifactory.
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--yellow-dim);border-bottom:1px solid #3A2A00;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--yellow)">Issue 2: Docker Hub repos for payments, fraud, notification not pre-created</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">What happened:</strong> Day 4 pipeline tried to push to vguardai/payments-service but repo didn't exist on Docker Hub yet.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Create repos on hub.docker.com before running pipeline: vguardai/accounts-service, vguardai/payments-service, vguardai/fraud-service, vguardai/notification-service. All set to Public visibility.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> Pre-create all Docker Hub repositories before running pipelines that push images. Docker Hub does not auto-create repos on first push (unlike some private registries).
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--green-dim);border-bottom:1px solid var(--green);padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--green)">Result: Build #1 SUCCESS</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Pipeline:</strong> day2-accounts-ci-migrated Build #1<br>
+              <strong style="color:var(--white)">Duration:</strong> 2m 47s<br>
+              <strong style="color:var(--white)">Tests:</strong> 6 passed<br>
+              <strong style="color:var(--white)">Images pushed:</strong> vguardai/accounts-service:1 and vguardai/accounts-service:latest<br>
+              <strong style="color:var(--white)">Verified:</strong> docker pull vguardai/accounts-service:latest then curl http://localhost:8000/health returned version 1.0.0
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div id="d2-qa" style="display:none">
         <div class="qa-list">
           <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What does Harness Test Intelligence do and why does it matter?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Test Intelligence analyzes your code changes and identifies which tests are actually relevant to those specific changes. Instead of running all 1000 tests on every commit, it might run only the 150 tests that touch code paths modified by your change. This typically reduces CI time by 60-80%. It uses code graph analysis to understand which functions your change modifies, then maps those to test files that import or call those functions. In an enterprise with 10,000 tests across 50 services, this is the difference between a 45-minute CI run and a 5-minute one.</div></div>
@@ -1490,6 +1523,30 @@ kubectl get pods -n payments
 # Then create pipeline in Harness and run it</pre></div></div>
       </div>
 
+      <div id="d3-issues" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Issues Hit in Day 3</div>
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--green-dim);border-bottom:1px solid var(--green);padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--green)">Result: Build #1 SUCCESS</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Pipeline:</strong> day3-payments-jenkins-migration Build #1<br>
+              <strong style="color:var(--white)">Duration:</strong> 3m 17s<br>
+              <strong style="color:var(--white)">Stages:</strong> Test payments-service (5 passed) → Build + Push → Approval Gate → SUCCESS<br>
+              <strong style="color:var(--white)">Approval:</strong> Pavan Goli approved with comment "approved"<br>
+              <strong style="color:var(--white)">Image:</strong> vguardai/payments-service:1 pushed to Docker Hub
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--yellow-dim);border-bottom:1px solid #3A2A00;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--yellow)">Key Learning: Inline vs Remote pipeline storage</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">What happened:</strong> Days 1-3 used Inline storage (pipeline in Harness). From Day 4 onwards switched to Remote (pipeline in GitHub).<br><br>
+              <strong style="color:var(--white)">Why Remote is better:</strong> Every pipeline change is a Git commit. PR review required for pipeline changes. Full audit trail. Disaster recovery - pipeline survives even if Harness account deleted.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> Always use Remote storage for production pipelines. Inline is fine for learning experiments only.
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div id="d3-qa" style="display:none">
         <div class="qa-list">
           <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What are the main risks when migrating Jenkins to Harness?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">The highest technical risk is leaving teams without a deployment path during migration. Mitigate by running Jenkins and Harness in parallel for at least 2 weeks per service — both work simultaneously. The highest organisational risk is developer resistance, as teams comfortable with Groovy Jenkinsfiles may resist YAML pipelines. Mitigate with early involvement, training, and concrete demonstrations of benefits. A genuine technical constraint: <strong>Harness Delegates are Linux-based</strong>, so Windows build agents require containers or staying on Jenkins during initial migration phases.</div></div>
@@ -1668,6 +1725,59 @@ spec:
               port: 8000
             initialDelaySeconds: 10
             periodSeconds: 5</pre></div></div>
+      </div>
+
+      <div id="d4-issues" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Issues Hit in Day 4</div>
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--red-dim);border-bottom:1px solid #7F1D1D;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--red)">Issue 1: K8s manifests had wrong Docker Hub username (pavantechy09hub instead of vguardai)</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Error:</strong> All pods showed ImagePullBackOff after kubectl apply<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> K8s deployment manifests had image: pavantechy09hub/accounts-service:latest but Docker Hub account is vguardai. Images don't exist at that path.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Replace all occurrences in manifests:<br>
+              <code>(Get-Content "k8s\accounts-service\deployment.yaml") -replace 'pavantechy09hub', 'vguardai' | Set-Content ...</code><br>
+              Ran for all 4 services then kubectl apply again.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> Always verify image names in manifests match your actual registry paths before applying to cluster.
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--red-dim);border-bottom:1px solid #7F1D1D;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--red)">Issue 2: accounts-service deployment had Helm template placeholder in labels</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Error:</strong> "metadata.labels: Invalid value: {{.Values.image.tag}}: a valid label must consist of alphanumeric characters"<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> deployment.yaml had a Helm template variable in a label field. Plain kubectl cannot process Helm syntax.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Replace the Helm placeholder with the actual value 'latest' in the label field.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> K8s manifests used with plain kubectl must not contain Helm template syntax. Use Helm charts with helm install/upgrade, or plain YAML with kubectl.
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--red-dim);border-bottom:1px solid #7F1D1D;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--red)">Issue 3: fraud and notification services had no K8s Service resource</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Error:</strong> kubectl port-forward failed for fraud and notification - no service found<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> K8s Service YAML files were missing from k8s/fraud-service/ and k8s/notification-service/ directories.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Created service.yaml files manually for both services using PowerShell here-string and kubectl apply.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> Every microservice needs both a Deployment (runs the pods) AND a Service (provides stable network endpoint). Deployment without Service = pods running but unreachable.
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--yellow-dim);border-bottom:1px solid #3A2A00;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--yellow)">Issue 4: Harness Remote pipeline import - API access not enabled on GitHub connector</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Error:</strong> "The given connector doesn't have api access field set" when creating Remote pipeline<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Edit bankopsgithub connector → Credentials → Enable API access toggle ON → Same as connector credentials<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> Harness GitHub connector needs API access enabled to support Remote pipeline storage. Without it Harness can clone code but cannot read/write pipeline YAML files via GitHub API.
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--green-dim);border-bottom:1px solid var(--green);padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--green)">Result: All 4 Services Running + Build #1 SUCCESS</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Pipeline:</strong> day4-all-services-ci Build #1 - storeType=REMOTE<br>
+              <strong style="color:var(--white)">Tests:</strong> 19/19 passing (6+5+4+4)<br>
+              <strong style="color:var(--white)">Images:</strong> All 4 services pushed to vguardai/* on Docker Hub<br>
+              <strong style="color:var(--white)">Cluster:</strong> kubectl get pods showing Running in accounts, payments, fraud, notifications namespaces<br>
+              <strong style="color:var(--white)">Health checks:</strong> curl to ports 8000-8003 all returning 200 OK
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="d4-qa" style="display:none">
@@ -2403,291 +2513,416 @@ $lines | Select-Object -First ($lines.Count - 3) | Set-Content "path/to/file.py"
     </div>
 
     <div class="page" id="page-day9">
-      <div style="background:linear-gradient(135deg,#1A1A00 0%,var(--bg) 100%);border:1px solid #3A2A00;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
-        <div style="font-family:var(--mono);font-size:11px;color:var(--yellow);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--yellow-dim);border:1px solid #3A2A00;padding:.3rem .8rem;border-radius:999px">Day 9 · FinOps</div>
+      <div style="background:linear-gradient(135deg,#0D2A1A 0%,var(--bg) 100%);border:1px solid #1A4A2A;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--green-dim);border:1px solid var(--green);padding:.3rem .8rem;border-radius:999px">Day 9 · FinOps</div>
         <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">FinOps + Cloud Cost Management</h2>
-        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">Cost per service, cost per deployment, anomaly detection. Know exactly what each microservice costs. Right-sizing recommendations. Budget alerts. The financial accountability layer for cloud.</p>
+        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">Installed metrics-server on dd-stg cluster. Real kubectl top data showed 1300m CPU requested but only 36m actual. Right-sizing saves $45/month per node. Cost labels applied to all pods.</p>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--yellow);color:var(--yellow);background:var(--yellow-dim)">✓ Cost per service</span>
-          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">✓ Anomaly detection</span>
-          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">✓ Right-sizing recommendations</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">Metrics server installed</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">Real kubectl top data</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #6B4A00;color:var(--orange);background:var(--orange-dim)">$45/month saving identified</span>
+        </div>
+      </div>
+
+      <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem 1.2rem;margin-bottom:1.5rem">
+        <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:.3rem">Real Numbers from dd-stg Cluster</div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--muted);line-height:1.8">
+          accounts-service: 4m actual / 100m requested = 4% CPU utilization<br>
+          payments-service: 3m actual / 100m requested = 3% CPU utilization<br>
+          fraud-service: 3m actual / 200m requested = 1% CPU utilization (worst!)<br>
+          notification-service: 3m actual / 50m requested = 6% CPU utilization<br>
+          TOTAL: 36m actual / 1300m requested. Waste: 1264m. Saves $45/month on EKS m5.xlarge.
         </div>
       </div>
 
       <div class="tabs">
-        <div class="tab active" onclick="switchTab(this,'d9-finops')">💰 FinOps Concepts</div>
-        <div class="tab" onclick="switchTab(this,'d9-ccm')">📊 CCM Setup</div>
-        <div class="tab" onclick="switchTab(this,'d9-optimize')">⚡ Optimization</div>
-        <div class="tab" onclick="switchTab(this,'d9-qa')">❓ Interview Q&A</div>
+        <div class="tab active" onclick="switchTab(this,'d9-finops')">FinOps Concepts</div>
+        <div class="tab" onclick="switchTab(this,'d9-realdata')">Real Data and Analysis</div>
+        <div class="tab" onclick="switchTab(this,'d9-ccm')">Harness CCM</div>
+        <div class="tab" onclick="switchTab(this,'d9-issues')">Issues and Fixes</div>
+        <div class="tab" onclick="switchTab(this,'d9-qa')">Interview Q&amp;A</div>
       </div>
 
       <div id="d9-finops">
-        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>💰</span>FinOps — Financial Operations for Cloud</div>
-        <div class="code-block"><div class="code-header"><span class="code-lang">finops phases</span></div><div class="code-body"><pre>Phase 1 — INFORM (see what you spend):
-  Without FinOps: "Why did our AWS bill double this quarter?"
-  With Harness CCM:
-    accounts-service costs $12.40/day
-    payments-service costs $28.90/day (payment processing intensive)
-    fraud-service costs $45.20/day (ML model compute)
-    notification-service costs $3.10/day (lightweight)
-
-Phase 2 — OPTIMIZE (find and fix waste):
-  Right-sizing alert:
-    "accounts-service requests 2 CPU but uses 0.3 average"
-    Fix: reduce CPU request to 0.5
-    Saving: $180/month
-
-  Reserved instances:
-    "fraud-service has run 180 days continuously"
-    On-demand: $1,350/month
-    Reserved 1-year: $780/month
-    Saving: $570/month
-
-Phase 3 — OPERATE (continuous culture):
-  Monthly cost review per team
-  Budget alerts at 80% of monthly limit
-  Cost per deployment tracked
-  Teams accountable for their cloud spend</pre></div></div>
-
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">FinOps - Cloud Financial Management</div>
         <div class="concept-grid">
-          <div class="concept-card"><span class="concept-card-icon">🏷️</span><div class="concept-card-title">Why Tags Matter</div><div class="concept-card-body">Every Terraform resource in cloud-iac-learning is tagged with Service, Team, Environment, CostCenter. Harness CCM reads these tags to build cost breakdowns. Without tags: one big bill. With tags: cost per service, per team, per environment.</div></div>
-          <div class="concept-card"><span class="concept-card-icon">🚨</span><div class="concept-card-title">Anomaly Detection</div><div class="concept-card-body">fraud-service cost increased 340% in one day. Root cause: SQS backlog caused Lambda to run 10x more than expected — $890/day unexpected charge. CCM detected it in 2 hours. Without CCM: discovered at end of month on the bill.</div></div>
-          <div class="concept-card"><span class="concept-card-icon">📊</span><div class="concept-card-title">Showback vs Chargeback</div><div class="concept-card-body">Showback: show teams their costs (informational). Chargeback: actually bill teams internally for their cloud usage. Enterprises start with showback to drive awareness, then move to chargeback for accountability. Both require tags.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">&#128200;</span><div class="concept-card-title">Right-Sizing</div><div class="concept-card-body">Setting CPU and memory requests to match actual usage with appropriate headroom. We found all 4 services using only 1-6% of their CPU requests. Right-sizing to 2.5x actual would save $45/month per node.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">&#127991;</span><div class="concept-card-title">Cost Tagging</div><div class="concept-card-body">Labels on K8s pods for cost allocation: cost-center=CC-1234, team=platform, environment=dev. Without tags you cannot answer "how much does fraud-service cost per month?" in AWS billing.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">&#128269;</span><div class="concept-card-title">Cost Visibility</div><div class="concept-card-body">Harness CCM shows cost per service, per team, per environment. Connects to AWS Cost Explorer. Anomaly detection alerts when a service suddenly costs 3x more than usual.</div></div>
+          <div class="concept-card"><span class="concept-card-icon">&#9881;</span><div class="concept-card-title">Spot Instances</div><div class="concept-card-body">Flink TaskManagers and batch jobs on Spot instances (60-70% cheaper). Stateless services can tolerate interruption. Stateful services (Pinot, databases) stay on On-Demand.</div></div>
         </div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">cost tagging commands we ran</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Apply cost allocation labels to pods
+kubectl label pods -n accounts -l app=accounts-service \
+  cost-center=CC-1234 team=platform environment=dev --overwrite
+
+kubectl label pods -n payments -l app=payments-service \
+  cost-center=CC-1234 team=payments environment=dev --overwrite
+
+# Verify labels applied
+kubectl get pods -n accounts --show-labels | grep cost
+
+# Result:
+# accounts-service-xxx  Running  app=accounts-service,cost-center=CC-1234,
+# environment=dev,team=platform</pre></div></div>
+      </div>
+
+      <div id="d9-realdata" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Real kubectl top Data - What We Actually Got</div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">install metrics-server on kind cluster</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Standard metrics-server fails on kind - use this URL instead
+kubectl apply -f https://raw.githubusercontent.com/techiescamp/kubeadm-scripts/main/manifests/metrics-server.yaml
+
+# Wait 60 seconds for it to be ready
+Start-Sleep -Seconds 60
+
+# Verify working
+kubectl get pods -n kube-system | Select-String "metrics"
+kubectl top nodes
+# Expected: dd-stg-control-plane  372m  3%  4066Mi  52%</pre></div></div>
+
+        <div class="code-block" style="margin-top:1rem"><div class="code-header"><span class="code-lang">real output from kubectl top</span></div><div class="code-body"><pre># kubectl top nodes
+NAME                   CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)
+dd-stg-control-plane   372m         3%       4066Mi          52%
+
+# kubectl top pods -n accounts
+NAME                                CPU(cores)   MEMORY(bytes)
+accounts-service-676797d67f-4gxc8   4m           38Mi
+accounts-service-676797d67f-csm6g   4m           38Mi
+accounts-service-676797d67f-x9rg6   3m           38Mi
+
+# kubectl top pods -n payments
+payments-service-685f6d6f66-5fpxh   3m           38Mi
+payments-service-685f6d6f66-t87zs   3m           38Mi
+payments-service-685f6d6f66-xzkkb   3m           38Mi
+
+# kubectl top pods -n fraud
+fraud-service-67b7c66586-2jhl4   3m   38Mi
+fraud-service-67b7c66586-6hzjk   3m   38Mi
+fraud-service-67b7c66586-tn82w   3m   38Mi
+
+# kubectl top pods -n notifications
+notification-service-77dcb85d5c-d2rdf   3m   38Mi
+notification-service-77dcb85d5c-rj2vm   3m   40Mi</pre></div></div>
+
+        <div class="code-block" style="margin-top:1rem"><div class="code-header"><span class="code-lang">finops analysis script output</span></div><div class="code-body"><pre># We ran this Python analysis on real data:
+=======================================================
+BankOps FinOps Report - Real Data from dd-stg
+=======================================================
+accounts-service (3 pods):
+  CPU: 12m actual / 300m requested = 4% util
+  Mem: 114Mi actual / 384Mi requested
+
+payments-service (3 pods):
+  CPU: 9m actual / 300m requested = 3% util
+  Mem: 114Mi actual / 384Mi requested
+
+fraud-service (3 pods):
+  CPU: 9m actual / 600m requested = 1% util
+  Mem: 114Mi actual / 768Mi requested
+
+notification-service (2 pods):
+  CPU: 6m actual / 100m requested = 6% util
+  Mem: 78Mi actual / 128Mi requested
+
+=======================================================
+Total CPU requested: 1300m (32% of node)
+Total CPU actual:     36m  (0.9% of node)
+CPU waste:           1264m reserved but unused
+
+Right-sizing (2.5x actual):
+  Current:     1300m
+  Recommended:  108m
+  Freed up:    1192m
+  Monthly saving on EKS: $45</pre></div></div>
+
+        <table class="compare-table" style="margin-top:1rem">
+          <tr><th>Service</th><th>CPU Actual</th><th>CPU Requested</th><th>Utilization</th><th>Right-Size To</th></tr>
+          <tr><td>accounts-service x3</td><td>12m</td><td>300m</td><td class="loser">4%</td><td class="winner">30m</td></tr>
+          <tr><td>payments-service x3</td><td>9m</td><td>300m</td><td class="loser">3%</td><td class="winner">25m</td></tr>
+          <tr><td>fraud-service x3</td><td>9m</td><td>600m</td><td class="loser">1%</td><td class="winner">25m</td></tr>
+          <tr><td>notification-service x2</td><td>6m</td><td>100m</td><td class="neutral">6%</td><td class="winner">20m</td></tr>
+          <tr><td><strong>TOTAL</strong></td><td><strong>36m</strong></td><td><strong>1300m</strong></td><td class="loser"><strong>2.8%</strong></td><td class="winner"><strong>100m saves $45/mo</strong></td></tr>
+        </table>
       </div>
 
       <div id="d9-ccm" style="display:none">
-        <div class="steps">
-          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Enable CCM in Harness</div><div class="step-d">Account Settings → Cloud Cost Management → Enable<br>Free tier: up to $250k cloud spend managed<br>Connect your AWS account (even Floci generates mock data)</div></div></div>
-          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Verify resource tags exist</div><div class="step-d">All Terraform resources should have tags from cloud-iac-learning<br>Check: aws resourcegroupstaggingapi get-resources --endpoint-url http://localhost:4566<br>Tags: Environment, Service, Team, CostCenter</div></div></div>
-          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Create cost perspectives</div><div class="step-d">CCM → Perspectives → + New Perspective<br>Group by: Service tag<br>Now see cost per microservice</div></div></div>
-          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Set budget alerts</div><div class="step-d">CCM → Budgets → + New Budget<br>Amount: $1000/month<br>Alert at: 80% ($800)<br>Notify: Slack channel</div></div></div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Harness CCM - Cloud Cost Management</div>
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;margin-bottom:1rem;font-size:13px;color:var(--muted);line-height:1.7">
+          Harness CCM requires connecting a real AWS billing account. Not available on free tier. We covered the concepts and architecture. The right-sizing analysis we did with kubectl top shows the same data CCM would surface automatically.
         </div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">what harness CCM provides</span></div><div class="code-body"><pre>CCM Features:
+  Cost Perspectives
+    Group costs by: cluster, namespace, workload, label
+    Example: "Show me fraud-service cost last 30 days"
+    Answer: $X.XX including EC2, data transfer, storage
+
+  Anomaly Detection
+    Baseline: fraud-service averages $45/month
+    Alert: this month fraud-service is $180 - 4x normal
+    Root cause: someone forgot to delete a load test deployment
+
+  Budget Alerts
+    Set: accounts namespace budget $200/month
+    Alert at: 80% consumed ($160)
+    Block deployments at: 100% consumed
+
+  Right-sizing Recommendations
+    What CCM shows:        What we proved manually:
+    fraud-service CPU: 1%  kubectl top: 3m / 200m req
+    Recommendation: -150m  Right-size to: 10m request
+    Monthly saving: $X     Manual calc: $45/month total
+
+  AutoStopping
+    Detect idle services (dev/staging)
+    Automatically stop them after N minutes idle
+    Start them on first request
+    Saves 70% on non-prod environments</pre></div></div>
       </div>
 
-      <div id="d9-optimize" style="display:none">
-        <div class="code-block"><div class="code-header"><span class="code-lang">right-sizing recommendations (CCM shows these)</span></div><div class="code-body"><pre>accounts-service:
-  Current:  CPU request 2000m, actual usage 300m average
-  Recommended: CPU request 500m
-  Memory: 256Mi request, 128Mi actual → reduce to 150Mi
-  Monthly saving: $180
-
-fraud-service (ML model):
-  Running 24/7 but only needed 8am-8pm weekdays
-  Recommendation: scale to 0 outside business hours
-  Monthly saving: $890 (67% reduction)
-
-payments-service:
-  Running since 180 days continuously
-  Recommendation: purchase 1-year Reserved Instance
-  On-demand: $1,350/month
-  Reserved: $780/month
-  Monthly saving: $570
-
-Total monthly optimization opportunity: $1,640</pre></div></div>
+      <div id="d9-issues" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Issues Hit in Day 9</div>
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--red-dim);border-bottom:1px solid #7F1D1D;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--red)">Issue 1: Standard metrics-server install fails on kind cluster</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Error:</strong> "error: Metrics API not available" after applying official metrics-server manifest<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> Official metrics-server requires TLS certificates that kind cluster does not have set up. Standard installation CrashLoopBackOff on kind.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Use techiescamp kubeadm-compatible manifest which has --kubelet-insecure-tls pre-configured:<br>
+              <code>kubectl apply -f https://raw.githubusercontent.com/techiescamp/kubeadm-scripts/main/manifests/metrics-server.yaml</code><br><br>
+              <strong style="color:var(--green)">Lesson:</strong> The official metrics-server works on EKS and production clusters. For kind/kubeadm local clusters always use the insecure-tls variant. Check with kubectl top nodes after waiting 60 seconds.
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--red-dim);border-bottom:1px solid #7F1D1D;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--red)">Issue 2: kubectl run --limits flag not available in newer versions</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Error:</strong> "error: unknown flag: --limits" when trying to create a memory-hog test pod<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> kubectl run removed --limits and --requests flags in newer versions. Must use YAML manifests for resource limits.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Use a deployment YAML with resources defined, or kubectl create + kubectl set resources separately.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> kubectl run is for quick pod creation without resource constraints. For anything with limits always use a YAML manifest. This is also better practice for reproducibility.
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--red-dim);border-bottom:1px solid #7F1D1D;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--red)">Issue 3: PowerShell heredoc (python3 &lt;&lt; EOF) not supported</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">Error:</strong> "Missing file specification after redirection operator" when trying python3 &lt;&lt; 'EOF' in PowerShell<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> PowerShell does not support bash-style heredoc. The &lt;&lt; operator is not implemented.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Save Python script to a .py file first, then run it:<br>
+              <code>@'...script...'@ | Set-Content "C:\Users\golip\Desktop\finops.py"</code><br>
+              <code>python3 "C:\Users\golip\Desktop\finops.py"</code><br><br>
+              <strong style="color:var(--green)">Lesson:</strong> On Windows PowerShell always save scripts to files before running. Never use bash heredoc syntax. Use @'...'@ (here-string) for multiline strings in PowerShell.
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="d9-qa" style="display:none">
         <div class="qa-list">
-          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What is FinOps and how does it relate to DevOps?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">FinOps is Financial Operations for cloud — the practice of bringing financial accountability to variable cloud spend. DevOps gave teams the ability to deploy infrastructure instantly; FinOps ensures they understand and optimize the cost of what they deploy. The three phases are Inform (see your spend), Optimize (reduce waste), and Operate (build continuous cost culture). In a bank, FinOps is critical because cloud costs can spiral quickly — a single misconfigured Lambda or forgotten RDS instance can cost thousands per month. Harness CCM connects deployment events to cost data so teams can see the cost impact of every deployment decision in real time.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">&#10067;</span>What is FinOps and how do you apply it to Kubernetes?</span><span class="qa-arrow">&#9660;</span></div><div class="qa-answer">FinOps is the practice of optimizing cloud spending by understanding and managing resource usage. For Kubernetes we installed metrics-server and used kubectl top to get real CPU and memory usage per pod. We found all 4 BankOps services were using only 1-6% of their CPU requests. Accounts and payments had 100m CPU requested but only 4m and 3m actual. Fraud-service was worst: 200m requested, 3m actual, 1% utilization. Total across all pods: 1300m requested, 36m actual. Right-sizing to 2.5x actual usage with headroom saves $45 per month per node on EKS. At enterprise scale with hundreds of services this becomes thousands of dollars monthly.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">&#10067;</span>Why is cost tagging important and what labels do you use?</span><span class="qa-arrow">&#9660;</span></div><div class="qa-answer">Cost tagging links cloud resource costs to business units. Without tags your AWS bill shows total spend but cannot attribute it to individual teams or services. We applied labels: cost-center (maps to finance department code), team (which engineering team owns it), and environment (dev/staging/prod). In Harness CCM and AWS Cost Explorer these labels appear as dimensions for filtering and grouping costs. For example: "Show me all costs tagged team=fraud-detection in environment=prod for last 30 days". This enables chargeback to business units and identifies which teams are overspending. The labels also feed FinOps right-sizing recommendations since CCM correlates cost with actual usage from metrics-server data.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">&#10067;</span>How do you right-size Kubernetes resource requests?</span><span class="qa-arrow">&#9660;</span></div><div class="qa-answer">Right-sizing means setting CPU and memory requests to match actual usage with safety headroom. Our process: first install metrics-server, then run kubectl top pods across all namespaces to collect actual usage for 1-2 weeks (we had real data from our running services). Calculate the actual usage per pod and set requests to 2-3x actual for headroom during traffic spikes. For our services: actual CPU was 3-4m per pod, so right-sized request is 10m per pod instead of 100-200m. The saving is the difference multiplied by node cost. We calculated $45/month saving per node. In production I would use Vertical Pod Autoscaler in recommendation mode first, then apply the recommendations gradually, and monitor for any OOMKill or CPU throttling that indicates headroom was set too low.</div></div>
         </div>
       </div>
     </div>
 
     <div class="page" id="page-day10">
-      <div style="background:linear-gradient(135deg,#0D1F0D 0%,#0D1F2A 50%,var(--bg) 100%);border:1px solid #1A3A2A;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
-        <div style="font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--green-dim);border:1px solid var(--green);padding:.3rem .8rem;border-radius:999px">Day 10 · Capstone</div>
-        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">Enterprise Capstone + Migration Plan</h2>
-        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">All 4 services. All environments. Complete enterprise pipeline: CI → canary CD → approval gates → blue-green prod → Dynatrace monitoring → cost tracking. 90-day Jenkins migration plan delivered.</p>
+      <div style="background:linear-gradient(135deg,#1A0D0D 0%,var(--bg) 100%);border:1px solid #3B1F1F;border-radius:12px;padding:2rem;margin-bottom:1.5rem">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--orange);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem;display:inline-flex;align-items:center;gap:.4rem;background:var(--orange-dim);border:1px solid #6B4A00;padding:.3rem .8rem;border-radius:999px">Day 10 · Capstone</div>
+        <h2 style="font-size:1.8rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em;border:none;padding:0">Capstone - Complete Enterprise Pipeline</h2>
+        <p style="color:var(--muted);font-size:13px;max-width:600px;line-height:1.7;margin-bottom:1rem">All 10 days combined in one pipeline. Build #3 SUCCESS: OPA check, 4 CI stages with 19 tests, FinOps report showing $45/month saving, SRE approval gate. Total runtime 1m 25s.</p>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">✓ All 4 services</span>
-          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">✓ All environments</span>
-          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #6B4A00;color:var(--orange);background:var(--orange-dim)">✓ Production grade</span>
-          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #3B1F6B;color:var(--purple);background:var(--purple-dim)">✓ 90-day plan</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--green);color:var(--green);background:var(--green-dim)">Build #3 SUCCESS</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #1E3A5F;color:var(--blue);background:var(--blue-dim)">7 stages complete</span>
+          <span style="font-family:var(--mono);font-size:10px;padding:.25rem .6rem;border-radius:999px;border:1px solid #6B4A00;color:var(--orange);background:var(--orange-dim)">19/19 tests passed</span>
+        </div>
+      </div>
+
+      <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem 1.2rem;margin-bottom:1.5rem">
+        <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:.5rem">Capstone Build #3 Results - day10-capstone-bankops</div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--muted);line-height:1.8">
+          Stage 1: Governance OPA Check - PASSED - dev environment, policies evaluated<br>
+          Stage 2a: CI accounts-service - 6 tests passed, vguardai/accounts-service:3 pushed<br>
+          Stage 2b: CI payments-service - 5 tests passed, vguardai/payments-service:3 pushed<br>
+          Stage 2c: CI fraud-service - 4 tests passed, vguardai/fraud-service:3 pushed<br>
+          Stage 2d: CI notification-service - 4 tests passed, vguardai/notification-service:3 pushed<br>
+          Stage 3: FinOps Cost Report - 1300m requested, 36m actual, $45/month saving<br>
+          Stage 4: SRE Approval Gate - APPROVED by Pavan Goli
         </div>
       </div>
 
       <div class="tabs">
-        <div class="tab active" onclick="switchTab(this,'d10-overview')">🏆 Capstone Overview</div>
-        <div class="tab" onclick="switchTab(this,'d10-pipeline')">⚡ Full Pipeline</div>
-        <div class="tab" onclick="switchTab(this,'d10-steps')">🛠️ Practice Steps</div>
-        <div class="tab" onclick="switchTab(this,'d10-migration')">📋 Migration Plan</div>
-        <div class="tab" onclick="switchTab(this,'d10-portfolio')">💼 Portfolio Value</div>
-        <div class="tab" onclick="switchTab(this,'d10-qa')">❓ Final Q&A</div>
+        <div class="tab active" onclick="switchTab(this,'d10-results')">Build Results</div>
+        <div class="tab" onclick="switchTab(this,'d10-pipeline')">Pipeline Architecture</div>
+        <div class="tab" onclick="switchTab(this,'d10-portfolio')">Complete Portfolio</div>
+        <div class="tab" onclick="switchTab(this,'d10-issues')">Issues and Fixes</div>
+        <div class="tab" onclick="switchTab(this,'d10-qa')">Interview Q&amp;A</div>
       </div>
 
-      <div id="d10-overview">
-        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🏆</span>What Was Built Across 10 Days</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.8rem;margin-bottom:1.5rem">
-          <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem;margin-bottom:.4rem">🤖</div><div style="font-size:12px;font-weight:600;color:var(--green)">Delegate</div><div style="font-size:11px;color:var(--muted);margin-top:.3rem">helm-delegate on dd-stg</div></div>
-          <div style="background:var(--blue-dim);border:1px solid #1E3A5F;border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem;margin-bottom:.4rem">🔌</div><div style="font-size:12px;font-weight:600;color:var(--blue)">Connectors</div><div style="font-size:11px;color:var(--muted);margin-top:.3rem">GitHub, K8s, Docker Hub</div></div>
-          <div style="background:var(--orange-dim);border:1px solid #6B4A00;border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem;margin-bottom:.4rem">⚡</div><div style="font-size:12px;font-weight:600;color:var(--orange)">10 Pipelines</div><div style="font-size:11px;color:var(--muted);margin-top:.3rem">All in GitHub</div></div>
-          <div style="background:var(--purple-dim);border:1px solid #3B1F6B;border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem;margin-bottom:.4rem">🐤🔵🟢</div><div style="font-size:12px;font-weight:600;color:var(--purple)">Strategies</div><div style="font-size:11px;color:var(--muted);margin-top:.3rem">Canary + Blue-Green</div></div>
-          <div style="background:var(--red-dim);border:1px solid #7F1D1D;border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem;margin-bottom:.4rem">🛡️</div><div style="font-size:12px;font-weight:600;color:var(--red)">OPA Governance</div><div style="font-size:11px;color:var(--muted);margin-top:.3rem">5 policies enforced</div></div>
-          <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem;margin-bottom:.4rem">🧠</div><div style="font-size:12px;font-weight:600;color:var(--green)">AIOps</div><div style="font-size:11px;color:var(--muted);margin-top:.3rem">AIDA + K8sGPT</div></div>
+      <div id="d10-results">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Build #3 Stage-by-Stage Results</div>
+
+        <div style="display:flex;flex-direction:column;gap:.8rem;margin-bottom:1.5rem">
+          <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem 1.2rem">
+            <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:.3rem">Stage 1: Governance OPA Check - PASSED</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">Environment: dev. Approvals: 1. Triggered by: pavan. Approved by: sre-team. All 3 policies evaluated and passed. Deployment allowed to proceed.</div>
+          </div>
+          <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem 1.2rem">
+            <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:.3rem">Stage 2a: CI accounts-service - SUCCESS</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">Tests: test_health PASSED, test_create_account PASSED, test_get_account PASSED, test_get_account_not_found PASSED, test_list_accounts PASSED, test_default_balance PASSED. 6 passed in 1.23s. Image pushed: vguardai/accounts-service:3 and :latest</div>
+          </div>
+          <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem 1.2rem">
+            <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:.3rem">Stage 2b: CI payments-service - SUCCESS</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">5 tests passed. Image pushed: vguardai/payments-service:3 and :latest</div>
+          </div>
+          <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem 1.2rem">
+            <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:.3rem">Stage 2c: CI fraud-service - SUCCESS</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">4 tests passed. Image pushed: vguardai/fraud-service:3 and :latest</div>
+          </div>
+          <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem 1.2rem">
+            <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:.3rem">Stage 2d: CI notification-service - SUCCESS</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">4 tests passed. Image pushed: vguardai/notification-service:3 and :latest</div>
+          </div>
+          <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem 1.2rem">
+            <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:.3rem">Stage 3: FinOps Cost Report - COMPLETE</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">Total CPU requested: 1300m. Total CPU actual: 36m. CPU waste: 1264m. Right-sizing saves: $45/month on EKS. Cost report complete.</div>
+          </div>
+          <div style="background:var(--green-dim);border:1px solid var(--green);border-radius:8px;padding:1rem 1.2rem">
+            <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:.3rem">Stage 4: SRE Approval Gate - APPROVED</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--muted)">Approved by: Pavan Goli. Comment: "10-day training capstone complete. All services tested. Images pushed. FinOps report reviewed. Approved."</div>
+          </div>
         </div>
 
-        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>📦</span>Application — Final State</div>
-        <div class="app-evolution"><div class="evolution-title">All 4 Services Deployed and Running</div><div class="evolution-track"><div class="svc-chip accounts">🏦 accounts-service</div><div class="svc-chip payments">💳 payments-service</div><div class="svc-chip fraud">🔍 fraud-service</div><div class="svc-chip notifications">🔔 notification-service</div></div></div>
+        <table class="compare-table">
+          <tr><th>Metric</th><th>Result</th></tr>
+          <tr><td>Total pipeline runs</td><td class="winner">Build #3 SUCCESS (Build #1 expired at approval gate, #2 was retry)</td></tr>
+          <tr><td>Total tests across all services</td><td class="winner">19/19 passed (6+5+4+4)</td></tr>
+          <tr><td>Docker images pushed</td><td class="winner">8 tags (4 services x :3 and :latest)</td></tr>
+          <tr><td>FinOps saving identified</td><td class="winner">$45/month per node on EKS m5.xlarge</td></tr>
+          <tr><td>Pipeline runtime</td><td class="winner">1m 25s (Build #3 - cached layers)</td></tr>
+          <tr><td>Approval gate</td><td class="winner">Approved by Pavan Goli - all 10 days confirmed complete</td></tr>
+        </table>
       </div>
 
       <div id="d10-pipeline" style="display:none">
-        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>⚡</span>Complete Enterprise Pipeline Flow</div>
-        <div class="code-block"><div class="code-header"><span class="code-lang">day10-capstone-full-pipeline.yaml — what each stage does</span></div><div class="code-body"><pre>Stage 1: CI All Services (parallel)
-  Run tests for all 4 services simultaneously
-  pytest for accounts, payments, fraud, notification
-  All must pass before proceeding
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Capstone Pipeline Architecture</div>
+        <div class="flow-diagram">
+          <div class="flow-title">day10-capstone-bankops - storeType: REMOTE from GitHub</div>
+          <div class="flow-steps">
+            <div class="flow-step"><div>OPA Check</div><div class="flow-label">Day 6</div></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><div>CI x4</div><div class="flow-label">Days 1-4</div></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step"><div>FinOps</div><div class="flow-label">Day 9</div></div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step success"><div>Approve</div><div class="flow-label">Day 3</div></div>
+          </div>
+        </div>
+        <div class="code-block"><div class="code-header"><span class="code-lang">pipeline file location in GitHub</span></div><div class="code-body"><pre>Repository: harness-enterprise-training
+Branch: main
+Path: .harness/orgs/default/projects/bankplatform/pipelines/day10capstonebankops.yaml
 
-Stage 2: Deploy Dev (automatic)
-  Rolling deploy to dev namespace
-  Health check: curl /health → 200
-  Smoke test passes → proceed automatically
+Harness reads this file directly from GitHub on every run.
+Every pipeline change = a Git commit with full audit trail.
 
-Stage 3: SRE Approval for Staging
-  SRE reviews: what changed, test results, diff
-  24h timeout — if not approved, pipeline fails
-  Audit log: who approved, when, why
+All pipeline files:
+  day1accountsserviceci.yaml
+  day2accountscimigrated.yaml
+  day3paymentsjenkinsmigration.yaml
+  day4allservicesci.yaml        (includes OPA stage from Day 6)
+  day10capstonebankops.yaml     (this file)</pre></div></div>
 
-Stage 4: Canary Deploy Staging (25%→100%)
-  25% of staging traffic on new version
-  Monitor 30 seconds
-  Auto-rollback if health check fails
-  Promote to 100% if healthy
-
-Stage 5: Two-Person Production Approval
-  Approval 1: SRE team (cannot be same person as triggerer)
-  Approval 2: Platform team
-  OPA policy enforces both required
-  Neither can be the person who triggered the pipeline
-
-Stage 6: Blue-Green Production Deploy
-  Green deployed with zero traffic
-  Health verified on Green
-  Service selector switched: 2 second cutover
-  Blue kept alive 30 minutes for instant rollback
-  Post-deploy monitoring: 60 second verification window
-
-Notifications:
-  Slack: every stage result
-  PagerDuty: if production deployment fails
-  Audit trail: complete record for compliance</pre></div></div>
-      </div>
-
-      <div id="d10-steps" style="display:none">
-        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>🛠️</span>Day 10 Practice — Run the Full Capstone Pipeline</div>
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">What Each Stage Does and Why</div>
         <div class="steps">
-          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Verify all previous days are working</div><div class="step-d">kubectl get pods -n accounts payments fraud notifications<br>All services should show Running<br>kubectl get pods -n harness-delegate-ng (delegate running)<br>All 4 tests passing: pytest app/tests/ -v in each service</div></div></div>
-          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Create the capstone pipeline in Harness</div><div class="step-d">Pipelines → + New → Name: day10-capstone-full-pipeline<br>Use YAML tab, paste from .harness/pipelines/day10-capstone-full-pipeline.yaml<br>Save as Remote in GitHub</div></div></div>
-          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Run the pipeline</div><div class="step-d">Click Run<br>Watch Stage 1: all 4 services test in parallel<br>Watch Stage 2: rolling deploy to dev namespace<br>Wait for approval notification (you approve it yourself)</div></div></div>
-          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Approve staging deployment</div><div class="step-d">Harness shows approval gate with pipeline history<br>Click Approve and add comment: "all tests green, approving staging"<br>Watch canary deploy: 25% then 100%</div></div></div>
-          <div class="step"><div class="step-n">5</div><div class="step-content"><div class="step-t">Complete two-person production approval</div><div class="step-d">Production gate requires 2 approvals<br>Approve as SRE (first approval)<br>Approve again as Platform team (second approval)<br>In real enterprise: these would be different people</div></div></div>
-          <div class="step"><div class="step-n">6</div><div class="step-content"><div class="step-t">Verify blue-green production deploy</div><div class="step-d">kubectl get pods -n accounts<br>Should see both blue and green pods running briefly<br>Then green becomes stable, blue removed after 30s (in our fast demo)<br>curl the health endpoint to confirm new version serving</div></div></div>
-          <div class="step"><div class="step-n">7</div><div class="step-content"><div class="step-t">Test automatic rollback</div><div class="step-d">Edit accounts-service main.py: add return {"error": "broken"} to /health<br>Commit and push, run pipeline<br>Health check will fail after deploy<br>Watch Harness automatically rollback to previous version</div></div></div>
-          <div class="step"><div class="step-n">8</div><div class="step-content"><div class="step-t">Check Audit Trail</div><div class="step-d">Project Settings → Audit Trail<br>See complete record: who triggered, who approved, what deployed, when<br>This is what compliance teams check during audits</div></div></div>
+          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Governance OPA Check (Day 6)</div><div class="step-d">Evaluates deployment policies before any code runs. Environment check, approval count, self-approval prevention. In prod this would call a real OPA server and fail the pipeline if policies violated. Here it demonstrates the pattern.</div></div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">CI for all 4 services in parallel (Days 1-4)</div><div class="step-d">Each service: clone code, pip install, pytest, BuildAndPushDockerRegistry. All 4 run in separate Kubernetes pods in harness-builds namespace. Images tagged with pipeline sequence ID for traceability.</div></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">FinOps Cost Report (Day 9)</div><div class="step-d">Generates cost analysis from real kubectl top data. Shows 1300m requested vs 36m actual. Calculates $45/month right-sizing saving. In enterprise this would connect to AWS Cost Explorer API and generate a full cost breakdown.</div></div></div>
+          <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">SRE Approval Gate (Day 3)</div><div class="step-d">SRE reviews all stage results before approval. In production: SRE verifies OPA passed, all tests green, no new CVEs, cost impact reviewed, then approves. Gate sends notification to approver group.</div></div></div>
         </div>
-        <div class="code-block" style="margin-top:1rem"><div class="code-header"><span class="code-lang">day 10 verification commands</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># Verify all services running
-kubectl get pods -n accounts
-kubectl get pods -n payments
-kubectl get pods -n fraud
-kubectl get pods -n notifications
-
-# Test all health endpoints
-kubectl port-forward svc/accounts-service 8000:80 -n accounts &
-kubectl port-forward svc/payments-service 8001:80 -n payments &
-kubectl port-forward svc/fraud-service 8002:80 -n fraud &
-kubectl port-forward svc/notification-service 8003:80 -n notifications &
-
-curl http://localhost:8000/health
-curl http://localhost:8001/health
-curl http://localhost:8002/health
-curl http://localhost:8003/health
-
-# Test fraud detection
-curl -X POST http://localhost:8002/fraud/check   -H "Content-Type: application/json"   -d "{"account_id": "acc-1", "amount": 15000, "merchant": "Online Casino"}"
-# Expected: decision: BLOCK, risk_score: 0.9
-
-# Test full flow: create account -> make payment -> check fraud
-curl -X POST http://localhost:8000/accounts   -H "Content-Type: application/json"   -d "{"name": "Pavan Goli", "email": "pavan@bank.com", "initial_balance": 10000}"</pre></div></div>
-      </div>
-
-      <div id="d10-migration" style="display:none">
-        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>📋</span>90-Day Jenkins to Harness Migration Plan</div>
-        <div style="display:flex;flex-direction:column;gap:1rem">
-          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;border-left:3px solid var(--green)">
-            <div style="font-size:13px;font-weight:600;margin-bottom:.5rem;color:var(--green)">Phase 1: Foundation (Days 1-30)</div>
-            <div style="font-size:12px;color:var(--muted);line-height:1.7">Install Delegates in non-prod. Migrate 1 non-critical service as POC. Run Jenkins + Harness in parallel. Train all teams (3 days platform, 1 day SRE, 0.5 day dev leads). Get stakeholder sign-off with ROI numbers.</div>
-          </div>
-          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;border-left:3px solid var(--blue)">
-            <div style="font-size:13px;font-weight:600;margin-bottom:.5rem;color:var(--blue)">Phase 2: Migration (Days 31-60)</div>
-            <div style="font-size:12px;color:var(--muted);line-height:1.7">New services go Harness-only from day 1. Migrate existing services lowest-risk first (notification, fraud, accounts, then payments last). Keep Jenkins for 2 weeks per service as fallback. Never leave teams without rollback option.</div>
-          </div>
-          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1.2rem;border-left:3px solid var(--purple)">
-            <div style="font-size:13px;font-weight:600;margin-bottom:.5rem;color:var(--purple)">Phase 3: Completion (Days 61-90)</div>
-            <div style="font-size:12px;color:var(--muted);line-height:1.7">Migrate payments-service with 4-week parallel running and validated rollback. Decommission Jenkins. Enable OPA governance on all pipelines. Enable CCM cost tracking. Full audit trail operational. Cost saving: $1,800/month vs Jenkins infrastructure.</div>
-          </div>
-        </div>
-        <div class="code-block" style="margin-top:1rem"><div class="code-header"><span class="code-lang">cost comparison: jenkins vs harness</span></div><div class="code-body"><pre>Current Jenkins cost:
-  2x Jenkins master servers:     $400/month
-  4x Jenkins agent servers:      $800/month
-  Jenkins admin time (0.5 FTE):  $3,000/month
-  Plugin maintenance (8h/month): $400/month
-  Total:                         $4,600/month
-
-Harness cost:
-  Harness SaaS (50 services):   $2,000/month
-  Delegate infrastructure:       $200/month
-  Admin time (0.1 FTE):         $600/month
-  Total:                         $2,800/month
-
-Net saving: $1,800/month = $21,600/year
-Plus: faster deployments, fewer incidents, better compliance
-ROI: Positive in month 3</pre></div></div>
       </div>
 
       <div id="d10-portfolio" style="display:none">
-        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)"><span>💼</span>What This Portfolio Proves</div>
-        <div class="code-block"><div class="code-header"><span class="code-lang">combined portfolio after both repos</span></div><div class="code-body"><pre>cloud-iac-learning (10 days):
-  Infrastructure: Terraform, Bicep, AWS, Azure, Kubernetes
-  Security: IAM, RBAC, Checkov, Secrets Manager
-  Monitoring: CloudWatch, Azure Monitor, K8sGPT AIOps
-  CI/CD: GitHub Actions, OIDC, drift detection
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Complete Portfolio - What You Built in 10 Days</div>
+        <table class="compare-table">
+          <tr><th>Component</th><th>What Was Built</th><th>Day</th></tr>
+          <tr><td>Harness Delegate</td><td>helm-delegate on dd-stg, namespace harness-delegate-ng, Connected</td><td>1</td></tr>
+          <tr><td>Connectors</td><td>bankopsgithub, ddstgk8s, dockerhub, dockerhubpush, harnessSecretManager</td><td>1</td></tr>
+          <tr><td>Microservices</td><td>accounts, payments, fraud, notification - FastAPI, 19 tests total</td><td>1-4</td></tr>
+          <tr><td>Docker Images</td><td>vguardai/accounts-service, payments-service, fraud-service, notification-service</td><td>2</td></tr>
+          <tr><td>Pipelines (Remote)</td><td>5 pipelines stored in GitHub .harness/ folder</td><td>1-4, 10</td></tr>
+          <tr><td>Approval Gates</td><td>HarnessApproval steps in payments and capstone pipelines</td><td>3</td></tr>
+          <tr><td>Canary Deployment</td><td>payments-service v1 to v2 via canary, verified, promoted</td><td>5</td></tr>
+          <tr><td>Blue-Green Deployment</td><td>accounts-service blue to green, 2-second cutover, rollback proved</td><td>5</td></tr>
+          <tr><td>OPA Governance</td><td>Policy evaluation step in pipeline, dev/prod rules</td><td>6</td></tr>
+          <tr><td>RBAC</td><td>sre-team user group, Pipeline Executor role, Audit Trail</td><td>6</td></tr>
+          <tr><td>Flux CD GitOps</td><td>Watching k8s/accounts-service/, drift detection in 60s, pruning</td><td>7</td></tr>
+          <tr><td>K8sGPT + Ollama</td><td>v0.3.45 + llama3.2:1b, diagnosed ImagePullBackOff and no-endpoint issues</td><td>8</td></tr>
+          <tr><td>Metrics Server</td><td>kubectl top working, real CPU/memory data for all services</td><td>9</td></tr>
+          <tr><td>FinOps Analysis</td><td>1300m requested vs 36m actual, $45/month saving calculated</td><td>9</td></tr>
+          <tr><td>Cost Labels</td><td>cost-center, team, environment labels on all pods</td><td>9</td></tr>
+          <tr><td>Capstone Pipeline</td><td>7 stages, Build #3 SUCCESS, all 19 tests, SRE approved</td><td>10</td></tr>
+        </table>
 
-harness-enterprise-training (10 days):
-  Enterprise CD: Harness pipelines, Delegates, Connectors
-  Migration: Jenkins → Harness with documented 90-day plan
-  Deployment strategies: Canary, Blue-Green, Rolling, Feature Flags
-  Governance: OPA policies, four-eyes, deployment freeze
-  GitOps: Harness GitOps, comparison with Argo CD
-  AIOps: Harness AIDA + K8sGPT + Ollama (hands-on)
-  FinOps: Cost per service, anomaly detection
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Public Portfolio Links</div>
+        <div style="display:flex;flex-direction:column;gap:.8rem">
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1rem 1.2rem">
+            <div style="font-size:13px;font-weight:600;margin-bottom:.3rem">Harness Enterprise Training (this site)</div>
+            <div style="font-family:var(--mono);font-size:12px;color:var(--muted)">
+              Site: https://pavantechy09-hub.github.io/harness-enterprise-training<br>
+              Repo: https://github.com/pavantechy09-hub/harness-enterprise-training<br>
+              Content: 10 days of hands-on enterprise CI/CD, all pipelines, K8s manifests, FinOps analysis
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1rem 1.2rem">
+            <div style="font-size:13px;font-weight:600;margin-bottom:.3rem">Cloud IAC Learning</div>
+            <div style="font-family:var(--mono);font-size:12px;color:var(--muted)">
+              Site: https://pavantechy09-hub.github.io/cloud-iac-learning<br>
+              Repo: https://github.com/pavantechy09-hub/cloud-iac-learning<br>
+              Content: AWS + Azure infrastructure with Terraform, complete cloud foundations
+            </div>
+          </div>
+        </div>
+      </div>
 
-Job roles this covers:
-  DevOps Engineer          ← both repos
-  Platform Engineer        ← both repos
-  SRE                      ← monitoring + SLOs + error budgets
-  Release Engineer         ← Harness + deployment strategies
-  FinOps Engineer          ← CCM + cost optimization
-
-Interview answer:
-  "I built a complete AWS + Azure banking platform using
-   Terraform and Bicep, then deployed it using Harness
-   enterprise CD with canary and blue-green strategies.
-   I implemented OPA governance policies, GitOps with
-   automatic drift detection, and AIOps using both
-   Harness AIDA and K8sGPT with local Ollama. I also
-   wrote a 90-day Jenkins migration plan with ROI
-   justification. All code is public on GitHub."</pre></div></div>
+      <div id="d10-issues" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Issues Hit in Day 10</div>
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--yellow-dim);border-bottom:1px solid #3A2A00;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--yellow)">Issue 1: Build #1 EXPIRED at approval gate after 1 hour</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">What happened:</strong> Build #1 ran all 6 CI stages successfully but sat at the SRE Approval Gate for 1 hour with no approval. Harness expired the build.<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> Left the computer while the pipeline was running. Approval gate requires human action within timeout period.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Re-ran pipeline as Build #2. Stayed at computer. Approved immediately when gate appeared. Build #2 also succeeded.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> Always stay near computer when running pipelines with approval gates. In enterprise you would set up email or Slack notifications so approvers are alerted. The timeout can be adjusted in the HarnessApproval step spec.
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--yellow-dim);border-bottom:1px solid #3A2A00;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--yellow)">Issue 2: Capstone pipeline creation - "Pipeline without stages cannot be saved"</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">What happened:</strong> Tried to create pipeline via Harness UI wizard with Remote storage. Got "Invalid request: Pipeline without stages cannot be saved".<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> Harness UI tries to validate pipeline before pushing to GitHub. The Remote creation wizard requires a pre-existing file at the specified path.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Cancel the wizard. Click YAML tab. Paste full pipeline YAML directly. Save with "Commit to existing branch: main". Harness then pushes the YAML to GitHub.<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> For Remote pipelines always use the YAML editor tab, not the visual stage builder. Paste complete valid YAML and save. The visual builder works better for Inline pipelines.
+            </div>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;overflow:hidden">
+            <div style="background:var(--yellow-dim);border-bottom:1px solid #3A2A00;padding:.8rem 1.2rem"><span style="font-size:13px;font-weight:600;color:var(--yellow)">Issue 3: Harness pipeline file location confusion</span></div>
+            <div style="padding:1.2rem;font-size:12px;color:var(--muted);line-height:1.7">
+              <strong style="color:var(--white)">What happened:</strong> Created pipeline YAML at .harness/pipelines/ but Harness was reading from .harness/orgs/default/projects/bankplatform/pipelines/. Pipeline changes not reflected.<br><br>
+              <strong style="color:var(--white)">Root cause:</strong> Harness stores Remote pipeline files at a specific path that includes org and project identifiers. Not the simple .harness/pipelines/ path.<br><br>
+              <strong style="color:var(--white)">Fix:</strong> Always push pipeline YAML to: .harness/orgs/default/projects/bankplatform/pipelines/[identifier].yaml<br><br>
+              <strong style="color:var(--green)">Lesson:</strong> Check the actual file path Harness uses by looking at what it creates in GitHub after saving a pipeline via the UI. The path includes org and project identifiers.
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="d10-qa" style="display:none">
         <div class="qa-list">
-          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>What are DORA metrics and how does Harness improve them?</span><span class="qa-arrow">▼</span></div><div class="qa-answer">DORA metrics are four industry-standard measures of DevOps performance. Deployment Frequency measures how often you deploy to production — Harness automation enables multiple deploys per day vs manual weekly releases. Lead Time for Changes measures time from commit to production — removing manual gates and automating health checks cuts this from days to hours. MTTR measures recovery time from incidents — automatic rollback on health check failure reduces this from 45 minutes to under 5 minutes. Change Failure Rate measures percentage of deployments causing incidents — canary deployments catch issues before full rollout, reducing this from 15% to under 5%. Measuring these before and after migration provides concrete ROI evidence for leadership approval.</div></div>
-          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">❓</span>Walk me through a complete deployment from code push to production in your setup.</span><span class="qa-arrow">▼</span></div><div class="qa-answer">Developer pushes to feature branch. GitHub webhook fires to Harness. CI pipeline runs: tests pass for all 4 services in parallel, Docker image built and pushed. PR is opened, Harness posts CI status to GitHub. Code owner reviews per CODEOWNERS file and approves. PR merges to main. CD pipeline triggers: rolling deploy to dev, health checks pass, smoke tests pass. SRE receives Slack notification to approve staging. SRE reviews diff, test results, cost impact and approves in Harness UI. Canary deploy to staging at 25%, health monitored for 30 seconds, promoted to 100%. Two-person approval required for production — SRE and Platform team both approve via OPA-enforced separate gates. Blue-green deploy to production: Green deployed with zero traffic, smoke tested, service selector switched in 2 seconds, Blue kept alive 30 minutes. Slack notification confirms deployment. Complete audit trail logged for compliance. Total time from merge to production: under 30 minutes with zero manual intervention except approvals.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">&#10067;</span>Walk me through your complete CI/CD pipeline for a banking microservice</span><span class="qa-arrow">&#9660;</span></div><div class="qa-answer">Our capstone pipeline for BankOps has 7 stages. Stage 1 is OPA governance: evaluate deployment policies before any code runs, checking environment, approval count, and self-approval prevention. Stages 2 through 5 are parallel CI for each microservice: clone code, install dependencies, run pytest, build Docker image, and push to Docker Hub tagged with the pipeline sequence ID. Stage 6 is the FinOps cost report: analyze actual CPU and memory usage versus requested, and identify right-sizing opportunities. Stage 7 is the SRE approval gate: human review of all results before confirming deployment is ready. The entire pipeline is stored as YAML in GitHub so every change is a Git commit with an audit trail. The delegate running on our Kubernetes cluster executes all the CI stages in the harness-builds namespace.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">&#10067;</span>What is the difference between Inline and Remote pipeline storage in Harness?</span><span class="qa-arrow">&#9660;</span></div><div class="qa-answer">Inline storage keeps the pipeline YAML inside Harness. Remote storage keeps it in a GitHub repository. We used Inline for Days 1-3 and switched to Remote from Day 4 onwards. Remote is better for enterprise use because every pipeline change is a Git commit with author, timestamp, and message. You can require PR reviews before pipeline changes take effect. If Harness is unavailable you still have your pipeline definitions. Disaster recovery is simpler because pipelines can be restored from Git. The tradeoff is that Remote requires a GitHub connector with API access enabled and the file must exist at the correct path in the repository before the pipeline can run.</div></div>
+          <div class="qa-item" onclick="toggleQA(this)"><div class="qa-question"><span><span class="q-icon">&#10067;</span>How do you handle approvals in your pipeline and why are they important?</span><span class="qa-arrow">&#9660;</span></div><div class="qa-answer">We use the HarnessApproval step type in a dedicated Approval stage. The step sends a notification to a user group, shows the approval message with context about what was built and tested, and waits for a minimum number of approvers. We configured it with minimumCount: 1 and disallowPipelineExecutor: false for our practice environment. In production you would set disallowPipelineExecutor: true to prevent self-approval, minimumCount: 2 for four-eyes principle, and add specific user groups for the SRE team. The approval gate is important because it creates a human checkpoint between automated testing and production deployment. It ensures someone has reviewed the test results, cost impact, and any security scan findings before the change reaches customers. Every approval is logged in the Harness audit trail with the approver name and timestamp.</div></div>
         </div>
       </div>
     </div>
 
-    <!-- INTERVIEW Q&A -->
     <div class="page" id="page-interview">
       <div class="section"><div class="section-title"><span class="icon">❓</span>Complete Interview Q&A — All 10 Days</div>
         <div class="qa-list">
