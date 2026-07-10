@@ -2073,6 +2073,7 @@ spec:
         <div class="tab" onclick="switchTab(this,'d6-policies')">📋 Policy Examples</div>
         <div class="tab" onclick="switchTab(this,'d6-rbac')">👥 RBAC + Users</div>
         <div class="tab" onclick="switchTab(this,'d6-setup')">🛠️ Setup Steps</div>
+        <div class="tab" onclick="switchTab(this,'d6-apikeys')">API Keys</div>
         <div class="tab" onclick="switchTab(this,'d6-qa')">❓ Interview Q&A</div>
       </div>
 
@@ -2183,6 +2184,56 @@ User Groups (create in Harness):
           <div class="step"><div class="step-n">4</div><div class="step-content"><div class="step-t">Test policy enforcement</div><div class="step-d">Run a pipeline that deploys to prod environment<br>OPA should evaluate and show policy results<br>Try running without 2 approvals — should be blocked<br>Check: Project Settings → Audit Trail for policy decisions</div></div></div>
         </div>
       </div>
+
+      <div id="d6-apikeys" style="display:none">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">API Keys - PAT vs Service Account Token</div>
+
+        <table class="compare-table">
+          <tr><th>Aspect</th><th>PAT (Personal Access Token)</th><th>Service Account Token</th></tr>
+          <tr><td>Tied to</td><td class="loser">Human user account</td><td class="winner">Non-human service account</td></tr>
+          <tr><td>Permissions</td><td class="loser">Inherits ALL user permissions</td><td class="winner">Only what is explicitly assigned</td></tr>
+          <tr><td>Use in pipelines</td><td class="loser">Never - security risk</td><td class="winner">Always use this for automation</td></tr>
+          <tr><td>If leaked</td><td class="loser">Attacker gets full user access</td><td class="winner">Limited blast radius</td></tr>
+          <tr><td>Expiry best practice</td><td>30 days maximum</td><td class="winner">90 days, rotated regularly</td></tr>
+          <tr><td>Best for</td><td>Developer local CLI testing</td><td class="winner">CI/CD, GitHub Actions, Terraform</td></tr>
+        </table>
+
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Creating a PAT</div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Open My Profile</div><div class="step-d">Click your initials (PG) top right corner in Harness UI → My Profile</div></div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Create API Key</div><div class="step-d">API Keys section → + New API Key → Name: pavan-local-dev → Save</div></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Generate Token</div><div class="step-d">Under the API key → + New Token → Name: dev-token → Expiry: 30 days → Generate → Copy immediately (shown only once)</div></div></div>
+        </div>
+
+        <div style="font-size:15px;font-weight:600;margin:1.5rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Creating a Service Account Token</div>
+        <div class="steps">
+          <div class="step"><div class="step-n">1</div><div class="step-content"><div class="step-t">Create Service Account</div><div class="step-d">Project Settings → Access Control → Service Accounts → + New Service Account<br>Name: pipeline-automation-sa, Email: automation@bankops.internal</div></div></div>
+          <div class="step"><div class="step-n">2</div><div class="step-content"><div class="step-t">Assign Role</div><div class="step-d">Click the service account → Role Bindings → + Role Binding<br>Role: Pipeline Executor, Resource Group: All Resources Including Child Scopes</div></div></div>
+          <div class="step"><div class="step-n">3</div><div class="step-content"><div class="step-t">Generate Token</div><div class="step-d">Under the service account → Tokens → + New Token → Name: ci-token → Expiry: 90 days → Generate → Store in Harness Secrets Manager immediately</div></div></div>
+        </div>
+
+        <div class="code-block"><div class="code-header"><span class="code-lang">using tokens in practice</span><button class="code-copy" onclick="copyCode(this)">copy</button></div><div class="code-body"><pre># PAT - developer local testing only
+curl -H "x-api-key: pat.WiFTuqq1S66Gdw6nwnGUJg.xxxxx"   "https://app.harness.io/gateway/ng/api/pipelines?accountIdentifier=WiFTuqq1S66Gdw6nwnGUJg"
+
+# Service Account Token - use in GitHub Actions
+- name: Trigger Harness Pipeline
+  run: |
+    curl -X POST       -H "x-api-key: ${{ secrets.HARNESS_SA_TOKEN }}"       -H "Content-Type: application/json"       "https://app.harness.io/gateway/ng/api/pipeline/execute/..."
+
+# Enterprise rule:
+# NEVER put PAT in GitHub secrets or pipeline YAML
+# ALWAYS use Service Account Token for any automation
+# ALWAYS store tokens in secrets manager not in code
+# ALWAYS set expiry dates on all tokens</pre></div></div>
+
+        <div style="background:var(--red-dim);border:1px solid var(--red);border-radius:8px;padding:1rem 1.2rem;margin-top:1rem">
+          <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:.3rem">Security Rule - Enterprise Standard</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">
+            PAT in a pipeline = immediate security incident in enterprise. A PAT has every permission the user has including creating new admin users, deleting projects, and reading all secrets. A Service Account Token is scoped to exactly what the automation needs. If the SA token is leaked the blast radius is limited to Pipeline Executor permissions only. Always follow principle of least privilege.
+          </div>
+        </div>
+      </div>
+
 
       <div id="d6-qa" style="display:none">
         <div class="qa-list">
